@@ -20,6 +20,11 @@ public static class S0SceneBuilder
     [MenuItem("WWG/Build S0 Scene")]
     public static void Build()
     {
+        if (System.IO.File.Exists("Assets/Scenes/S0.unity"))
+        {
+            Debug.LogWarning("[WWG] S0 已存在。此脚手架不覆盖人工维护的地点场景。");
+            return;
+        }
         string[] art = { "Exterior", "Corridor", "ClubRoom", "ClubRoomNight", "Bridge", "FallenBox", "YuanQi", "TangChe", "XuYuan" };
         foreach (string name in art)
         {
@@ -39,6 +44,7 @@ public static class S0SceneBuilder
         camera.transform.position = new Vector3(0, 0, -10);
         camera.GetComponent<Camera>().orthographic = true;
         camera.GetComponent<Camera>().backgroundColor = Color.black;
+        new GameObject("Global Light", typeof(Light)).GetComponent<Light>().type = LightType.Directional;
 
         GameObject eventSystem = new GameObject("EventSystem", typeof(EventSystem), typeof(InputSystemUIInputModule));
         eventSystem.GetComponent<InputSystemUIInputModule>().AssignDefaultActions();

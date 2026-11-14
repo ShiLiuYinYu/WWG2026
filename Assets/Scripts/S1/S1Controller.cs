@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
+using WWG;
 
 public sealed class S1Controller : MonoBehaviour
 {
@@ -93,6 +95,11 @@ public sealed class S1Controller : MonoBehaviour
     private float dangerSeconds;
     private float zeroSanSeconds;
     private int hintStage;
+    private static Checkpoint pendingTravel;
+    private static string pendingArrival;
+
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+    private static void ResetTravel() { pendingTravel = null; pendingArrival = null; }
 
     private bool ModalOpen => dialoguePanel.activeSelf || infoPanel.activeSelf || inventoryPanel.activeSelf ||
                               photoPanel.activeSelf || memoPanel.activeSelf || completionPanel.activeSelf;
@@ -112,16 +119,33 @@ public sealed class S1Controller : MonoBehaviour
         memoPanel.SetActive(false);
         completionPanel.SetActive(false);
 
+        Checkpoint travel = pendingTravel;
+        string arrival = pendingArrival;
+        pendingTravel = null;
+        pendingArrival = null;
         bool fresh = PlayerPrefs.GetInt("WWG_S1_EnterFresh", 0) == 1;
         PlayerPrefs.DeleteKey("WWG_S1_EnterFresh");
-        if (!fresh && PlayerPrefs.HasKey(SaveKey)) Restore();
+        if (travel != null)
+        {
+            Apply(travel);
+            UpdateView();
+            if (!string.IsNullOrEmpty(arrival))
+                Say(new[] { new Line("我", arrival) }, screen == 2 && phase == 4 ? ShowBridgeCompletion : null);
+        }
+        else if (!fresh && PlayerPrefs.HasKey(SaveKey))
+        {
+            Restore();
+            if (screen != GameFlow.S1LocationIndex(SceneManager.GetActiveScene().name)) SwitchScreen(screen);
+        }
         else
         {
+            screen = Mathf.Max(0, GameFlow.S1LocationIndex(SceneManager.GetActiveScene().name));
             UpdateView();
-            Say(new[] {
-                new Line("唐澈", "吓我一跳……储物柜顶上那盒子怎么自己震下来了？"),
-                new Line("袁祁", "正好在你脚边，帮忙捡一下，看看有没有摔坏社团的东西。")
-            });
+            if (screen == 0)
+                Say(new[] {
+                    new Line("唐澈", "吓我一跳……储物柜顶上那盒子怎么自己震下来了？"),
+                    new Line("袁祁", "正好在你脚边，帮忙捡一下，看看有没有摔坏社团的东西。")
+                });
         }
     }
 
@@ -163,9 +187,9 @@ public sealed class S1Controller : MonoBehaviour
                 {
                     health = 3;
                     san = 60;
-                    screen = 0;
                     Save();
-                    Say(new[] { new Line("我", "眼前一黑。再睁眼时，我已经回到亮着灯的活动室。照片和工牌还在。") });
+                    SwitchScreen(0, "眼前一黑。再睁眼时，我已经回到亮着灯的活动室。照片和工牌还在。");
+                    return;
                 }
                 UpdateView();
             }
@@ -233,13 +257,12 @@ public sealed class S1Controller : MonoBehaviour
                         new Line("袁祁", "走廊灯全灭了。手机保持通话，觉得不舒服就回来歇会儿。"),
                         new Line("许圆", "四楼入口有应急灯开关，看不清就先打开。"),
                         new Line("唐澈", "找到东西拍个照就回来。")
-                    }, () => { screen = 1; dangerSeconds = 0; Save(); UpdateView(); });
+                    }, () => { dangerSeconds = 0; SwitchScreen(1); });
                 }
                 break;
             case "toRoom":
-                screen = 0;
                 dangerSeconds = 0;
-                UpdateView();
+                SwitchScreen(0);
                 break;
             case "rest":
                 if (screen != 0 || phase < 3) return;
@@ -252,15 +275,11 @@ public sealed class S1Controller : MonoBehaviour
             case "toBridge":
                 if (screen != 1) return;
                 phase = 4;
-                screen = 2;
                 Save();
-                UpdateView();
-                Say(new[] { new Line("我", "单数栋 4F 连廊入口。玻璃外的天井黑着，应急照明开关亮着红点。") },
-                    () => { completionText.text = "S1 完成 · 00:10\n\n下一阶段：4F 连廊双栋调查"; completionPanel.SetActive(true); UpdateInteractionVisibility(); });
+                SwitchScreen(2, "单数栋 4F 连廊入口。玻璃外的天井黑着，应急照明开关亮着红点。");
                 break;
             case "bridgeBack":
-                screen = 1;
-                UpdateView();
+                SwitchScreen(1);
                 break;
         }
     }
@@ -291,16 +310,15 @@ public sealed class S1Controller : MonoBehaviour
 
     private void UpdateView()
     {
-        room.SetActive(screen == 0);
-        corridor.SetActive(screen == 1);
-        bridge.SetActive(screen == 2);
-        box.SetActive(screen == 0 && phase == 0);
-        boxHotspot.SetActive(screen == 0 && phase == 0);
-        badgeHotspot.SetActive(screen == 0 && phase == 2 && !hasBadge);
-        curtainOverlay.SetActive(curtainClosed);
-        lampGlow.SetActive(true);
-        lampGlow.GetComponent<Image>().color = lampOn ? Color.white : new Color(0.40f, 0.43f, 0.50f, 0.95f);
-        chairRect.anchoredPosition = (chairPlaced ? chairTape : chairCabinet).anchoredPosition;
+        if (room != null) room.SetActive(screen == 0);
+        if (corridor != null) corridor.SetActive(screen == 1);
+        if (bridge != null) bridge.SetActive(screen == 2);
+        if (box != null) box.SetActive(screen == 0 && phase == 0);
+        if (boxHotspot != null) boxHotspot.SetActive(screen == 0 && phase == 0);
+        if (badgeHotspot != null) badgeHotspot.SetActive(screen == 0 && phase == 2 && !hasBadge);
+        if (curtainOverlay != null) curtainOverlay.SetActive(curtainClosed);
+        if (lampGlow != null) lampGlow.GetComponent<Image>().color = lampOn ? Color.white : new Color(0.40f, 0.43f, 0.50f, 0.95f);
+        if (chairRect != null) chairRect.anchoredPosition = (chairPlaced ? chairTape : chairCabinet).anchoredPosition;
         timeText.text = phase >= 4 ? "周六 00:10" : phase >= 2 ? "周六 00:00" : "周五 23:30";
         objectiveText.text = phase == 0 ? "捡起掉落的旧照片" : phase == 1 ? "对照旧照片还原活动室" :
             phase == 2 ? "查看第五把椅子的坐垫" : phase == 3 ? "前往 4F 玻璃连廊" : "抵达 4F 连廊入口";
@@ -329,18 +347,57 @@ public sealed class S1Controller : MonoBehaviour
     private void UpdateInteractionVisibility()
     {
         bool visible = !ModalOpen;
-        roomHotspots.SetActive(visible && screen == 0);
-        corridorHotspots.SetActive(visible && screen == 1);
-        bridgeHotspots.SetActive(visible && screen == 2);
+        if (roomHotspots != null) roomHotspots.SetActive(visible && screen == 0);
+        if (corridorHotspots != null) corridorHotspots.SetActive(visible && screen == 1);
+        if (bridgeHotspots != null) bridgeHotspots.SetActive(visible && screen == 2);
         if (!visible) SetHover("");
+    }
+
+    private void SwitchScreen(int index, string arrival = null)
+    {
+        int previous = screen;
+        screen = index;
+        Save();
+        string destination = GameFlow.S1Location(index);
+        if (SceneManager.GetActiveScene().name == destination)
+        {
+            UpdateView();
+            if (!string.IsNullOrEmpty(arrival)) Say(new[] { new Line("我", arrival) });
+            return;
+        }
+        pendingTravel = Capture();
+        pendingArrival = arrival;
+        if (!GameFlow.LoadLocation(destination))
+        {
+            screen = previous;
+            pendingTravel = null;
+            pendingArrival = null;
+            UpdateView();
+        }
+    }
+
+    private void ShowBridgeCompletion()
+    {
+        completionText.text = "S1 完成 · 00:10\n\n下一阶段：4F 连廊双栋调查";
+        completionPanel.SetActive(true);
+        UpdateInteractionVisibility();
+    }
+
+    private Checkpoint Capture() => new Checkpoint { phase = phase, screen = screen, san = san, health = health,
+        hasPhoto = hasPhoto, hasBadge = hasBadge, curtainClosed = curtainClosed, lampOn = lampOn,
+        chairPlaced = chairPlaced, shockApplied = shockApplied, glassRead = glassRead };
+
+    private void Apply(Checkpoint data)
+    {
+        phase = data.phase; screen = data.screen; san = data.san; health = data.health;
+        hasPhoto = data.hasPhoto; hasBadge = data.hasBadge; curtainClosed = data.curtainClosed;
+        lampOn = data.lampOn; chairPlaced = data.chairPlaced; shockApplied = data.shockApplied;
+        glassRead = data.glassRead;
     }
 
     private void Save()
     {
-        var data = new Checkpoint { phase = phase, screen = screen, san = san, health = health,
-            hasPhoto = hasPhoto, hasBadge = hasBadge, curtainClosed = curtainClosed, lampOn = lampOn,
-            chairPlaced = chairPlaced, shockApplied = shockApplied, glassRead = glassRead };
-        PlayerPrefs.SetString(SaveKey, JsonUtility.ToJson(data));
+        PlayerPrefs.SetString(SaveKey, JsonUtility.ToJson(Capture()));
         PlayerPrefs.Save();
     }
 
@@ -348,10 +405,7 @@ public sealed class S1Controller : MonoBehaviour
     {
         Checkpoint data = JsonUtility.FromJson<Checkpoint>(PlayerPrefs.GetString(SaveKey));
         if (data == null) { UpdateView(); return; }
-        phase = data.phase; screen = data.screen; san = data.san; health = data.health;
-        hasPhoto = data.hasPhoto; hasBadge = data.hasBadge; curtainClosed = data.curtainClosed;
-        lampOn = data.lampOn; chairPlaced = data.chairPlaced; shockApplied = data.shockApplied;
-        glassRead = data.glassRead;
+        Apply(data);
         UpdateView();
     }
 
@@ -361,7 +415,8 @@ public sealed class S1Controller : MonoBehaviour
         if (!PlayerPrefs.HasKey(SaveKey)) { ShowInfo("检查点", "目前还没有可读取的 S1 检查点。", null); return; }
         memoPanel.SetActive(false);
         Restore();
-        ShowInfo("检查点已读取", "照片、工牌、P1 进度和 SAN/生命已恢复。", null);
+        if (screen != GameFlow.S1LocationIndex(SceneManager.GetActiveScene().name)) SwitchScreen(screen, "检查点已读取。照片、工牌、P1 进度和 SAN/生命已恢复。");
+        else ShowInfo("检查点已读取", "照片、工牌、P1 进度和 SAN/生命已恢复。", null);
     }
 
     public void ToggleInventory()

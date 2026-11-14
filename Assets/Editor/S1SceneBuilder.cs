@@ -20,6 +20,11 @@ public static class S1SceneBuilder
     [MenuItem("WWG/Build S1 Scene")]
     public static void Build()
     {
+        if (System.IO.File.Exists("Assets/Scenes/S1.unity"))
+        {
+            Debug.LogWarning("[WWG] S1 已存在。此脚手架不覆盖人工维护的地点场景。");
+            return;
+        }
         ImportSprite("Assets/Resources/S1/ClubRoomNightClean.png");
         ImportSprite("Assets/Resources/S1/FifthChair.png");
         ImportSprite("Assets/Resources/S1/CorridorNight.png");

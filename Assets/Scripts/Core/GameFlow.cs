@@ -9,19 +9,39 @@ namespace WWG
     public static class GameFlow
     {
         /// <summary>新游戏第一个可玩场景。重构 S0 时改这里即可。</summary>
-        public static string FirstGameplayScene = "S0";
+        public const string TitleScene = "Title";
+        public const string FirstGameplayScene = "S0";
+        public const string S1Scene = "S1";
+
+        private static readonly string[] S0Locations = { "S0", "S0_Corridor", "S0_ClubRoom", "S0_Bridge" };
+        private static readonly string[] S1Locations = { "S1", "S1_Corridor", "S1_BridgeEntrance" };
+
+        public static string S0Location(int index) => S0Locations[index];
+        public static string S1Location(int index) => S1Locations[index];
+        public static int S0LocationIndex(string name) => System.Array.IndexOf(S0Locations, name);
+        public static int S1LocationIndex(string name) => System.Array.IndexOf(S1Locations, name);
 
         /// <summary>开始新游戏。返回 false 表示目标场景不在 Build Settings 里。</summary>
         public static bool StartNewGame()
         {
-            if (!SceneManager.GetSceneByName(FirstGameplayScene).IsValid()
-                && !ApplicationCanLoad(FirstGameplayScene))
+            if (!ApplicationCanLoad(FirstGameplayScene))
             {
                 UnityEngine.Debug.LogError($"[GameFlow] Build Settings 里没有场景：{FirstGameplayScene}");
                 return false;
             }
 
             SceneManager.LoadScene(FirstGameplayScene);
+            return true;
+        }
+
+        public static bool LoadLocation(string sceneName)
+        {
+            if (!ApplicationCanLoad(sceneName))
+            {
+                UnityEngine.Debug.LogError($"[GameFlow] Build Settings 里没有场景：{sceneName}");
+                return false;
+            }
+            SceneManager.LoadScene(sceneName);
             return true;
         }
 

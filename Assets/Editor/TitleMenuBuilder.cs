@@ -9,14 +9,12 @@ using UnityEngine.UI;
 /// <summary>
 /// 主页面按钮层：在 Title 场景的 Title Canvas 下生成四个菜单按钮
 /// （开始游戏 / 读取存档 / 设置 / 退出游戏），底图用 选项按钮.png。
-/// 幂等：重复执行会先清掉旧的 Buttons 容器。
+/// 已有 Buttons 时只修复接线，不覆盖手工排版。
 /// </summary>
-[InitializeOnLoad]
 public static class TitleMenuBuilder
 {
     private const string ScenePath = "Assets/Scenes/Title.unity";
     private const string ButtonSpritePath = "Assets/Resources/S0/选项按钮.png";
-    private const string AutoBuildKey = "WWG.TitleMenu.AutoBuilt";
 
     private static readonly string[] Labels = { "开始游戏", "读取存档", "设置", "退出游戏" };
 
@@ -24,17 +22,6 @@ public static class TitleMenuBuilder
     private const float BtnH = 118f;
     private const float BtnGap = 10f;
     private const float BtnTopY = -40f;
-
-    static TitleMenuBuilder()
-    {
-        if (SessionState.GetBool(AutoBuildKey, false)) return;
-        SessionState.SetBool(AutoBuildKey, true);
-        EditorApplication.delayCall += () =>
-        {
-            if (EditorApplication.isPlayingOrWillChangePlaymode) return;
-            Build();
-        };
-    }
 
     [MenuItem("WWG/Build Title Buttons")]
     public static void Build()
@@ -58,6 +45,12 @@ public static class TitleMenuBuilder
             return;
         }
 
+        if (canvas.transform.Find("Buttons") != null)
+        {
+            TitleMenuWiring.Wire();
+            return;
+        }
+
         ImportSprite(ButtonSpritePath, 1024);
         Sprite buttonSprite = AssetDatabase.LoadAssetAtPath<Sprite>(ButtonSpritePath);
         if (buttonSprite == null)
@@ -74,9 +67,6 @@ public static class TitleMenuBuilder
             titleRect.sizeDelta = new Vector2(660f, 430f);
             titleRect.anchoredPosition = new Vector2(630f, -200f);
         }
-
-        Transform old = canvas.transform.Find("Buttons");
-        if (old != null) UnityEngine.Object.DestroyImmediate(old.gameObject);
 
         GameObject holder = new GameObject("Buttons", typeof(RectTransform));
         holder.transform.SetParent(canvas.transform, false);
@@ -145,6 +135,7 @@ public static class TitleMenuBuilder
         }
 
         Debug.Log("[Menu] 主页面按钮已生成：4 个按钮 + 标题区调整");
+        TitleMenuWiring.Wire();
     }
 
     private static Font LoadCjkFont()

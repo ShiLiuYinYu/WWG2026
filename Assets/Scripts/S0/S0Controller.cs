@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using WWG;
 
 public sealed class S0Controller : MonoBehaviour
 {
@@ -62,6 +63,19 @@ public sealed class S0Controller : MonoBehaviour
     private bool infoOpen;
     private bool transitionBusy;
 
+    private sealed class TravelState
+    {
+        public int phase;
+        public int screen;
+        public bool boardRead, chairRead, signRead, timerRead, guideRead;
+        public string arrivalLine;
+    }
+
+    private static TravelState pendingTravel;
+
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+    private static void ResetTravel() { pendingTravel = null; }
+
     private const string DirectoryText =
         "实验楼导览｜单数栋 / 偶数栋\n\n" +
         "1F  电气与电子工程\n2F  机器人工程\n3F  计算机工程\n4F  外国语学院（跨栋连廊）\n5F  数智设计学院\n\n" +
@@ -76,32 +90,62 @@ public sealed class S0Controller : MonoBehaviour
         if (font != null)
             foreach (Text text in GetComponentsInChildren<Text>(true)) text.font = font;
 
-        phase = 0;
-        dayRoomSprite = roomBackdrop.sprite;
-        ShowScreen(0);
+        TravelState travel = pendingTravel;
+        pendingTravel = null;
+        phase = travel?.phase ?? 0;
+        screen = travel?.screen ?? Mathf.Max(0, GameFlow.S0LocationIndex(SceneManager.GetActiveScene().name));
+        if (travel != null)
+        {
+            boardRead = travel.boardRead; chairRead = travel.chairRead; signRead = travel.signRead;
+            timerRead = travel.timerRead; guideRead = travel.guideRead;
+        }
+        if (roomBackdrop != null) dayRoomSprite = roomBackdrop.sprite;
         dialoguePanel.SetActive(false);
         infoPanel.SetActive(false);
         memoPanel.SetActive(false);
         completionPanel.SetActive(false);
         nightTint.SetActive(false);
         fallenBox.SetActive(false);
-        UpdateHUD();
-        Say(new[] {
-            new Line("我", "现在周五下午三点四十。距离四十八小时极限开发开题，还有二十分钟。得赶快了。"),
-            new Line("我", "袁祁在群里发了三次定位，让我到了直接上单数栋五楼的活动室集合。")
-        });
+        ApplyScreen();
+        if (travel != null && screen == 2 && phase == 0)
+        {
+            phase = 1;
+            UpdateHUD();
+            PlayOpening();
+        }
+        else if (travel != null && !string.IsNullOrEmpty(travel.arrivalLine))
+            Say(new[] { new Line("我", travel.arrivalLine) });
+        else if (travel == null && screen == 0)
+            Say(new[] {
+                new Line("我", "现在周五下午三点四十。距离四十八小时极限开发开题，还有二十分钟。得赶快了。"),
+                new Line("我", "袁祁在群里发了三次定位，让我到了直接上单数栋五楼的活动室集合。")
+            });
     }
 
-    private void ShowScreen(int index)
+    private void ShowScreen(int index, string arrivalLine = null)
     {
+        string destination = GameFlow.S0Location(index);
+        if (SceneManager.GetActiveScene().name != destination)
+        {
+            pendingTravel = new TravelState { phase = phase, screen = index, boardRead = boardRead,
+                chairRead = chairRead, signRead = signRead, timerRead = timerRead,
+                guideRead = guideRead, arrivalLine = arrivalLine };
+            if (!GameFlow.LoadLocation(destination)) pendingTravel = null;
+            return;
+        }
         screen = index;
-        exterior.SetActive(index == 0);
-        corridor.SetActive(index == 1);
-        clubRoom.SetActive(index == 2);
-        bridge.SetActive(index == 3);
-        roomBackdrop.sprite = phase == 4 ? nightRoomSprite : dayRoomSprite;
-        nightTint.SetActive(phase == 4 && index == 2);
-        fallenBox.SetActive(phase == 4 && index == 2);
+        ApplyScreen();
+    }
+
+    private void ApplyScreen()
+    {
+        if (exterior != null) exterior.SetActive(screen == 0);
+        if (corridor != null) corridor.SetActive(screen == 1);
+        if (clubRoom != null) clubRoom.SetActive(screen == 2);
+        if (bridge != null) bridge.SetActive(screen == 3);
+        if (roomBackdrop != null) roomBackdrop.sprite = phase == 4 ? nightRoomSprite : dayRoomSprite;
+        nightTint.SetActive(phase == 4 && screen == 2);
+        fallenBox.SetActive(phase == 4 && screen == 2);
         SetHover("");
         UpdateHUD();
         UpdateInteractionVisibility();
@@ -135,11 +179,10 @@ public sealed class S0Controller : MonoBehaviour
                 break;
             case "enter":
                 if (!boardRead) Say(new[] { new Line("我", "先看看门口的楼层展板，确认单数栋五楼怎么走。") });
-                else { ShowScreen(1); Say(new[] { new Line("我", "单数栋五楼。活动室就在走廊这边。") }); }
+                else ShowScreen(1, "单数栋五楼。活动室就在走廊这边。");
                 break;
             case "toRoom":
                 ShowScreen(2);
-                if (phase == 0) { phase = 1; UpdateHUD(); PlayOpening(); }
                 break;
             case "toCorridor":
                 if (phase == 4) Say(new[] { new Line("我", "那张照片还在脚边。先看看掉出来的是什么。") });
@@ -147,7 +190,7 @@ public sealed class S0Controller : MonoBehaviour
                 break;
             case "toBridge":
                 if (phase < 2) Say(new[] { new Line("我", "先去活动室和大家集合，开题快开始了。") });
-                else { ShowScreen(3); Say(new[] { new Line("我", "单数栋四楼。连廊通往对面的偶数栋。") }); }
+                else ShowScreen(3, "单数栋四楼。连廊通往对面的偶数栋。");
                 break;
             case "bridgeBack": ShowScreen(1); break;
             case "chair":
@@ -194,7 +237,7 @@ public sealed class S0Controller : MonoBehaviour
                 {
                     PlayerPrefs.SetInt("WWG_S1_EnterFresh", 1);
                     PlayerPrefs.Save();
-                    SceneManager.LoadScene("S1");
+                    GameFlow.LoadLocation(GameFlow.S1Scene);
                 }
                 break;
         }
