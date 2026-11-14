@@ -1,6 +1,6 @@
 # AGENTS.md — WWG
 
-本项目是 Unity 6 的 2D URP 点击式微恐怖解谜游戏《熄灯之后：48H》。当前仍是项目骨架阶段：`Assets/Scenes/SampleScene.unity` 是唯一加入 Build Settings 的场景，尚未实现场景、UI、谜题和存档系统。不要把设计文档中的目标功能描述成已完成实现。
+本项目是 Unity 6 的 2D URP 点击式微恐怖解谜游戏《熄灯之后：48H》。当前已制作 S0 和 S1：`Assets/Scenes/S0.unity`、`Assets/Scenes/S1.unity` 依次加入 Build Settings，`SampleScene` 仍保留。S1 包含旧照片对位 P1、工牌、SAN 与阶段检查点；S2–S4、P2/P3、两次路线选择和完整 Demo 存档尚未实现。不要把设计文档中的目标功能描述成已完成实现。
 
 ## 项目依据
 

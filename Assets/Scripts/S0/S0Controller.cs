@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public sealed class S0Controller : MonoBehaviour
@@ -189,7 +190,12 @@ public sealed class S0Controller : MonoBehaviour
                 else BeginTransition();
                 break;
             case "photo":
-                if (phase == 4) ShowInfo("掉落的旧纸盒", "储物柜顶的纸盒落在第五把椅子旁。盒盖摔开，一张照片背面朝上滑了出来。\n\n【S0 完成 · 接续 S1：旧照片对位】", null);
+                if (phase == 4)
+                {
+                    PlayerPrefs.SetInt("WWG_S1_EnterFresh", 1);
+                    PlayerPrefs.Save();
+                    SceneManager.LoadScene("S1");
+                }
                 break;
         }
     }

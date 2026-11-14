@@ -5,7 +5,7 @@ description: 在 WWG 项目中创建或修改 Unity 2D 场景、点击热点、U
 
 # WWG 场景与 UI 工作流
 
-本项目还在骨架阶段，当前只有 `Assets/Scenes/SampleScene.unity`。先查看实际资产，再依 `Document/《熄灯之后：48H》前24H Demo剧本与关卡设计.md` 的对应章节制作。不要调用 WJ 项目的场景生成菜单或代码。
+当前已有 `Assets/Scenes/S0.unity`、`Assets/Scenes/S1.unity`，`SampleScene` 仍保留。先查看实际资产，再依 `Document/《熄灯之后：48H》前24H Demo剧本与关卡设计.md` 的对应章节制作。不要调用 WJ 项目的场景生成菜单或代码。
 
 ## 开始前
 
@@ -34,5 +34,5 @@ description: 在 WWG 项目中创建或修改 Unity 2D 场景、点击热点、U
 | Demo 剧本和关卡规格 | `Document/《熄灯之后：48H》前24H Demo剧本与关卡设计.md` |
 | 原始世界观 | `Document/《熄灯之后：48H》——午夜GameJam怪谈.md` |
 | 机制、系统、UI 草图 | `Document/Image/` |
-| 当前 Unity 场景 | `Assets/Scenes/SampleScene.unity` |
+| 当前 Unity 场景 | `Assets/Scenes/S0.unity`、`Assets/Scenes/S1.unity`；`SampleScene` 保留 |
 | 当前 Build Settings | `ProjectSettings/EditorBuildSettings.asset` |
