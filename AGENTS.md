@@ -15,6 +15,7 @@
 - 当前项目文件记录 Unity `6000.3.28f1`、URP `17.3.0`（2D）、Input System `1.20.1`、uGUI `2.0.0`。制作前以实际连接的 WWG 编辑器和 `ProjectSettings/ProjectVersion.txt`、`Packages/manifest.json` 为准。
 - 项目已安装 `com.coplaydev.unity-mcp`。使用 Unity MCP 时先确认连接的是 **WWG** 的编辑器实例；多项目同时打开时不要误操作 WJ。
 - 当前没有 `WjSceneBuilder`、`WJ/Setup` 菜单、`WJ.*` 命名空间或 WJ 的预制体。不要照搬 WJ 专属调用。
+- S0/S1 的七个地点场景已引用 `Assets/Prefabs/UI/GameplayOverlay.prefab`，包含暂停菜单、章节检查点存读档、物品栏和物品详情。S0 仅有手动白天调查检查点，S1 仍是阶段检查点；都不是完整 Demo 存档。调整共享 UI 时改预制体，显式安装命令为 `WWG/UI/Install Gameplay Overlay`。
 
 ## 制作约束
 

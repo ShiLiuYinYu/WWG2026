@@ -20,7 +20,9 @@ public sealed class S1Hotspot : MonoBehaviour, IPointerClickHandler, IPointerEnt
     public void OnPointerClick(PointerEventData eventData)
     {
         if (eventData.button == PointerEventData.InputButton.Left && !dropSucceeded)
-            controller.HandleHotspot(action);
+        {
+            if (!WWG.GameplayOverlay.TryUseSelected(action)) controller.HandleHotspot(action);
+        }
     }
 
     public void OnPointerDown(PointerEventData eventData) { dropSucceeded = false; }

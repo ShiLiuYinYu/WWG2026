@@ -103,6 +103,34 @@ public sealed class S1Controller : MonoBehaviour
 
     private bool ModalOpen => dialoguePanel.activeSelf || infoPanel.activeSelf || inventoryPanel.activeSelf ||
                               photoPanel.activeSelf || memoPanel.activeSelf || completionPanel.activeSelf;
+    public bool IsGameplayModalOpen => ModalOpen;
+    public bool HasPhoto => hasPhoto;
+    public bool HasBadge => hasBadge;
+    public int San => san;
+    public int Health => health;
+    public bool SaveManualCheckpoint()
+    {
+        Save();
+        return true;
+    }
+
+    public void UseInventoryItem(string item, string hotspot)
+    {
+        if (ModalOpen) return;
+        if (item == "photo" && hasPhoto)
+        {
+            if (screen == 0 && (hotspot == "curtain" || hotspot == "lamp" || hotspot == "chair"))
+            {
+                ShowPhoto();
+                return;
+            }
+            ShowInfo("去年的活动室照片", "这是社团留下的旧照片。照片记录的是活动室里窗帘、桌灯和第五把椅子的位置；可放大查看。", null);
+        }
+        else if (item == "badge" && hasBadge)
+        {
+            ShowInfo("林未的旧工牌", "背面写着：玻璃两边，各存一半。4F。\n\n这是调查线索，工牌会留在物品栏中。", null);
+        }
+    }
     private int Matches => (curtainClosed ? 1 : 0) + (lampOn ? 1 : 0) + (chairPlaced ? 1 : 0);
 
     private void Start()
@@ -398,6 +426,7 @@ public sealed class S1Controller : MonoBehaviour
     private void Save()
     {
         PlayerPrefs.SetString(SaveKey, JsonUtility.ToJson(Capture()));
+        PlayerPrefs.SetInt("WWG_LastCheckpointChapter", 1);
         PlayerPrefs.Save();
     }
 
@@ -417,6 +446,20 @@ public sealed class S1Controller : MonoBehaviour
         Restore();
         if (screen != GameFlow.S1LocationIndex(SceneManager.GetActiveScene().name)) SwitchScreen(screen, "检查点已读取。照片、工牌、P1 进度和 SAN/生命已恢复。");
         else ShowInfo("检查点已读取", "照片、工牌、P1 进度和 SAN/生命已恢复。", null);
+    }
+
+    public void LoadCheckpointFromPause()
+    {
+        dialoguePanel.SetActive(false);
+        infoPanel.SetActive(false);
+        inventoryPanel.SetActive(false);
+        photoPanel.SetActive(false);
+        memoPanel.SetActive(false);
+        completionPanel.SetActive(false);
+        lines.Clear();
+        afterDialogue = null;
+        afterInfo = null;
+        LoadCheckpoint();
     }
 
     public void ToggleInventory()
