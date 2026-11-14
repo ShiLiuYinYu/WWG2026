@@ -7,10 +7,11 @@
 - `Document/《熄灯之后：48H》——午夜GameJam怪谈.md`：原始故事设定。
 - `Document/《熄灯之后：48H》前24H Demo剧本与关卡设计.md`：当前前 24H Demo 的可制作方案、场景、谜题、分支与完成判定。制作相关功能前先读对应章节。
 - `Document/Image/`：现有机制、系统和 UI 草图。
+- `G:\学校文件\TEMP\实验楼取景\`：本项目实验楼的实地取景照片，共 20 张，包含正门、游戏开发活动室、楼内走廊、各层楼梯口与连廊。制作对应场景前查看照片，参考建筑形态、材质、空间透视和日间光照。该目录在项目仓库外，不要假定其他设备上也存在。照片中的连廊是开放式的；游戏所需的 4F 玻璃连廊及其他剧情布置以 Demo 文档为准，不直接照搬照片中的空间细节。
 
 ## 技术现状
 
-- Unity `6000.0.74f1`、URP `17.0.4`（2D）、Input System `1.19.0`、uGUI `2.0.0`。
+- 当前项目文件记录 Unity `6000.3.28f1`、URP `17.3.0`（2D）、Input System `1.20.1`、uGUI `2.0.0`。制作前以实际连接的 WWG 编辑器和 `ProjectSettings/ProjectVersion.txt`、`Packages/manifest.json` 为准。
 - 项目已安装 `com.coplaydev.unity-mcp`。使用 Unity MCP 时先确认连接的是 **WWG** 的编辑器实例；多项目同时打开时不要误操作 WJ。
 - 当前没有 `WjSceneBuilder`、`WJ/Setup` 菜单、`WJ.*` 命名空间或 WJ 的预制体。不要照搬 WJ 专属调用。
 
