@@ -137,8 +137,18 @@ namespace WWG
 
         public void OnLoadGame()
         {
-            // 存档系统还没做，先占位。
-            Debug.Log("[Title] 读取存档：尚未实现");
+            if (_starting) return;
+            int chapter = PlayerPrefs.GetInt("WWG_LastCheckpointChapter", -1);
+            if (chapter == 1 && PlayerPrefs.HasKey("WWG_S1_Checkpoint"))
+                GameFlow.LoadLocation(GameFlow.S1Scene);
+            else if (PlayerPrefs.HasKey("WWG_S0_ManualCheckpoint"))
+            {
+                PlayerPrefs.SetInt("WWG_S0_LoadManual", 1);
+                GameFlow.LoadLocation(GameFlow.FirstGameplayScene);
+            }
+            else if (PlayerPrefs.HasKey("WWG_S1_Checkpoint"))
+                GameFlow.LoadLocation(GameFlow.S1Scene);
+            else Debug.Log("[Title] 目前没有可读取的章节检查点。");
         }
 
         public void OnSettings()

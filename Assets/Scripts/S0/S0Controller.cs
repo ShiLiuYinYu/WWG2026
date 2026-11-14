@@ -71,10 +71,55 @@ public sealed class S0Controller : MonoBehaviour
         public string arrivalLine;
     }
 
+    [Serializable]
+    private sealed class ManualCheckpoint
+    {
+        public int phase, screen;
+        public bool boardRead, chairRead, signRead, timerRead, guideRead;
+    }
+
+    private const string ManualSaveKey = "WWG_S0_ManualCheckpoint";
+
     private static TravelState pendingTravel;
 
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
     private static void ResetTravel() { pendingTravel = null; }
+
+    public bool IsGameplayModalOpen => dialoguePanel.activeSelf || infoPanel.activeSelf ||
+        memoPanel.activeSelf || completionPanel.activeSelf || transitionBusy;
+
+    public bool SaveManualCheckpoint()
+    {
+        if (transitionBusy || phase == 3) return false;
+        var data = new ManualCheckpoint { phase = phase, screen = screen, boardRead = boardRead,
+            chairRead = chairRead, signRead = signRead, timerRead = timerRead, guideRead = guideRead };
+        PlayerPrefs.SetString(ManualSaveKey, JsonUtility.ToJson(data));
+        PlayerPrefs.SetInt("WWG_LastCheckpointChapter", 0);
+        PlayerPrefs.Save();
+        return true;
+    }
+
+    public bool LoadManualCheckpoint()
+    {
+        if (!PlayerPrefs.HasKey(ManualSaveKey) || transitionBusy) return false;
+        var data = JsonUtility.FromJson<ManualCheckpoint>(PlayerPrefs.GetString(ManualSaveKey));
+        if (data == null) return false;
+        phase = data.phase; screen = data.screen; boardRead = data.boardRead;
+        chairRead = data.chairRead; signRead = data.signRead; timerRead = data.timerRead;
+        guideRead = data.guideRead;
+        dialoguePanel.SetActive(false); infoPanel.SetActive(false); memoPanel.SetActive(false);
+        completionPanel.SetActive(false); infoOpen = false; memoOpen = false;
+        var destination = GameFlow.S0Location(screen);
+        if (SceneManager.GetActiveScene().name != destination)
+        {
+            pendingTravel = new TravelState { phase = phase, screen = screen, boardRead = boardRead,
+                chairRead = chairRead, signRead = signRead, timerRead = timerRead, guideRead = guideRead,
+                arrivalLine = "已读取白天调查存档。" };
+            return GameFlow.LoadLocation(destination);
+        }
+        ApplyScreen();
+        return true;
+    }
 
     private const string DirectoryText =
         "实验楼导览｜单数栋 / 偶数栋\n\n" +
@@ -107,6 +152,11 @@ public sealed class S0Controller : MonoBehaviour
         nightTint.SetActive(false);
         fallenBox.SetActive(false);
         ApplyScreen();
+        if (PlayerPrefs.GetInt("WWG_S0_LoadManual", 0) == 1)
+        {
+            PlayerPrefs.DeleteKey("WWG_S0_LoadManual");
+            if (LoadManualCheckpoint()) return;
+        }
         if (travel != null && screen == 2 && phase == 0)
         {
             phase = 1;

@@ -13,6 +13,7 @@ description: 在 WWG 项目中创建或修改 Unity 2D 场景、点击热点、U
 2. 查看任务涉及的 Demo 文档章节；场景流程见 §1、§3、§6，谜题见 §4，SAN/存档见 §5。原始设定见 `Document/《熄灯之后：48H》——午夜GameJam怪谈.md`。
 3. 确认目标场景或预制体是否已经存在。已有资产先检查引用和绑定，再改动；新增资产应加入正确的场景流程与 Build Settings。
 4. S0/S1 每个固定地点是独立 `.unity`，切屏状态由章节控制器传递。旧 `Build S0/S1 Scene` 脚手架不会覆盖现有场景；`Split Location Scenes` 只供未拆分原始场景一次性迁移，不要在已拆分项目上运行。
+5. S0/S1 七个地点共用 `Assets/Prefabs/UI/GameplayOverlay.prefab` 的场景实例。布局改动优先修改预制体；`WWG/UI/Install Gameplay Overlay` 只在显式执行时补装缺失实例，不在域重载时改写场景。
 
 ## 修改方式
 
@@ -36,5 +37,6 @@ description: 在 WWG 项目中创建或修改 Unity 2D 场景、点击热点、U
 | 原始世界观 | `Document/《熄灯之后：48H》——午夜GameJam怪谈.md` |
 | 机制、系统、UI 草图 | `Document/Image/` |
 | 当前 Unity 场景 | `Assets/Scenes/Title.unity`、`S0.unity`、`S0/S0_*.unity`、`S1.unity`、`S1/S1_*.unity`；`SampleScene` 保留 |
+| 共享游戏内 UI | `Assets/Prefabs/UI/GameplayOverlay.prefab`、`Assets/Scripts/UI/GameplayOverlay.cs` |
 | 当前 Build Settings | `ProjectSettings/EditorBuildSettings.asset` |
 | 程序规范与场景流程 | `Document/Program/` |
