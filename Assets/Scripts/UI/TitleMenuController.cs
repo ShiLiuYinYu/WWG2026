@@ -33,6 +33,7 @@ namespace WWG
 
         private void Awake()
         {
+            Application.runInBackground = true;
             if (startButton != null) startButton.onClick.AddListener(OnStartGame);
             if (loadButton != null) loadButton.onClick.AddListener(OnLoadGame);
             if (settingsButton != null) settingsButton.onClick.AddListener(OnSettings);
@@ -60,7 +61,7 @@ namespace WWG
             if (group != null) group.interactable = false;
 
             onStartGame?.Invoke();
-            if (startDelay > 0f) yield return new WaitForSeconds(startDelay);
+            if (startDelay > 0f) yield return new WaitForSecondsRealtime(startDelay);
 
             yield return FadeToBlack();
 

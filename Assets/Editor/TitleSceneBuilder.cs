@@ -35,6 +35,11 @@ public static class TitleSceneBuilder
     [MenuItem("WWG/Build Title Scene")]
     public static void Build()
     {
+        if (File.Exists(ScenePath))
+        {
+            Debug.LogWarning("[WWG] Title 已存在。封面脚手架不会覆盖菜单场景。");
+            return;
+        }
         ImportSprite(CoverPath, 2048);
         ImportSprite(TitleArtPath, 4096);
 

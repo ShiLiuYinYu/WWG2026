@@ -12,30 +12,9 @@ using WWG;
 /// 并按按钮文字自动连到「开始游戏 / 读取存档 / 设置 / 退出游戏」。
 /// 不修改任何 RectTransform 尺寸和位置。
 /// </summary>
-[InitializeOnLoad]
 public static class TitleMenuWiring
 {
     private const string ScenePath = "Assets/Scenes/Title.unity";
-    private static bool _done;
-
-    static TitleMenuWiring()
-    {
-        Debug.Log("[Wire] 静态构造执行");
-        // 幂等：每次域重载都排一次，用 update 计数代替 delayCall，
-        // 避免重载阶段注册的 delayCall 被丢弃。
-        _done = false;
-        int ticks = 0;
-        EditorApplication.UpdateCallback handler = null;
-        handler = () =>
-        {
-            if (_done || ++ticks < 40) return;
-            EditorApplication.update -= handler;
-            if (EditorApplication.isPlayingOrWillChangePlaymode) return;
-            _done = true;
-            Wire();
-        };
-        EditorApplication.update += handler;
-    }
 
     [MenuItem("WWG/Wire Title Menu")]
     public static void Wire()
@@ -57,10 +36,15 @@ public static class TitleMenuWiring
         TitleMenuController controller = canvas.GetComponent<TitleMenuController>();
         if (controller == null) controller = canvas.AddComponent<TitleMenuController>();
 
-        Button start = FindButton("开始游戏");
-        Button load = FindButton("读取存档");
-        Button settings = FindButton("设置");
-        Button quit = FindButton("退出游戏");
+        Button start = FindButton(canvas.transform, "开始游戏");
+        Button load = FindButton(canvas.transform, "读取存档");
+        Button settings = FindButton(canvas.transform, "设置");
+        Button quit = FindButton(canvas.transform, "退出游戏");
+        if (start == null || load == null || settings == null || quit == null)
+        {
+            Debug.LogError("[Wire] 菜单按钮不完整，接线取消");
+            return;
+        }
 
         SerializedObject so = new SerializedObject(controller);
         so.FindProperty("startButton").objectReferenceValue = start;
@@ -76,9 +60,9 @@ public static class TitleMenuWiring
         Debug.Log($"[Wire] 接线完成 开始={start != null} 读档={load != null} 设置={settings != null} 退出={quit != null}");
     }
 
-    private static Button FindButton(string label)
+    private static Button FindButton(Transform canvas, string label)
     {
-        foreach (Button btn in UnityEngine.Object.FindObjectsByType<Button>(FindObjectsSortMode.None))
+        foreach (Button btn in canvas.GetComponentsInChildren<Button>(true))
         {
             string name = btn.gameObject.name;
             if (name.EndsWith(label, StringComparison.Ordinal)) return btn;
