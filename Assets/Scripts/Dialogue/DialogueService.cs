@@ -20,7 +20,10 @@ namespace WWG
         private bool initialized;
         private bool running;
         private bool stopping;
+        private bool completionPending;
         private string startNode;
+        private string pendingCompletedNode;
+        private IDialogueContext pendingCompletedContext;
         private bool startNodeOnce;
 
         public static DialogueService Instance { get; private set; }
@@ -106,6 +109,9 @@ namespace WWG
             }
             if (once && context.HasSeenDialogue(nodeId)) return false;
 
+            completionPending = false;
+            pendingCompletedNode = null;
+            pendingCompletedContext = null;
             Context = context;
             startNode = nodeId;
             startNodeOnce = once;
@@ -127,6 +133,9 @@ namespace WWG
 
         public void Stop()
         {
+            completionPending = false;
+            pendingCompletedNode = null;
+            pendingCompletedContext = null;
             if (runner != null && runner.IsDialogueRunning)
             {
                 stopping = true;
@@ -227,6 +236,7 @@ namespace WWG
             {
                 stopping = false;
                 running = false;
+                completionPending = false;
                 Context = null;
                 startNode = null;
                 startNodeOnce = false;
@@ -234,16 +244,39 @@ namespace WWG
                 return;
             }
 
-            string completedNode = startNode;
-            IDialogueContext finishedContext = Context;
             running = false;
             startNodeOnce = false;
+            if (ContextAlive(Context))
+            {
+                foreach (string node in completedNodes) Context.MarkDialogueSeen(node);
+                completedNodes.Clear();
+                Context.RefreshHud();
+            }
 
-            if (finishedContext == null || string.IsNullOrEmpty(completedNode)) return;
-            foreach (string node in completedNodes) finishedContext.MarkDialogueSeen(node);
-            completedNodes.Clear();
-            finishedContext.RefreshHud();
+            if (completionPending) return;
+            completionPending = true;
+            pendingCompletedNode = startNode;
+            pendingCompletedContext = Context;
+            StartCoroutine(NotifyCompletionNextFrame());
+        }
+
+        private System.Collections.IEnumerator NotifyCompletionNextFrame()
+        {
+            yield return null;
+            if (!completionPending) yield break;
+            completionPending = false;
+            string completedNode = pendingCompletedNode;
+            IDialogueContext finishedContext = pendingCompletedContext;
+            pendingCompletedNode = null;
+            pendingCompletedContext = null;
+            if (!ContextAlive(finishedContext) || string.IsNullOrEmpty(completedNode)) yield break;
             DialogueCompleted?.Invoke(completedNode);
+        }
+
+        private static bool ContextAlive(IDialogueContext context)
+        {
+            if (context == null) return false;
+            return !(context is UnityEngine.Object unityObject) || unityObject != null;
         }
 
         private bool NodeExists(string nodeId)

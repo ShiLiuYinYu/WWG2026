@@ -1,6 +1,6 @@
 # YarnSpinner 接入与对话系统重构
 
-> 状态：**阶段 0 底座已实施，章节对白尚未迁移**。`dev.yarnspinner.unity` 3.2.8 已写入 `Packages/manifest.json` 与 `Packages/packages-lock.json`；`Assets/Yarn/WWG.yarnproject`、`Assets/Yarn/Shared/Common.yarn` 测试节点、`Assets/Scripts/Dialogue/` 共享服务与自定义 uGUI 呈现器、`Assets/Resources/Dialogue/WwgDialogueHost.prefab`、立绘配置和 `WWG/Yarn/Validate Dialogue` 校验菜单已建立，并已用 `WWG/Dev/Play Dialogue Test` 验证中文行、点击推进、`show_info`、`set_flag`、`give_item`、`apply_shock` 和 `go_to` 排队。S0、S1、S2 仍继续使用各自控制器里的私有 `Line` 队列和 `Say/ShowInfo`，阶段 1–5 未实施。
+> 状态：**阶段 0–1 已实施，S1/S2 尚未迁移**。`dev.yarnspinner.unity` 3.2.8 已写入 `Packages/manifest.json` 与 `Packages/packages-lock.json`；`Assets/Yarn/WWG.yarnproject`、`Assets/Scripts/Dialogue/` 共享服务与自定义 uGUI 呈现器、`Assets/Resources/Dialogue/WwgDialogueHost.prefab`、立绘配置、`WWG/Yarn/Validate Dialogue` 和 `WWG/Dev/Play Dialogue Test` 已建立。S0 的开场、记忆点、转场和熄灯对白已迁移到 `Assets/Yarn/Chapters/Prologue/`，`S0Controller` 实现 `IDialogueContext`，旧场景内对白面板已移除；S1/S2 仍继续使用各自控制器里的私有对白队列，阶段 2–5 未实施。
 >
 > 关联文档：[架构重构设计](./架构重构设计.md)、[架构规范](./架构规范.md)、[运行流程](./运行流程.md)、[目录结构组织](./目录结构组织.md)、[程序规范文档](./程序规范文档.md)。
 
@@ -335,7 +335,7 @@ tags: chapter_night_photo location_clubroom
 ===
 ```
 
-- 说话人分隔符使用**半角冒号加空格** `: `；正文中的中文冒号、引号和省略号不受影响。不要用全角 `：` 作为说话人分隔符。
+- 说话人分隔符使用**半角冒号加空格** `: `；正文中的中文冒号、引号和省略号不受影响。不要用全角 `：` 作为说话人分隔符。说话人名称本身也不要包含半角冒号：需要显示时间时用全角 `：`，例如 `时间 · 18：30: 外卖袋……`，否则 Yarn 会把时间里的冒号当成说话人分隔符。
 - `#line:` 标签放在行末；同一行只能有一个。
 - 文件内 `<<declare>>` 的变量只用于本次对话的局部流程，不写入存档；跨对话状态一律用 `GameState` flag。
 - 注释使用 `//`；不要把设计备注写成玩家可见行。

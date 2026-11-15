@@ -1,0 +1,23 @@
+﻿title: S0_ClubRoom_Transition
+tags: chapter_prologue location_clubroom
+---
+袁祁: 参考图拍够了吗？来，趁现在脑子还清醒，我们把前三个场景的交互逻辑顺一遍。 #line:s0_transition_01
+===
+
+title: S0_ClubRoom_WorkMontage
+tags: chapter_prologue location_clubroom
+---
+时间 · 18：30: 外卖袋堆上了桌角。白板上画满第一版流程图。 #line:s0_montage_01
+时间 · 21：15: 唐澈喝掉第二罐咖啡。许圆把活动室布局画进背景草图。 #line:s0_montage_02
+时间 · 23：29: 公共照明熄灭倒计时。 #line:s0_montage_03
+唐澈: 二十九分了。我先把工程保存一下，万一跳闸，没保存的文件就完了。 #line:s0_montage_04
+袁祁: 今晚大家轮流眯一会儿。明天下午四点，我们要凑出第一版能跑的 Demo。 #line:s0_montage_05
+===
+
+title: S0_ClubRoom_LightsOut
+tags: chapter_prologue location_clubroom
+---
+时间 · 23：30: 咔哒——嗡。走廊的灯由远及近，逐盏熄灭。 #line:s0_lightsout_01
+我: 门玻璃外的走廊暗了。屋里的顶灯、电脑屏幕还亮着。 #line:s0_lightsout_02
+我: 一声闷响。储物柜顶的旧纸盒掉到了第五把椅子旁，滑出一张背面朝上的照片。 #line:s0_lightsout_03
+===

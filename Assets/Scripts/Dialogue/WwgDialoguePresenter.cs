@@ -44,12 +44,13 @@ namespace WWG
         public override YarnTask OnDialogueStartedAsync()
         {
             advanceRequested = false;
-            if (dialogueRoot != null) dialogueRoot.SetActive(true);
+            if (portraitImage != null) portraitImage.enabled = false;
             return YarnTask.CompletedTask;
         }
 
         public override async YarnTask RunLineAsync(LocalizedLine line, LineCancellationToken token)
         {
+            if (dialogueRoot != null && !dialogueRoot.activeSelf) dialogueRoot.SetActive(true);
             ShowLine(line);
             advanceRequested = false;
             while (!advanceRequested && !token.IsNextContentRequested && !token.IsHurryUpRequested)

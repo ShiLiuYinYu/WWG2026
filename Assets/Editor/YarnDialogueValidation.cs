@@ -24,6 +24,7 @@ public static class YarnDialogueValidation
     private static readonly Regex LineIdPattern = new Regex(@"#line:([A-Za-z0-9_]+)");
     private static readonly Regex CommandPattern = new Regex(@"<<\s*([A-Za-z_][A-Za-z0-9_]*)");
     private static readonly Regex ShowInfoPattern = new Regex(@"<<\s*show_info\s+""([^""]+)""");
+    private static readonly Regex SpeakerTimeColonPattern = new Regex(@"^(?<speaker>[^\r\n]*?\d):\d{2}:\s");
 
     [MenuItem("WWG/Yarn/Validate Dialogue")]
     public static void Validate()
@@ -50,6 +51,9 @@ public static class YarnDialogueValidation
             fileCount++;
             string relative = path.Replace('\\', '/');
             string text = File.ReadAllText(path);
+            foreach (string line in text.Split('\n'))
+                if (SpeakerTimeColonPattern.IsMatch(line.TrimEnd('\r')))
+                    problems.Add(relative + "：说话人名称含半角冒号，请改用全角： " + line.Trim());
             foreach (Match match in LineIdPattern.Matches(text))
             {
                 string id = match.Groups[1].Value;

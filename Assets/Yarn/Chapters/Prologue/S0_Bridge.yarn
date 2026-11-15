@@ -1,0 +1,30 @@
+title: S0_Bridge_Arrive
+tags: chapter_prologue location_bridgeodd4f
+---
+我: 单数栋四楼。连廊通往对面的偶数栋。 #line:s0_bridge_arrive_01
+===
+
+title: S0_Bridge_Glass
+tags: chapter_prologue location_bridgeodd4f
+---
+我: 透过连廊玻璃能看见对面的偶数栋。两边的教室门都锁着。 #line:s0_bridge_glass_01
+===
+
+title: S0_Bridge_Guide
+tags: chapter_prologue location_bridgeodd4f
+---
+<<set_flag "flag.s0.guide">>
+<<show_info "s0.guide">>
+===
+
+title: S0_Bridge_Switch
+tags: chapter_prologue location_bridgeodd4f
+---
+<<show_info "s0.bridgeSwitch">>
+===
+
+title: S0_Day_NeedClubRoom
+tags: chapter_prologue location_bridgeodd4f
+---
+我: 先去活动室和大家集合，开题快开始了。 #line:s0_day_need_clubroom_01
+===

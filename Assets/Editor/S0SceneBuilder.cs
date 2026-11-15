@@ -119,19 +119,6 @@ public static class S0SceneBuilder
         fallenImage.raycastTarget = false;
         controller.fallenBoxHotspot = Hotspot(controller.fallenBox.transform, "照片", "photo", "查看掉落的照片", 0, 0, 390, 235);
 
-        controller.dialoguePanel = Panel(canvas.transform, "Dialogue", 45, 820, 1830, 230, Ink);
-        GameObject portrait = Rect(controller.dialoguePanel.transform, "Speaker portrait", 30, -75, 245, 305);
-        controller.portraitImage = portrait.AddComponent<Image>();
-        controller.portraitImage.preserveAspect = true;
-        controller.portraitImage.raycastTarget = false;
-        controller.yuanPortrait = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Resources/S0/YuanQi.png");
-        controller.tangPortrait = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Resources/S0/TangChe.png");
-        controller.xuPortrait = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Resources/S0/XuYuan.png");
-        controller.speakerText = Label(controller.dialoguePanel.transform, "Speaker", "", 36, 18, 390, 48, 31, Accent, TextAnchor.MiddleLeft);
-        controller.dialogueText = Label(controller.dialoguePanel.transform, "Line", "", 36, 68, 1745, 115, 32, Paper, TextAnchor.UpperLeft);
-        Label(controller.dialoguePanel.transform, "Continue hint", "点击继续  ▸", 1500, 186, 280, 30, 22, Accent, TextAnchor.MiddleRight);
-        Button(controller.dialoguePanel.transform, "Continue", "", 0, 0, 1830, 230, controller.ContinueDialogue, transparent: true);
-
         controller.infoPanel = Panel(canvas.transform, "Inspect panel", 390, 140, 1140, 800, Ink);
         controller.infoTitle = Label(controller.infoPanel.transform, "Inspect title", "", 55, 42, 1025, 60, 39, Accent, TextAnchor.MiddleLeft);
         controller.infoBody = Label(controller.infoPanel.transform, "Inspect body", "", 55, 130, 1025, 570, 31, Paper, TextAnchor.UpperLeft);
@@ -147,7 +134,6 @@ public static class S0SceneBuilder
 
         controller.nightTint.SetActive(false);
         controller.fallenBox.SetActive(false);
-        controller.dialoguePanel.SetActive(false);
         controller.infoPanel.SetActive(false);
         controller.memoPanel.SetActive(false);
         controller.completionPanel.SetActive(false);

@@ -1,0 +1,26 @@
+title: S0_Exterior_Intro
+tags: chapter_prologue location_exterior
+---
+我: 现在周五下午三点四十。距离四十八小时极限开发开题，还有二十分钟。得赶快了。 #line:s0_exterior_intro_01
+我: 袁祁在群里发了三次定位，让我到了直接上单数栋五楼的活动室集合。 #line:s0_exterior_intro_02
+===
+
+title: S0_Exterior_Directory
+tags: chapter_prologue location_exterior
+---
+<<show_info "s0.directory">>
+<<set_flag "flag.s0.board">>
+我: 十一点半只断走廊的灯，屋里插座不断电……这么好的环境，怪不得袁祁非要申请在社团活动室通宵。 #line:s0_exterior_directory_01
+===
+
+title: S0_Exterior_Bridge
+tags: chapter_prologue location_exterior
+---
+我: 四楼那条玻璃连廊串联着两栋楼。太阳还没落山，阳光刺得看不清里面。 #line:s0_exterior_bridge_01
+===
+
+title: S0_Exterior_NeedBoard
+tags: chapter_prologue location_exterior
+---
+我: 先看看门口的楼层展板，确认单数栋五楼怎么走。 #line:s0_exterior_need_board_01
+===
