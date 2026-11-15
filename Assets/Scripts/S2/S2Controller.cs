@@ -9,7 +9,8 @@ using WWG;
 /// <summary>Four fixed views for the S2 bridge investigation. The same GameState travels between views.</summary>
 public sealed class S2Controller : MonoBehaviour, IDialogueContext
 {
-    public Text locationText, timeText, objectiveText, statusText, feedbackText, recordText, inventoryText;
+    public Text locationText, timeText, objectiveText, feedbackText, recordText, inventoryText;
+    public VitalsBars vitals;
     public Text farRevealText, codeFeedbackText;
     public Text[] digitTexts;
     public GameObject infoPanel, codePanel, recordPanel, inventoryPanel, pausePanel, glow;
@@ -552,7 +553,8 @@ public sealed class S2Controller : MonoBehaviour, IDialogueContext
         timeText.text = state.HasFlag(StoryIds.Flag.P2DrawerTaken) ? "周六 00:50" : "周六 00:10";
         objectiveText.text = state.HasFlag(StoryIds.Flag.P2DrawerTaken) ? "借用便签指向单数栋 3F 机房" :
             string.IsNullOrEmpty(state.routeChoice) ? "在应急照明开关旁作出选择" : "查找四张海报，打开偶数栋资料柜";
-        statusText.text = "SAN " + state.san + "/" + state.sanMax + "   生命 " + state.health + "/3";
+        vitals.SetSan(state.san, state.sanMax);
+        vitals.SetHealth(state.health, 3);
         if (glow != null) glow.SetActive(light && location != StoryIds.Location.ClubRoom);
         if (farRevealText != null)
         {
