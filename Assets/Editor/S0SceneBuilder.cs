@@ -66,6 +66,7 @@ public static class S0SceneBuilder
         font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
 
         controller.exterior = Page(canvas.transform, "Exterior", "Exterior");
+        controller.exterior.GetComponent<Image>().sprite = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Resources/Title/白天.png");
         controller.corridor = Page(canvas.transform, "Corridor", "Corridor");
         controller.clubRoom = Page(canvas.transform, "ClubRoom", "ClubRoom");
         controller.roomBackdrop = controller.clubRoom.GetComponent<Image>();
@@ -77,9 +78,7 @@ public static class S0SceneBuilder
         GameObject bridgeInteractions = Rect(controller.bridge.transform, "Scene interactions", 0, 0, 1920, 1080);
         controller.interactionLayers = new[] { exteriorInteractions, corridorInteractions, roomInteractions, bridgeInteractions };
 
-        // Exterior: one physical board plus architecture hotspots.
-        Panel(controller.exterior.transform, "Directory board", 40, 390, 305, 400, new Color(0.15f, 0.22f, 0.26f, 0.94f));
-        Label(controller.exterior.transform, "Directory board caption", "实验楼导览\n\n单数栋 / 偶数栋\n\n1F  电气与电子\n2F  机器人\n3F  计算机工程\n4F  外国语\n5F  数智设计\n\n点击查看夜间通知", 58, 410, 275, 360, 28, Paper, TextAnchor.UpperLeft);
+        // Exterior: the directory sign is painted into the background; keep only its editable hotspot.
         Hotspot(exteriorInteractions.transform, "楼层展板", "directory", "查看楼层展板", 40, 390, 305, 400);
         Hotspot(exteriorInteractions.transform, "4F 玻璃连廊", "exteriorBridge", "抬头看 4F 玻璃连廊", 410, 250, 910, 210);
         Hotspot(exteriorInteractions.transform, "实验楼大门", "enter", "进入实验楼 · 单数栋 5F", 580, 515, 750, 350);
@@ -145,6 +144,13 @@ public static class S0SceneBuilder
 
         controller.completionPanel = Panel(canvas.transform, "Time transition", 0, 0, 1920, 1080, new Color(0.005f, 0.010f, 0.020f, 1));
         controller.completionText = Label(controller.completionPanel.transform, "Transition caption", "", 190, 300, 1540, 460, 47, Paper, TextAnchor.MiddleCenter);
+
+        controller.nightTint.SetActive(false);
+        controller.fallenBox.SetActive(false);
+        controller.dialoguePanel.SetActive(false);
+        controller.infoPanel.SetActive(false);
+        controller.memoPanel.SetActive(false);
+        controller.completionPanel.SetActive(false);
 
         EditorSceneManager.SaveScene(scene, "Assets/Scenes/S0.unity");
         List<EditorBuildSettingsScene> scenes = new List<EditorBuildSettingsScene> { new EditorBuildSettingsScene("Assets/Scenes/S0.unity", true) };

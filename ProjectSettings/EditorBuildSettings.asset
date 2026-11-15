@@ -32,6 +32,18 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/SampleScene.unity
     guid: 8c9cfa26abfee488c85f1582747f6a02
+  - enabled: 1
+    path: Assets/Scenes/Locations/BridgeOdd4F.unity
+    guid: 5944839b2dc48ea48b74f0810ab1179e
+  - enabled: 1
+    path: Assets/Scenes/Locations/BridgeSpan4F.unity
+    guid: 0910a611bddba5242bbf03ed936edc95
+  - enabled: 1
+    path: Assets/Scenes/Locations/BridgeEven4F.unity
+    guid: 5cdb7d507cba9f047acf869707d8788c
+  - enabled: 1
+    path: Assets/Scenes/Locations/ClubRoom.unity
+    guid: a345b47630184c74c9cc600ece810258
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 2bcd2660ca9b64942af0de543d8d7100, type: 3}
   m_UseUCBPForAssetBundles: 0
