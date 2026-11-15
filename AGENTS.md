@@ -13,6 +13,7 @@
 ## 技术现状
 
 - 当前项目文件记录 Unity `6000.3.28f1`、URP `17.3.0`（2D）、Input System `1.20.1`、uGUI `2.0.0`。制作前以实际连接的 WWG 编辑器和 `ProjectSettings/ProjectVersion.txt`、`Packages/manifest.json` 为准。
+- `dev.yarnspinner.unity` 3.2.8 已接入：`Assets/Yarn/WWG.yarnproject`、`Assets/Scripts/Dialogue/` 共享服务与自定义 uGUI 呈现器、`Assets/Resources/Dialogue/WwgDialogueHost.prefab`、`WWG/Yarn/Validate Dialogue` 校验菜单已存在；S0、S1、S2 对白已分别迁移到 `Assets/Yarn/Chapters/Prologue/`、`NightPhoto/`、`BridgeRoute/`，三个控制器都实现 `IDialogueContext`。S2 仍使用自己的暂停/背包/记录 UI 和 `GameState`，`GameplayOverlay` 与 `GameRuntime` 的目标架构合并（阶段 4–5）尚未实施。接入方案和迁移顺序见 `Document/Program/YarnSpinner接入与对话系统重构.md`。
 - 项目已安装 `com.coplaydev.unity-mcp`。使用 Unity MCP 时先确认连接的是 **WWG** 的编辑器实例；多项目同时打开时不要误操作 WJ。
 - 当前没有 `WjSceneBuilder`、`WJ/Setup` 菜单、`WJ.*` 命名空间或 WJ 的预制体。不要照搬 WJ 专属调用。
 - S0/S1 的七个地点场景已引用 `Assets/Prefabs/UI/GameplayOverlay.prefab`，包含暂停菜单、物品栏和物品详情。标题页及各章暂停菜单共用 `Assets/Resources/UI/SaveSlotPanel.prefab` 的三槽位存读档界面，槽位仍承载各章节检查点，不是完整 Demo 存档。调整共享游戏内 UI 时改预制体，显式安装命令为 `WWG/UI/Install Gameplay Overlay`。

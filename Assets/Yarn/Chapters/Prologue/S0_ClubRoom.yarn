@@ -1,0 +1,44 @@
+﻿title: S0_ClubRoom_Intro
+tags: chapter_prologue location_clubroom
+---
+袁祁: 可算来了！快把包放下，马上还有五分钟直播开题了。 #line:s0_clubroom_intro_01
+唐澈: 插线板给你留了靠边那个口，你工位就在那儿。 #line:s0_clubroom_intro_02
+许圆: 我把数位板接好了。你直接插电脑上就能用了。 #line:s0_clubroom_intro_03
+袁祁: 靠窗那把空椅子我顺手推到储物柜边上了，省得挡路。 #line:s0_clubroom_intro_04
+许圆: 我们当初报名的时候是四个人吧？怎么多出来一把椅子？ #line:s0_clubroom_intro_05
+唐澈: 可能是之前参加活动的人搬过来的，就放那儿吧。 #line:s0_clubroom_intro_06
+直播主持 · 16：00: 各位参赛队伍下午好！本届 48H GameJam 的创作主题是——『选择』。周日下午 16:00 前做出可玩的作品，之后大家一起展示。 #line:s0_clubroom_intro_07
+唐澈: ……一个词的题怎么办啊？策划救一下，咱怎么做？ #line:s0_clubroom_intro_08
+袁祁: 得让玩家的选择真正影响游戏流程。你们觉得呢？ #line:s0_clubroom_intro_09
+许圆: 我们只有四十八个小时。要不拿这栋实验楼当原型？白天做两层，熄灯后做两层。 #line:s0_clubroom_intro_10
+我: 那就先去楼里转一圈，拍点走廊和连廊当参考图。 #line:s0_clubroom_intro_11
+袁祁: 行，你去踩点。我们仨先把工程仓库和基础框架搭起来。拍完回来找我。 #line:s0_clubroom_intro_12
+===
+
+title: S0_ClubRoom_Chair
+tags: chapter_prologue location_clubroom
+---
+<<set_flag "flag.s0.chair">>
+我: 第五把椅子被袁祁推到了铁皮储物柜旁边。柜子顶上塞着个旧纸盒，感觉随时会掉下来。 #line:s0_clubroom_chair_01
+许圆: 椅背上还贴着去年的旧编号贴纸，字都磨没了。拍参考图的话，要不要把它移走？ #line:s0_clubroom_chair_02
+我: 先别动了，晚上腾不出地方再说吧。 #line:s0_clubroom_chair_03
+===
+
+title: S0_ClubRoom_Sign
+tags: chapter_prologue location_corridor5f
+---
+<<set_flag "flag.s0.sign">>
+我: 单数栋 5F，数智设计学院。安全出口指示灯常亮，往下是去 4F 和 3F 的楼梯。 #line:s0_clubroom_sign_01
+===
+
+title: S0_ClubRoom_LeaderReminder
+tags: chapter_prologue location_clubroom
+---
+袁祁: 先把活动室、五楼走廊和四楼连廊入口都看一遍。拍完参考图回来找我。 #line:s0_clubroom_leader_reminder_01
+===
+
+title: S0_ClubRoom_ReturnPhoto
+tags: chapter_prologue location_clubroom
+---
+我: 那张照片还在脚边。先看看掉出来的是什么。 #line:s0_clubroom_return_photo_01
+===

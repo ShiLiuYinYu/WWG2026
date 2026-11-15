@@ -1,0 +1,35 @@
+title: Test_Hello
+tags: test dialogue_probe
+---
+<<declare $test_stage = 0>>
+我: 这是 YarnSpinner 接入测试。中文显示应该正常。 #line:test_hello_01
+我: 点击屏幕任意位置可以继续下一句。 #line:test_hello_02
+<<if has_flag("flag.test.hello")>>
+我: 测试标记已经存在，说明存档状态可以被只读函数读到。 #line:test_hello_03
+<<else>>
+我: 现在写入测试标记。 #line:test_hello_04
+<<set_flag "flag.test.hello">>
+<<give_item "test.note">>
+<<endif>>
+我: 接下来检查信息面板，关闭后对话才会继续。 #line:test_hello_05
+<<show_info "test.document">>
+我: 信息面板已关闭。 #line:test_hello_06
+<<apply_shock "test.shock" -5>>
+我: 一次性冲击已请求。 #line:test_hello_07
+<<checkpoint>>
+<<go_to "ClubRoom" "night">>
+我: 测试对话结束，转场请求已排队。 #line:test_hello_08
+===
+
+title: Test_ValueBranch
+tags: test dialogue_probe
+---
+<<if san() <= 60>>
+我: 低 SAN 分支。 #line:test_value_01
+<<else>>
+我: SAN 正常。 #line:test_value_02
+<<endif>>
+<<if route() == "" and view() == "">>
+我: 路线和结尾都还没有选择。 #line:test_value_03
+<<endif>>
+===

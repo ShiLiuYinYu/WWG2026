@@ -1,0 +1,18 @@
+title: S0_Corridor_Arrive
+tags: chapter_prologue location_corridor5f
+---
+我: 单数栋五楼。活动室就在走廊这边。 #line:s0_corridor_arrive_01
+===
+
+title: S0_Corridor_FloorPlaque
+tags: chapter_prologue location_corridor5f
+---
+<<show_info "s0.floorPlaque">>
+===
+
+title: S0_Corridor_Timer
+tags: chapter_prologue location_corridor5f
+---
+<<set_flag "flag.s0.timer">>
+<<show_info "s0.timer">>
+===

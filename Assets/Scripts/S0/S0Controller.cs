@@ -6,28 +6,17 @@ using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using WWG;
 
-public sealed class S0Controller : MonoBehaviour
+public sealed class S0Controller : MonoBehaviour, IDialogueContext
 {
-    [Serializable]
-    private struct Line
-    {
-        public string speaker;
-        public string body;
-        public Line(string speaker, string body) { this.speaker = speaker; this.body = body; }
-    }
-
     public GameObject exterior;
     public GameObject corridor;
     public GameObject clubRoom;
     public GameObject bridge;
     public GameObject[] interactionLayers;
-    public GameObject dialoguePanel;
     public GameObject infoPanel;
     public GameObject nightTint;
     public GameObject fallenBox;
     public GameObject fallenBoxHotspot;
-    public Text speakerText;
-    public Text dialogueText;
     public Text infoTitle;
     public Text infoBody;
     public Text hoverText;
@@ -43,15 +32,9 @@ public sealed class S0Controller : MonoBehaviour
     public AudioSource audioSource;
     public AudioClip deskWorkSound;
     public AudioClip breakerSound;
-    public Image portraitImage;
-    public Sprite yuanPortrait;
-    public Sprite tangPortrait;
-    public Sprite xuPortrait;
 
     private Sprite dayRoomSprite;
 
-    private readonly Queue<Line> lines = new Queue<Line>();
-    private Action afterDialogue;
     private int phase; // 0 arrival, 1 opening, 2 daytime investigation, 3 transition, 4 S0 complete
     private int screen; // 0 exterior, 1 corridor, 2 club room, 3 bridge
     private bool boardRead;
@@ -62,13 +45,18 @@ public sealed class S0Controller : MonoBehaviour
     private bool memoOpen;
     private bool infoOpen;
     private bool transitionBusy;
+    private bool subscribed;
+    private readonly HashSet<string> extraFlags = new HashSet<string>();
+    private readonly HashSet<string> extraItems = new HashSet<string>();
+    private readonly HashSet<string> dialogueSeen = new HashSet<string>();
 
     private sealed class TravelState
     {
         public int phase;
         public int screen;
         public bool boardRead, chairRead, signRead, timerRead, guideRead;
-        public string arrivalLine;
+        public string arrivalNode;
+        public List<string> seenDialogue;
     }
 
     [Serializable]
@@ -76,6 +64,7 @@ public sealed class S0Controller : MonoBehaviour
     {
         public int phase, screen;
         public bool boardRead, chairRead, signRead, timerRead, guideRead;
+        public List<string> seenDialogue;
     }
 
     private const string ManualSaveKey = "WWG_S0_ManualCheckpoint";
@@ -85,14 +74,18 @@ public sealed class S0Controller : MonoBehaviour
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
     private static void ResetTravel() { pendingTravel = null; }
 
-    public bool IsGameplayModalOpen => dialoguePanel.activeSelf || infoPanel.activeSelf ||
+    private static bool DialogueRunning =>
+        DialogueService.Instance != null && DialogueService.Instance.IsRunning;
+
+    public bool IsGameplayModalOpen => DialogueRunning || infoPanel.activeSelf ||
         memoPanel.activeSelf || completionPanel.activeSelf || transitionBusy;
 
     public bool SaveManualCheckpoint()
     {
-        if (transitionBusy || phase == 3) return false;
+        if (transitionBusy || phase == 3 || DialogueRunning) return false;
         var data = new ManualCheckpoint { phase = phase, screen = screen, boardRead = boardRead,
-            chairRead = chairRead, signRead = signRead, timerRead = timerRead, guideRead = guideRead };
+            chairRead = chairRead, signRead = signRead, timerRead = timerRead, guideRead = guideRead,
+            seenDialogue = new List<string>(dialogueSeen) };
         PlayerPrefs.SetString(ManualSaveKey, JsonUtility.ToJson(data));
         PlayerPrefs.SetInt("WWG_LastCheckpointChapter", 0);
         PlayerPrefs.Save();
@@ -101,9 +94,10 @@ public sealed class S0Controller : MonoBehaviour
 
     public SaveSlotSnapshot CaptureSaveSlot()
     {
-        if (transitionBusy || phase == 3) return null;
+        if (transitionBusy || phase == 3 || DialogueRunning) return null;
         var data = new ManualCheckpoint { phase = phase, screen = screen, boardRead = boardRead,
-            chairRead = chairRead, signRead = signRead, timerRead = timerRead, guideRead = guideRead };
+            chairRead = chairRead, signRead = signRead, timerRead = timerRead, guideRead = guideRead,
+            seenDialogue = new List<string>(dialogueSeen) };
         return new SaveSlotSnapshot { chapter = "S0", payload = JsonUtility.ToJson(data),
             gameTime = timeText.text, locationLabel = "S0 · " + timeText.text + " · " + GameFlow.S0Location(screen) };
     }
@@ -116,25 +110,22 @@ public sealed class S0Controller : MonoBehaviour
         phase = data.phase; screen = data.screen; boardRead = data.boardRead;
         chairRead = data.chairRead; signRead = data.signRead; timerRead = data.timerRead;
         guideRead = data.guideRead;
-        dialoguePanel.SetActive(false); infoPanel.SetActive(false); memoPanel.SetActive(false);
-        completionPanel.SetActive(false); infoOpen = false; memoOpen = false;
+        dialogueSeen.Clear();
+        if (data.seenDialogue != null) dialogueSeen.UnionWith(data.seenDialogue);
+        infoPanel.SetActive(false); memoPanel.SetActive(false); completionPanel.SetActive(false);
+        infoOpen = false; memoOpen = false;
         var destination = GameFlow.S0Location(screen);
         if (SceneManager.GetActiveScene().name != destination)
         {
             pendingTravel = new TravelState { phase = phase, screen = screen, boardRead = boardRead,
                 chairRead = chairRead, signRead = signRead, timerRead = timerRead, guideRead = guideRead,
-                arrivalLine = "已读取白天调查存档。" };
+                arrivalNode = "S0_System_Resume", seenDialogue = new List<string>(dialogueSeen) };
             return GameFlow.LoadLocation(destination);
         }
         ApplyScreen();
+        PlayNode("S0_System_Resume");
         return true;
     }
-
-    private const string DirectoryText =
-        "实验楼导览｜单数栋 / 偶数栋\n\n" +
-        "1F  电气与电子工程\n2F  机器人工程\n3F  计算机工程\n4F  外国语学院（跨栋连廊）\n5F  数智设计学院\n\n" +
-        "【物业通知】工作日 23:00；周五、周六 23:30，走廊、楼梯及连廊等公共区域照明自动断电。\n" +
-        "实验室与社团活动室的内部插座独立供电，夜间不断电。";
 
     private void Start()
     {
@@ -144,6 +135,13 @@ public sealed class S0Controller : MonoBehaviour
         if (font != null)
             foreach (Text text in GetComponentsInChildren<Text>(true)) text.font = font;
 
+        DialogueService service = DialogueService.Ensure();
+        if (service != null)
+        {
+            service.DialogueCompleted += HandleDialogueCompleted;
+            subscribed = true;
+        }
+
         TravelState travel = pendingTravel;
         pendingTravel = null;
         phase = travel?.phase ?? 0;
@@ -152,9 +150,10 @@ public sealed class S0Controller : MonoBehaviour
         {
             boardRead = travel.boardRead; chairRead = travel.chairRead; signRead = travel.signRead;
             timerRead = travel.timerRead; guideRead = travel.guideRead;
+            dialogueSeen.Clear();
+            if (travel.seenDialogue != null) dialogueSeen.UnionWith(travel.seenDialogue);
         }
         if (roomBackdrop != null) dayRoomSprite = roomBackdrop.sprite;
-        dialoguePanel.SetActive(false);
         infoPanel.SetActive(false);
         memoPanel.SetActive(false);
         completionPanel.SetActive(false);
@@ -166,29 +165,34 @@ public sealed class S0Controller : MonoBehaviour
             PlayerPrefs.DeleteKey("WWG_S0_LoadManual");
             if (LoadManualCheckpoint()) return;
         }
-        if (travel != null && screen == 2 && phase == 0)
+        if (travel != null && !string.IsNullOrEmpty(travel.arrivalNode))
+            PlayNode(travel.arrivalNode);
+        else if (travel != null && screen == 2 && phase == 0)
         {
             phase = 1;
             UpdateHUD();
-            PlayOpening();
+            PlayNode("S0_ClubRoom_Intro");
         }
-        else if (travel != null && !string.IsNullOrEmpty(travel.arrivalLine))
-            Say(new[] { new Line("我", travel.arrivalLine) });
         else if (travel == null && screen == 0)
-            Say(new[] {
-                new Line("我", "现在周五下午三点四十。距离四十八小时极限开发开题，还有二十分钟。得赶快了。"),
-                new Line("我", "袁祁在群里发了三次定位，让我到了直接上单数栋五楼的活动室集合。")
-            });
+            PlayNode("S0_Exterior_Intro");
     }
 
-    private void ShowScreen(int index, string arrivalLine = null)
+    private void OnDestroy()
+    {
+        if (subscribed && DialogueService.Instance != null)
+            DialogueService.Instance.DialogueCompleted -= HandleDialogueCompleted;
+        subscribed = false;
+    }
+
+    private void ShowScreen(int index, string arrivalNode = null)
     {
         string destination = GameFlow.S0Location(index);
         if (SceneManager.GetActiveScene().name != destination)
         {
             pendingTravel = new TravelState { phase = phase, screen = index, boardRead = boardRead,
                 chairRead = chairRead, signRead = signRead, timerRead = timerRead,
-                guideRead = guideRead, arrivalLine = arrivalLine };
+                guideRead = guideRead, arrivalNode = arrivalNode,
+                seenDialogue = new List<string>(dialogueSeen) };
             if (!GameFlow.LoadLocation(destination)) pendingTravel = null;
             return;
         }
@@ -212,7 +216,7 @@ public sealed class S0Controller : MonoBehaviour
 
     private void UpdateInteractionVisibility()
     {
-        bool visible = !dialoguePanel.activeSelf && !infoPanel.activeSelf && !memoPanel.activeSelf &&
+        bool visible = !DialogueRunning && !infoPanel.activeSelf && !memoPanel.activeSelf &&
                        !completionPanel.activeSelf && !transitionBusy;
         if (interactionLayers != null)
             foreach (GameObject layer in interactionLayers)
@@ -225,70 +229,56 @@ public sealed class S0Controller : MonoBehaviour
 
     public void HandleHotspot(string action)
     {
-        if (dialoguePanel.activeSelf || infoOpen || memoOpen || transitionBusy || completionPanel.activeSelf) return;
+        if (DialogueRunning || infoOpen || memoOpen || transitionBusy || completionPanel.activeSelf) return;
         switch (action)
         {
             case "directory":
-                boardRead = true;
-                ShowInfo("门口楼层展板", DirectoryText, () => Say(new[] {
-                    new Line("我", "十一点半只断走廊的灯，屋里插座不断电……这么好的环境，怪不得袁祁非要申请在社团活动室通宵。") }));
+                PlayNode("S0_Exterior_Directory");
                 break;
             case "exteriorBridge":
-                Say(new[] { new Line("我", "四楼那条玻璃连廊串联着两栋楼。太阳还没落山，阳光刺得看不清里面。") });
+                PlayNode("S0_Exterior_Bridge");
                 break;
             case "enter":
-                if (!boardRead) Say(new[] { new Line("我", "先看看门口的楼层展板，确认单数栋五楼怎么走。") });
-                else ShowScreen(1, "单数栋五楼。活动室就在走廊这边。");
+                if (!boardRead) PlayNode("S0_Exterior_NeedBoard");
+                else ShowScreen(1, "S0_Corridor_Arrive");
                 break;
             case "toRoom":
                 ShowScreen(2);
                 break;
             case "toCorridor":
-                if (phase == 4) Say(new[] { new Line("我", "那张照片还在脚边。先看看掉出来的是什么。") });
+                if (phase == 4) PlayNode("S0_ClubRoom_ReturnPhoto");
                 else ShowScreen(1);
                 break;
             case "toBridge":
-                if (phase < 2) Say(new[] { new Line("我", "先去活动室和大家集合，开题快开始了。") });
-                else ShowScreen(3, "单数栋四楼。连廊通往对面的偶数栋。");
+                if (phase < 2) PlayNode("S0_Day_NeedClubRoom");
+                else ShowScreen(3, "S0_Bridge_Arrive");
                 break;
             case "bridgeBack": ShowScreen(1); break;
             case "chair":
                 if (phase < 2) break;
-                chairRead = true;
-                Say(new[] {
-                    new Line("我", "第五把椅子被袁祁推到了铁皮储物柜旁边。柜子顶上塞着个旧纸盒，感觉随时会掉下来。"),
-                    new Line("许圆", "椅背上还贴着去年的旧编号贴纸，字都磨没了。拍参考图的话，要不要把它移走？"),
-                    new Line("我", "先别动了，晚上腾不出地方再说吧。")
-                });
-                UpdateHUD();
+                PlayNode("S0_ClubRoom_Chair");
                 break;
             case "sign":
-                signRead = true;
-                Say(new[] { new Line("我", "单数栋 5F，数智设计学院。安全出口指示灯常亮，往下是去 4F 和 3F 的楼梯。") });
-                UpdateHUD();
+                PlayNode("S0_ClubRoom_Sign");
                 break;
             case "timer":
-                timerRead = true;
-                ShowInfo("照明定时箱", "周五、周六 23:30 自动切断走廊与楼梯照明。请勿私自扳动开关。\n\n从活动室门口到楼梯口只有十几步，但走廊没有外窗。", null);
-                UpdateHUD();
+                PlayNode("S0_Corridor_Timer");
                 break;
             case "floorPlaque":
-                ShowInfo("单数栋 5F · 数智设计学院", "← 游戏开发协会活动室\n↓ 4F 连廊 / 3F 机房\n\n其余实验室门禁关闭。", null);
+                PlayNode("S0_Corridor_FloorPlaque");
                 break;
             case "guide":
-                guideRead = true;
-                ShowInfo("双栋导览练习稿｜社团旧资料", "去年社团留下的平面练习稿。\n\n单数栋 —— 4F 玻璃连廊 —— 偶数栋\n\n红笔批注：巡场顺序，先去单数栋，再去偶数栋；从连廊口向外走。\n\n两端墙上各有近、远两张海报。远端海报被新招募贴纸盖住一层。", null);
-                UpdateHUD();
+                PlayNode("S0_Bridge_Guide");
                 break;
             case "glass":
-                Say(new[] { new Line("我", "透过连廊玻璃能看见对面的偶数栋。两边的教室门都锁着。") });
+                PlayNode("S0_Bridge_Glass");
                 break;
             case "switch":
-                ShowInfo("连廊应急照明", "墙上有个独立的『连廊应急照明』开关。现在是白天，还不用打开。", null);
+                PlayNode("S0_Bridge_Switch");
                 break;
             case "leader":
                 if (phase != 2) break;
-                if (!AllMemories) Say(new[] { new Line("袁祁", "先把活动室、五楼走廊和四楼连廊入口都看一遍。拍完参考图回来找我。") });
+                if (!AllMemories) PlayNode("S0_ClubRoom_LeaderReminder");
                 else BeginTransition();
                 break;
             case "photo":
@@ -304,30 +294,36 @@ public sealed class S0Controller : MonoBehaviour
 
     private bool AllMemories => chairRead && signRead && timerRead && guideRead;
 
-    private void PlayOpening()
+    private void PlayNode(string nodeId, bool once = false)
     {
-        Say(new[] {
-            new Line("袁祁", "可算来了！快把包放下，马上还有五分钟直播开题了。"),
-            new Line("唐澈", "插线板给你留了靠边那个口，你工位就在那儿。"),
-            new Line("许圆", "我把数位板接好了。你直接插电脑上就能用了。"),
-            new Line("袁祁", "靠窗那把空椅子我顺手推到储物柜边上了，省得挡路。"),
-            new Line("许圆", "我们当初报名的时候是四个人吧？怎么多出来一把椅子？"),
-            new Line("唐澈", "可能是之前参加活动的人搬过来的，就放那儿吧。"),
-            new Line("直播主持 · 16:00", "各位参赛队伍下午好！本届 48H GameJam 的创作主题是——『选择』。周日下午 16:00 前做出可玩的作品，之后大家一起展示。"),
-            new Line("唐澈", "……一个词的题怎么办啊？策划救一下，咱怎么做？"),
-            new Line("袁祁", "得让玩家的选择真正影响游戏流程。你们觉得呢？"),
-            new Line("许圆", "我们只有四十八个小时。要不拿这栋实验楼当原型？白天做两层，熄灯后做两层。"),
-            new Line("我", "那就先去楼里转一圈，拍点走廊和连廊当参考图。"),
-            new Line("袁祁", "行，你去踩点。我们仨先把工程仓库和基础框架搭起来。拍完回来找我。")
-        }, () => { phase = 2; UpdateHUD(); });
+        DialogueService service = DialogueService.Ensure();
+        if (service != null) service.Play(nodeId, this, once);
+    }
+
+    private void HandleDialogueCompleted(string nodeId)
+    {
+        switch (nodeId)
+        {
+            case "S0_ClubRoom_Intro":
+                phase = 2;
+                UpdateHUD();
+                UpdateInteractionVisibility();
+                break;
+            case "S0_ClubRoom_Transition":
+                TransitionSequence();
+                break;
+            case "S0_ClubRoom_WorkMontage":
+                LightsOut();
+                break;
+        }
     }
 
     private void BeginTransition()
     {
+        if (phase != 2) return;
         phase = 3;
         UpdateHUD();
-        Say(new[] { new Line("袁祁", "参考图拍够了吗？来，趁现在脑子还清醒，我们把前三个场景的交互逻辑顺一遍。") },
-            TransitionSequence);
+        PlayNode("S0_ClubRoom_Transition");
     }
 
     private void TransitionSequence()
@@ -335,13 +331,7 @@ public sealed class S0Controller : MonoBehaviour
         transitionBusy = true;
         UpdateInteractionVisibility();
         if (deskWorkSound != null) audioSource.PlayOneShot(deskWorkSound, 0.65f);
-        Say(new[] {
-            new Line("时间 · 18:30", "外卖袋堆上了桌角。白板上画满第一版流程图。"),
-            new Line("时间 · 21:15", "唐澈喝掉第二罐咖啡。许圆把活动室布局画进背景草图。"),
-            new Line("时间 · 23:29", "公共照明熄灭倒计时。"),
-            new Line("唐澈", "二十九分了。我先把工程保存一下，万一跳闸，没保存的文件就完了。"),
-            new Line("袁祁", "今晚大家轮流眯一会儿。明天下午四点，我们要凑出第一版能跑的 Demo。")
-        }, LightsOut);
+        PlayNode("S0_ClubRoom_WorkMontage");
     }
 
     private void LightsOut()
@@ -351,57 +341,115 @@ public sealed class S0Controller : MonoBehaviour
         PlayerPrefs.SetInt("WWG_S0_Complete", 1);
         PlayerPrefs.Save();
         ShowScreen(2);
+        PlayNode("S0_ClubRoom_LightsOut");
         transitionBusy = false;
-        Say(new[] {
-            new Line("时间 · 23:30", "咔哒——嗡。走廊的灯由远及近，逐盏熄灭。"),
-            new Line("我", "门玻璃外的走廊暗了。屋里的顶灯、电脑屏幕还亮着。"),
-            new Line("我", "一声闷响。储物柜顶的旧纸盒掉到了第五把椅子旁，滑出一张背面朝上的照片。")
-        });
-    }
-
-    public void ContinueDialogue()
-    {
-        if (!dialoguePanel.activeSelf) return;
-        if (lines.Count > 0)
-        {
-            Line line = lines.Dequeue();
-            speakerText.text = line.speaker;
-            dialogueText.text = line.body;
-            portraitImage.sprite = line.speaker == "袁祁" ? yuanPortrait : line.speaker == "唐澈" ? tangPortrait : line.speaker == "许圆" ? xuPortrait : null;
-            bool hasPortrait = portraitImage.sprite != null;
-            portraitImage.enabled = hasPortrait;
-            speakerText.rectTransform.anchoredPosition = new Vector2(hasPortrait ? 290 : 36, -18);
-            dialogueText.rectTransform.anchoredPosition = new Vector2(hasPortrait ? 290 : 36, -68);
-            dialogueText.rectTransform.sizeDelta = new Vector2(hasPortrait ? 1480 : 1745, 115);
-        }
-        else
-        {
-            dialoguePanel.SetActive(false);
-            Action callback = afterDialogue;
-            afterDialogue = null;
-            callback?.Invoke();
-            UpdateInteractionVisibility();
-        }
-    }
-
-    private void Say(IEnumerable<Line> dialogue, Action callback = null)
-    {
-        lines.Clear();
-        foreach (Line line in dialogue) lines.Enqueue(line);
-        afterDialogue = callback;
-        dialoguePanel.SetActive(true);
         UpdateInteractionVisibility();
-        ContinueDialogue();
     }
 
-    private Action afterInfo;
-    private void ShowInfo(string title, string body, Action callback)
+    public bool HasFlag(string id)
     {
-        infoTitle.text = title;
-        infoBody.text = body;
-        afterInfo = callback;
+        switch (id)
+        {
+            case "flag.s0.board": return boardRead;
+            case "flag.s0.chair": return chairRead;
+            case "flag.s0.sign": return signRead;
+            case "flag.s0.timer": return timerRead;
+            case "flag.s0.guide": return guideRead;
+            case "flag.s0.complete": return phase == 4;
+            default: return extraFlags.Contains(id);
+        }
+    }
+
+    public bool HasItem(string id) => extraItems.Contains(id);
+    public bool HasSeenDialogue(string nodeId) => dialogueSeen.Contains(nodeId);
+    public void MarkDialogueSeen(string nodeId)
+    {
+        if (!string.IsNullOrWhiteSpace(nodeId)) dialogueSeen.Add(nodeId);
+    }
+
+    public int San => 100;
+    public int Health => 3;
+    public string Route => string.Empty;
+    public string View => string.Empty;
+
+    public void SetFlag(string id)
+    {
+        switch (id)
+        {
+            case "flag.s0.board": boardRead = true; break;
+            case "flag.s0.chair": chairRead = true; break;
+            case "flag.s0.sign": signRead = true; break;
+            case "flag.s0.timer": timerRead = true; break;
+            case "flag.s0.guide": guideRead = true; break;
+            default: extraFlags.Add(id); break;
+        }
+    }
+
+    public void ClearFlag(string id)
+    {
+        switch (id)
+        {
+            case "flag.s0.board": boardRead = false; break;
+            case "flag.s0.chair": chairRead = false; break;
+            case "flag.s0.sign": signRead = false; break;
+            case "flag.s0.timer": timerRead = false; break;
+            case "flag.s0.guide": guideRead = false; break;
+            default: extraFlags.Remove(id); break;
+        }
+    }
+
+    public void AddItem(string id)
+    {
+        if (!string.IsNullOrWhiteSpace(id)) extraItems.Add(id);
+    }
+
+    public void ApplyShock(string id, int sanDelta, int healthDelta = 0)
+    {
+        string guard = "flag." + id + ".shock";
+        if (HasFlag(guard)) return;
+        extraFlags.Add(guard);
+        Debug.Log("[Dialogue] S0 无 SAN 冲击定义，已忽略：" + id);
+    }
+
+    public void ChooseRoute(string choice) { }
+    public void ChooseView(string choice) { }
+
+    public IEnumerator ShowDocument(string documentId)
+    {
+        if (!DialogueDocuments.TryGet(documentId, out DialogueDocuments.Entry document))
+        {
+            Debug.LogWarning("[Dialogue] 缺少文档 ID：" + documentId);
+            yield break;
+        }
+        if (DialogueService.Instance != null) DialogueService.Instance.HideOverlay();
+        infoTitle.text = document.residue ? "【残影】" + document.title : document.title;
+        infoBody.text = document.body;
         infoOpen = true;
         infoPanel.SetActive(true);
+        UpdateInteractionVisibility();
+        while (infoOpen) yield return null;
+    }
+
+    public IEnumerator ShowPhoto() => null;
+
+    public void RequestCheckpoint()
+    {
+        if (DialogueRunning)
+        {
+            Debug.LogWarning("[Dialogue] 对话进行中不允许写入 S0 检查点。");
+            return;
+        }
+        SaveManualCheckpoint();
+    }
+
+    public void RequestGoTo(string locationId, string variant)
+    {
+        Debug.LogWarning("[Dialogue] S0 不使用 go_to：" + locationId + "/" + variant);
+    }
+
+    public void RefreshHud()
+    {
+        UpdateHUD();
         UpdateInteractionVisibility();
     }
 
@@ -409,20 +457,17 @@ public sealed class S0Controller : MonoBehaviour
     {
         infoPanel.SetActive(false);
         infoOpen = false;
-        Action callback = afterInfo;
-        afterInfo = null;
-        callback?.Invoke();
         UpdateInteractionVisibility();
     }
 
     public void ToggleMemo()
     {
-        if (dialoguePanel.activeSelf || infoOpen || transitionBusy) return;
+        if (DialogueRunning || infoOpen || transitionBusy) return;
         memoOpen = !memoOpen;
         memoPanel.SetActive(memoOpen);
         UpdateInteractionVisibility();
         if (!memoOpen) return;
-        memoText.text = "【建筑导览】\n" + (boardRead ? DirectoryText : "尚未查阅门口展板。") +
+        memoText.text = "【建筑导览】\n" + (boardRead ? DialogueDocuments.GetBody("s0.directory") : "尚未查阅门口展板。") +
             "\n\n【白天取景】\n" +
             (chairRead ? "✓ 活动室：第五把椅子、白色地胶框和柜顶旧纸盒。\n" : "○ 活动室：靠窗区域待查看。\n") +
             (signRead && timerRead ? "✓ 5F 走廊：安全出口与 23:30 公共照明定时箱。\n" : "○ 5F 走廊：安全指示牌和定时箱待查看。\n") +

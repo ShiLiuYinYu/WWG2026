@@ -73,7 +73,8 @@ namespace WWG
         private void Update()
         {
             if (SaveSlotPanel.IsOpen) return;
-            if (Keyboard.current != null && Keyboard.current.escapeKey.wasPressedThisFrame)
+            bool dialogueRunning = DialogueService.Instance != null && DialogueService.Instance.IsRunning;
+            if (!dialogueRunning && Keyboard.current != null && Keyboard.current.escapeKey.wasPressedThisFrame)
             {
                 if (settingsPanel.activeSelf) CloseSettings();
                 else if (detailPanel.activeSelf) CloseDetail();
@@ -104,6 +105,7 @@ namespace WWG
 
         public void TogglePause()
         {
+            if (DialogueService.Instance != null && DialogueService.Instance.IsRunning) return;
             if (pausePanel.activeSelf) ClosePause();
             else
             {

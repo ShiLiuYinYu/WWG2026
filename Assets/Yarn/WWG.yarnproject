@@ -1,0 +1,13 @@
+{
+  "projectFileVersion": 4,
+  "sourceFiles": [
+    "Shared/**/*.yarn",
+    "Chapters/**/*.yarn"
+  ],
+  "excludeFiles": [],
+  "localisation": {},
+  "baseLanguage": "zh-CN",
+  "compilerOptions": {
+    "diagnosticsSeverity": {}
+  }
+}
