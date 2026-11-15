@@ -1,6 +1,6 @@
 # YarnSpinner 接入与对话系统重构
 
-> 状态：**阶段 0–3 已实施，阶段 4–5 未实施**。`dev.yarnspinner.unity` 3.2.8 已写入 `Packages/manifest.json` 与 `Packages/packages-lock.json`；`Assets/Yarn/WWG.yarnproject`、`Assets/Scripts/Dialogue/` 共享服务与自定义 uGUI 呈现器、`Assets/Resources/Dialogue/WwgDialogueHost.prefab`、立绘配置、`WWG/Yarn/Validate Dialogue` 和 `WWG/Dev/Play Dialogue Test` 已建立。S0、S1、S2 的对白已分别迁移到 `Assets/Yarn/Chapters/Prologue/`、`NightPhoto/`、`BridgeRoute/`，三个控制器都实现 `IDialogueContext` 并移除旧场景对白面板。S2 仍保留自己的暂停/背包/任务记录 UI 和 `GameState`；`GameRuntime`/`StoryDirector` 接管、`GameplayOverlay` 去章节分支和旧检查点清理属于阶段 4–5，尚未实施。
+> 状态：**阶段 0–3 已实施，阶段 4 未实施；阶段 5 的旧对白面板清理与文档同步已完成**。`dev.yarnspinner.unity` 3.2.8 已写入 `Packages/manifest.json` 与 `Packages/packages-lock.json`；`Assets/Yarn/WWG.yarnproject`、`Assets/Scripts/Dialogue/` 共享服务与自定义 uGUI 呈现器、`Assets/Resources/Dialogue/WwgDialogueHost.prefab`、立绘配置、`WWG/Yarn/Validate Dialogue` 和 `WWG/Dev/Play Dialogue Test` 已建立。S0、S1、S2 的对白已分别迁移到 `Assets/Yarn/Chapters/Prologue/`、`NightPhoto/`、`BridgeRoute/`，三个控制器都实现 `IDialogueContext`，旧场景对白面板与私有对白队列已删除。S2 仍保留自己的暂停/背包/任务记录 UI 和 `GameState`；`GameRuntime`/`StoryDirector` 接管、`GameplayOverlay` 去章节分支和旧检查点清理属于阶段 4–5，尚未实施。
 >
 > 关联文档：[架构重构设计](./架构重构设计.md)、[架构规范](./架构规范.md)、[运行流程](./运行流程.md)、[目录结构组织](./目录结构组织.md)、[程序规范文档](./程序规范文档.md)。
 
