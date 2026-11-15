@@ -17,17 +17,19 @@ description: 在 WWG 项目中创建或修改 Unity 2D 场景、点击热点、U
 6. S2 的 `Locations/BridgeOdd4F`、`BridgeSpan4F`、`BridgeEven4F` 和 `ClubRoom` 已存在。只编辑目标地点；`WWG/Setup/Build S2 Location Scenes` 在任何目标场景已存在时拒绝执行。编辑器样本入口为 `WWG/Dev/Play S2`，不写玩家检查点。
 7. S2 的路线操作在 4F 入口场景按钮上完成，没有自动弹出的分支选择面板。灯可再次开关；初次选择标记不改写。
 8. 标题页与 S0/S1/S2 暂停菜单共用 `Assets/Resources/UI/SaveSlotPanel.prefab` 的三槽位存读档界面；修改布局时编辑预制体。S0 时间推进和 S1→S2 交接不使用全屏黑色阶段提示。
+9. 对白文本在 `Assets/Yarn/Chapters/`，由常驻 `WwgDialogueHost` 和 `DialogueService` 播放；不要在场景里新建或恢复旧对话面板，也不要往章节控制器里加私有 `Line` 队列。S2 仍保留自己的暂停、背包和任务记录 UI。
 
 ## 修改方式
 
 - 布局、图片、文字和热点范围：在 Unity 编辑器中修改目标场景或预制体并保存。可交互线索尽量使用独立图层或 UI，避免烘焙进背景。
 - 交互或状态逻辑：修改对应 C# 脚本，等待 Unity 编译完成，再检查 Console。新增脚本时按本项目实际目录和程序集组织，不预设 WJ 的命名空间或脚手架。
+- 对白与分支：编辑对应章节的 `.yarn`，节点名使用 `S0_`/`S1_`/`S2_` 前缀，关键行保留唯一 `#line:`；长文档加到 `DialogueDocuments`。一次性数值冲击用 `apply_shock`，不要把 P1/P2 判定搬进 Yarn。
 - 新场景：按固定视角点击切屏设计，确保热点、切屏箭头和背包交互可用。夜间同一地点应与白天空间关系一致；公共照明熄灭时室内电脑仍有电。
 - 谜题/分支：P2 两栋海报的读取顺序是“先单数栋、后偶数栋；每栋从连廊口向外”，结果为 `2741`。开灯和留暗都能取得数字；存档和读取应保留已做选择与关键进度。
 
 ## 验证
 
-1. 脚本或资产改动后调用 `refresh_unity(compile="request", scope="all", wait_for_ready=true)`，再用 `read_console(types=["error","warning"], format="detailed")` 检查新错误。先解决编译错误，再验证交互。
+1. 脚本或资产改动后调用 `refresh_unity(compile="request", scope="all", wait_for_ready=true)`，再用 `read_console(types=["error","warning"], format="detailed")` 检查新错误。先解决编译错误，再验证交互。改对白后执行 `WWG/Yarn/Validate Dialogue`。
 2. 场景/UI 改动需进 Play 模式检查目标界面，点击实际热点、按钮和切屏入口；用 `manage_camera(action="screenshot", include_image=true)` 查看画面，结束后退出 Play 模式。
 3. UI 使用 Screen Space Overlay 时，截图不要指定某个 Camera，以免漏掉 UI。若编辑器未连接，记录未验证的部分和连接前提。
 4. 涉及 P1/P2/P3、分支或存档时，验证两条 4F 路线均可继续、两种旧工程查看选择均可到达结尾；SAN/生命耗尽和读档不能丢失关键物与选择标记。只验证本次改动涉及的路径。
