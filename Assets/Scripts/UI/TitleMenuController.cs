@@ -171,10 +171,15 @@ namespace WWG
                 if (child != null) child.SetActive(true);
         }
 
+        private SettingsPanelController _settingsPanel;
+
         public void OnSettings()
         {
-            // 设置面板还没做，先占位。
-            Debug.Log("[Title] 设置：尚未实现");
+            if (_starting || _settingsPanel != null) return;
+            Canvas canvas = GetComponent<Canvas>();
+            if (canvas == null) canvas = GetComponentInParent<Canvas>();
+            if (canvas == null) return;
+            _settingsPanel = SettingsPanelController.Open(canvas.transform);
         }
 
         private bool _quitting;

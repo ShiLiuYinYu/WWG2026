@@ -12,10 +12,13 @@ namespace WWG
         private static GameplayOverlay current;
         private S0Controller s0;
         private S1Controller s1;
-        private GameObject pausePanel, settingsPanel, detailPanel, dock;
-        private Text messageLabel;
-        private Text detailName, detailBody, volumeLabel;
+        private GameObject pausePanel, settingsPanel, detailPanel, dock, topBar;
+        private GameObject shade;
+        private Slider volumeSlider, textSpeedSlider;
+        private Text textSpeedLabel;
+        private Text timeLabel, objectiveLabel, statusLabel, messageLabel;
         private VitalsBars vitals;
+        private Text detailName, detailBody, selectionLabel, volumeLabel;
         private GameObject photoSlot, badgeSlot;
         private string selectedItem;
         private string detailItem;
@@ -31,22 +34,50 @@ namespace WWG
             settingsPanel = pausePanel.transform.Find("Settings panel").gameObject;
             detailPanel = transform.Find("Item detail").gameObject;
             dock = transform.Find("Inventory dock").gameObject;
-            vitals = transform.Find("Top bar/Vitals").GetComponent<VitalsBars>();
+            topBar = transform.Find("Top bar").gameObject;
+            var shadeTr = transform.Find("Shade");
+            if (shadeTr != null) shade = shadeTr.gameObject;
+            timeLabel = FindText("Top bar/Time");
+            objectiveLabel = FindText("Top bar/Objective");
+            statusLabel = FindText("Top bar/Status");
+            var vitalsTr = transform.Find("Top bar/Vitals");
+            if (vitalsTr != null) vitals = vitalsTr.GetComponent<VitalsBars>();
             messageLabel = FindText("Toast/Message");
             detailName = FindText("Item detail/Name");
             detailBody = FindText("Item detail/Body");
+            selectionLabel = FindText("Inventory dock/Selection");
             volumeLabel = FindText("Pause panel/Settings panel/Volume value");
             photoSlot = transform.Find("Inventory dock/Photo slot").gameObject;
             badgeSlot = transform.Find("Inventory dock/Badge slot").gameObject;
             Bind("Top bar/Pause button", TogglePause);
+            Bind("Top bar/Record button", OpenRecord);
             Bind("Pause panel/Resume", ClosePause);
             Bind("Pause panel/Save", Save);
             Bind("Pause panel/Load", Load);
             Bind("Pause panel/Settings", OpenSettings);
             Bind("Pause panel/Title", ReturnToTitle);
             Bind("Pause panel/Close", ClosePause);
-            Bind("Pause panel/Settings panel/Volume", CycleVolume);
             Bind("Pause panel/Settings panel/Back", CloseSettings);
+            var volumeSlider = transform.Find("Pause panel/Settings panel/Volume").GetComponent<Slider>();
+            if (volumeSlider != null)
+            {
+                volumeSlider.minValue = 0f;
+                volumeSlider.maxValue = 1f;
+                volumeSlider.SetValueWithoutNotify(AudioListener.volume);
+                volumeSlider.onValueChanged.AddListener(SetVolume);
+            }
+
+            textSpeedSlider = transform.Find("Pause panel/Settings panel/Text speed")?.GetComponent<Slider>();
+            textSpeedLabel = FindText("Pause panel/Settings panel/Text speed value");
+            if (textSpeedSlider != null)
+            {
+                textSpeedSlider.minValue = 5f;
+                textSpeedSlider.maxValue = 80f;
+                textSpeedSlider.wholeNumbers = true;
+                textSpeedSlider.SetValueWithoutNotify(PlayerPrefs.GetFloat("WWG_TextSpeed", 30f));
+                textSpeedSlider.onValueChanged.AddListener(SetTextSpeed);
+            }
+            UpdateTextSpeedLabel();
             Bind("Item detail/Use", SelectDetailItem);
             Bind("Item detail/Inspect", InspectDetailItem);
             Bind("Item detail/Close", CloseDetail);
@@ -55,6 +86,34 @@ namespace WWG
             settingsPanel.SetActive(false);
             detailPanel.SetActive(false);
             UpdateVolumeLabel();
+            AttachButtonSounds();
+        }
+
+        private void AttachButtonSounds()
+        {
+            AttachSound("Pause panel/Resume", TitleButtonFx.ClickSound.Ok);
+            AttachSound("Pause panel/Save", TitleButtonFx.ClickSound.Ok);
+            AttachSound("Pause panel/Load", TitleButtonFx.ClickSound.Ok);
+            AttachSound("Pause panel/Settings", TitleButtonFx.ClickSound.Ok);
+            AttachSound("Pause panel/Title", TitleButtonFx.ClickSound.Cancel);
+            AttachSound("Pause panel/Close", TitleButtonFx.ClickSound.Cancel);
+            AttachSound("Pause panel/Settings panel/Back", TitleButtonFx.ClickSound.Cancel);
+            AttachSound("Item detail/Use", TitleButtonFx.ClickSound.Ok);
+            AttachSound("Item detail/Inspect", TitleButtonFx.ClickSound.Ok);
+            AttachSound("Item detail/Close", TitleButtonFx.ClickSound.Cancel);
+            AttachSound("Top bar/Pause button", TitleButtonFx.ClickSound.Ok);
+            AttachSound("Top bar/Record button", TitleButtonFx.ClickSound.Ok);
+        }
+
+        private void AttachSound(string path, TitleButtonFx.ClickSound sound)
+        {
+            Transform t = transform.Find(path);
+            if (t == null) return;
+            Button b = t.GetComponent<Button>();
+            if (b == null) return;
+            TitleButtonFx fx = t.GetComponent<TitleButtonFx>();
+            if (fx == null) fx = t.gameObject.AddComponent<TitleButtonFx>();
+            fx.SetClickSound(sound);
         }
 
         private void OnDestroy()
@@ -79,18 +138,40 @@ namespace WWG
             }
             if (s0 != null)
             {
-                vitals.gameObject.SetActive(false);
+                timeLabel.text = s0.timeText.text;
+                objectiveLabel.text = s0.objectiveText.text;
+                if (vitals != null) vitals.gameObject.SetActive(false);
+                else if (statusLabel != null) statusLabel.text = "白天调查  ·  安全";
             }
             else if (s1 != null)
             {
-                vitals.gameObject.SetActive(true);
-                vitals.SetSan(s1.San, 100);
-                vitals.SetHealth(s1.Health, 3);
+                timeLabel.text = s1.timeText.text;
+                objectiveLabel.text = s1.objectiveText.text;
+                if (vitals != null)
+                {
+                    vitals.gameObject.SetActive(true);
+                    vitals.SetSan(s1.San, 100);
+                    vitals.SetHealth(s1.Health, 3);
+                }
+                else if (statusLabel != null) statusLabel.text = "SAN  " + s1.San + "/100    生命  " + s1.Health + "/3";
             }
             photoSlot.SetActive(s1 != null && s1.HasPhoto);
             badgeSlot.SetActive(s1 != null && s1.HasBadge);
-            dock.SetActive(!pausePanel.activeSelf && !GameplayModalOpen);
-            if (messageLabel.transform.parent.gameObject.activeSelf && Time.unscaledTime >= messageUntil)
+            selectionLabel.text = selectedItem == null ? (s1 == null || (!s1.HasPhoto && !s1.HasBadge) ? "暂无物品" : "右键查看 · 拖到场景使用") :
+                "已选择 " + (selectedItem == "photo" ? "旧照片" : "旧工牌") + " · 点击场景热点使用";
+            dock.SetActive(!dialogueRunning && !pausePanel.activeSelf && !GameplayModalOpen);
+            if (topBar != null) topBar.SetActive(!dialogueRunning);
+            if (shade != null)
+            {
+                bool wantShade = pausePanel.activeSelf || detailPanel.activeSelf || settingsPanel.activeSelf || GameplayModalOpen;
+                if (shade.activeSelf != wantShade) shade.SetActive(wantShade);
+            }
+            if (dialogueRunning)
+            {
+                if (messageLabel.transform.parent.gameObject.activeSelf)
+                    messageLabel.transform.parent.gameObject.SetActive(false);
+            }
+            else if (messageLabel.transform.parent.gameObject.activeSelf && Time.unscaledTime >= messageUntil)
                 messageLabel.transform.parent.gameObject.SetActive(false);
         }
 
@@ -132,15 +213,35 @@ namespace WWG
 
         private void OpenSettings() { settingsPanel.SetActive(true); UpdateVolumeLabel(); }
         private void CloseSettings() { settingsPanel.SetActive(false); }
-        private void CycleVolume()
+        private void SetVolume(float value)
         {
-            AudioListener.volume = AudioListener.volume > 0.75f ? 0.5f : AudioListener.volume > 0.25f ? 0f : 1f;
-            PlayerPrefs.SetFloat("WWG_MasterVolume", AudioListener.volume);
+            AudioListener.volume = value;
+            PlayerPrefs.SetFloat("WWG_MasterVolume", value);
             PlayerPrefs.Save();
             UpdateVolumeLabel();
         }
         private void UpdateVolumeLabel() { volumeLabel.text = "主音量  " + Mathf.RoundToInt(AudioListener.volume * 100f) + "%"; }
+
+        private void SetTextSpeed(float value)
+        {
+            PlayerPrefs.SetFloat("WWG_TextSpeed", value);
+            PlayerPrefs.Save();
+            UpdateTextSpeedLabel();
+        }
+
+        private void UpdateTextSpeedLabel()
+        {
+            if (textSpeedLabel == null) return;
+            float v = PlayerPrefs.GetFloat("WWG_TextSpeed", 30f);
+            textSpeedLabel.text = v <= 5f ? "文字速度  逐字" : "文字速度  " + Mathf.RoundToInt(v) + " 字/秒";
+        }
         private void ReturnToTitle() { ClosePause(); GameFlow.LoadLocation(GameFlow.TitleScene); }
+        private void OpenRecord()
+        {
+            if (pausePanel.activeSelf || detailPanel.activeSelf) return;
+            if (s0 != null) s0.ToggleMemo();
+            else if (s1 != null) s1.ToggleMemo();
+        }
 
         public void OpenItem(string item)
         {

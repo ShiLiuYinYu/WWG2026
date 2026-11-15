@@ -566,9 +566,15 @@ public sealed class S1Controller : MonoBehaviour, IDialogueContext
         photoFace.SetActive(!photoShowingBack);
         photoBack.SetActive(photoShowingBack);
         photoBackText.text = "23:30\n旧项目场景参考图\n\n社团自留照片 · 去年";
+        if (S0Audio.Instance != null) S0Audio.Instance.PlaySfx(S0Audio.SfxPage, 0.85f);
     }
 
-    public void ClosePhoto() { photoPanel.SetActive(false); UpdateInteractionVisibility(); }
+    public void ClosePhoto()
+    {
+        if (S0Audio.Instance != null) S0Audio.Instance.PlaySfx(S0Audio.SfxPage, 0.55f);
+        photoPanel.SetActive(false);
+        UpdateInteractionVisibility();
+    }
 
     public void ToggleMemo()
     {

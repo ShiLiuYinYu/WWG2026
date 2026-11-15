@@ -1,4 +1,4 @@
-title: S1_ClubRoom_Intro
+﻿title: S1_ClubRoom_Intro
 tags: chapter_night_photo location_clubroom
 ---
 唐澈: 吓我一跳……储物柜顶上那盒子怎么自己震下来了？ #line:s1_intro_01
@@ -10,6 +10,7 @@ tags: chapter_night_photo location_clubroom
 ---
 <<give_item "photo">>
 我: 盒子里都是过期的社团招新传单，最上面夹着一张洗出来的照片。背面写着：23:30 / 旧项目场景参考图。 #line:s1_box_01
+<<sfx box 0.9>>
 许圆: 这是去年的活动室。照片里窗帘拉着，长桌边的旧桌灯亮着，第五把椅子摆在窗边白色地胶框里。 #line:s1_box_02
 许圆: 要不照着它把灯光和位置还原一下？我拍张对比图。 #line:s1_box_03
 袁祁: 你帮许圆把这三处对一下吧，我把分支表存个档。 #line:s1_box_04
@@ -22,9 +23,11 @@ tags: chapter_night_photo location_clubroom
 <<set $match_count = 0>>
 <<if has_flag("flag.p1.curtain")>>
 我: 把窗帘拉严了，窗外的光被挡住。 #line:s1_curtain_on_01
+<<sfx curtain 0.85>>
 <<set $match_count = $match_count + 1>>
 <<else>>
 我: 窗帘重新拉开了。照片里不是这样。 #line:s1_curtain_off_01
+<<sfx curtain 0.85>>
 <<endif>>
 <<if has_flag("flag.p1.lamp")>>
 <<set $match_count = $match_count + 1>>
@@ -41,9 +44,11 @@ tags: chapter_night_photo location_clubroom
 <<set $match_count = 0>>
 <<if has_flag("flag.p1.lamp")>>
 我: 旧桌灯还能亮，暖光打在靠窗那块空地上。 #line:s1_lamp_on_01
+<<sfx lighton 0.85>>
 <<set $match_count = $match_count + 1>>
 <<else>>
 我: 桌灯关了，照片里的它是亮着的。 #line:s1_lamp_off_01
+<<sfx lightoff 0.85>>
 <<endif>>
 <<if has_flag("flag.p1.curtain")>>
 <<set $match_count = $match_count + 1>>
@@ -60,9 +65,11 @@ tags: chapter_night_photo location_clubroom
 <<set $match_count = 0>>
 <<if has_flag("flag.p1.chair")>>
 我: 椅脚刚好卡进白色地胶框。 #line:s1_chair_on_01
+<<sfx chair 0.8>>
 <<set $match_count = $match_count + 1>>
 <<else>>
 我: 把第五把椅子挪回储物柜旁。 #line:s1_chair_off_01
+<<sfx chair 0.8>>
 <<endif>>
 <<if has_flag("flag.p1.curtain")>>
 <<set $match_count = $match_count + 1>>

@@ -21,6 +21,7 @@ public sealed class S1Hotspot : MonoBehaviour, IPointerClickHandler, IPointerEnt
     {
         if (eventData.button == PointerEventData.InputButton.Left && !dropSucceeded)
         {
+            WWG.UISound.Ok();
             if (!WWG.GameplayOverlay.TryUseSelected(action)) controller.HandleHotspot(action);
         }
     }
@@ -32,6 +33,7 @@ public sealed class S1Hotspot : MonoBehaviour, IPointerClickHandler, IPointerEnt
         if (action != "chair" || tapeTarget == null) return;
         if (!RectTransformUtility.RectangleContainsScreenPoint(tapeTarget, eventData.position, null)) return;
         dropSucceeded = true;
+        WWG.UISound.Ok();
         controller.HandleHotspot("chair");
     }
 
@@ -39,6 +41,7 @@ public sealed class S1Hotspot : MonoBehaviour, IPointerClickHandler, IPointerEnt
     {
         if (image != null && action != "chair") image.color = new Color(0.65f, 0.88f, 0.95f, 0.16f);
         controller.SetHover(label);
+        WWG.UISound.Cursor();
     }
 
     public void OnPointerExit(PointerEventData eventData)

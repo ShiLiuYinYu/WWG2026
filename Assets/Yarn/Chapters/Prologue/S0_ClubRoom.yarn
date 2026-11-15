@@ -1,6 +1,7 @@
 ﻿title: S0_ClubRoom_Intro
 tags: chapter_prologue location_clubroom
 ---
+<<bgm_stop voice 1.5>>
 袁祁: 可算来了！快把包放下，马上还有五分钟直播开题了。 #line:s0_clubroom_intro_01
 唐澈: 插线板给你留了靠边那个口，你工位就在那儿。 #line:s0_clubroom_intro_02
 许圆: 我把数位板接好了。你直接插电脑上就能用了。 #line:s0_clubroom_intro_03
