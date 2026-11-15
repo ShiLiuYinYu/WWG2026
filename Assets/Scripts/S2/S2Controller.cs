@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
@@ -7,11 +8,19 @@ using WWG;
 /// <summary>Four fixed views for the S2 bridge investigation. The same GameState travels between views.</summary>
 public sealed class S2Controller : MonoBehaviour
 {
+    [Serializable]
+    private struct DialogueLine
+    {
+        public string speaker;
+        public string body;
+        public DialogueLine(string speaker, string body) { this.speaker = speaker; this.body = body; }
+    }
+
     public Text locationText, timeText, objectiveText, statusText, feedbackText, recordText, inventoryText;
     public Text farRevealText, codeFeedbackText;
     public Text[] digitTexts;
-    public GameObject infoPanel, codePanel, recordPanel, inventoryPanel, pausePanel, glow;
-    public Text infoTitle, infoBody;
+    public GameObject infoPanel, codePanel, recordPanel, inventoryPanel, pausePanel, glow, dialoguePanel;
+    public Text infoTitle, infoBody, dialogueSpeakerText, dialogueText;
     public Button drawerButton, switchButton, darkChoiceButton, glassButton;
 
     private const string SafeScene = "ClubRoom";
@@ -23,6 +32,8 @@ public sealed class S2Controller : MonoBehaviour
     private float dangerSeconds, zeroSanSeconds, idleSeconds, revealedUntil;
     private string revealLocation;
     private int hintStage;
+    private readonly Queue<DialogueLine> dialogueQueue = new Queue<DialogueLine>();
+    private Action afterDialogue, afterInfo;
 
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
     private static void ResetPending() { pending = null; pendingDevelopment = false; }
@@ -55,6 +66,7 @@ public sealed class S2Controller : MonoBehaviour
             foreach (Text label in GetComponentsInChildren<Text>(true)) label.font = font;
         infoPanel.SetActive(false); codePanel.SetActive(false);
         recordPanel.SetActive(false); inventoryPanel.SetActive(false); pausePanel.SetActive(false);
+        if (dialoguePanel != null) dialoguePanel.SetActive(false);
         state = pending;
         development = pendingDevelopment;
         pending = null;
@@ -80,6 +92,7 @@ public sealed class S2Controller : MonoBehaviour
             ShowInfo("无法进入 S2", "请从 S1 到达连廊，或使用编辑器的 WWG/Dev/Play S2。", false);
             return;
         }
+        state.EnsureCollections();
         state.chapterId = StoryIds.Chapter.BridgeRoute;
         state.stepId = state.HasFlag(StoryIds.Flag.P2DrawerTaken) ? "p2Complete" : "bridgeReached";
         if (!string.IsNullOrEmpty(state.routeChoice)) state.locationVariant =
@@ -87,11 +100,15 @@ public sealed class S2Controller : MonoBehaviour
                 ? StoryIds.Variant.Emergency : StoryIds.Variant.Night;
         UpdateView();
         if (string.IsNullOrEmpty(state.routeChoice))
+        {
             feedbackText.text = "入口照明关着。点击开关打开，或暂不开灯观察连廊。";
+            if (!state.HasSeenDialogue("s2.intro")) ShowIntroDialogue();
+        }
     }
 
     private bool ModalOpen => infoPanel.activeSelf || codePanel.activeSelf ||
-        recordPanel.activeSelf || inventoryPanel.activeSelf || pausePanel.activeSelf;
+        recordPanel.activeSelf || inventoryPanel.activeSelf || pausePanel.activeSelf ||
+        (dialoguePanel != null && dialoguePanel.activeSelf);
 
     private void Update()
     {
@@ -150,23 +167,35 @@ public sealed class S2Controller : MonoBehaviour
         }
     }
 
-    public void ChooseDark() => ChooseRoute(StoryIds.Choice.RouteDark);
+    public void ChooseDark() { if (CanAct()) ChooseRoute(StoryIds.Choice.RouteDark); }
     private void ChooseRoute(string choice)
     {
-        if (state == null || !state.ChooseRoute(choice)) return;
-        if (choice == StoryIds.Choice.RouteLight) state.SetFlag(StoryIds.Flag.P2EmergencyLightOn);
-        state.locationVariant = choice == StoryIds.Choice.RouteLight
-            ? StoryIds.Variant.Emergency : StoryIds.Variant.Night;
-        feedbackText.text = choice == StoryIds.Choice.RouteLight
+        if (state == null || !CanAct() || !state.ChooseRoute(choice)) return;
+        bool light = choice == StoryIds.Choice.RouteLight;
+        if (light) state.SetFlag(StoryIds.Flag.P2EmergencyLightOn);
+        state.locationVariant = light ? StoryIds.Variant.Emergency : StoryIds.Variant.Night;
+        feedbackText.text = light
             ? "应急灯亮了。旧残影被玻璃反光冲淡，海报贴纸可以揭开。"
             : "先留在黑暗中。可以凝视远端海报，之后仍可返回开灯。";
         UpdateView();
         SaveCheckpoint(true);
+        if (light)
+            Say(new[]
+            {
+                new DialogueLine("许圆（电话）", "看见了！四楼连廊亮了。还是开着灯稳妥点，大晚上的别摸黑走。"),
+                new DialogueLine("我", "亮是亮了，不过玻璃上刚才那点影子确实晃没了，可惜。算了，事已至此，先看看墙上和柜子吧。")
+            });
+        else
+            Say(new[]
+            {
+                new DialogueLine("我", "我先不开灯，打个手机电筒看看。玻璃上好像真留了东西。"),
+                new DialogueLine("唐澈（电话）", "行吧，那你慢点走啊，实在太黑就退回来把灯打开。")
+            });
     }
 
     public void SwitchLight()
     {
-        if (state == null) return;
+        if (state == null || !CanAct()) return;
         if (string.IsNullOrEmpty(state.routeChoice))
         {
             ChooseRoute(StoryIds.Choice.RouteLight);
@@ -248,6 +277,23 @@ public sealed class S2Controller : MonoBehaviour
                 : "锁已打开。点击抽屉取得里面的资料。", false);
             return;
         }
+        if (!state.HasSeenDialogue("s2.cabinet"))
+        {
+            state.MarkDialogueSeen("s2.cabinet");
+            Persist();
+            Say(new[]
+            {
+                new DialogueLine("我", "偶数栋这头放着个锁住的铁皮柜，上面贴着我们社团去年的封条。"),
+                new DialogueLine("柜门便签", "备用钥匙不知道被谁顺走了，密码锁暂时设成四楼那四张活动海报的展位号（按导览巡场顺序排）。谁去三楼机房借机器，自己开柜拿登记单。"),
+                new DialogueLine("唐澈（电话）", "神了，那就按顺序去看看那四张海报吧，密码用海报展位号也是个天才，不知道的还以为是解密游戏呢。")
+            }, OpenCabinetCode);
+            return;
+        }
+        OpenCabinetCode();
+    }
+
+    private void OpenCabinetCode()
+    {
         codePanel.SetActive(true);
         codeFeedbackText.text = "";
         UpdateDigits();
@@ -279,15 +325,29 @@ public sealed class S2Controller : MonoBehaviour
     }
     public void TakeDrawer()
     {
-        if (state == null || !state.HasFlag(StoryIds.Flag.P2CabinetOpen)) return;
+        if (state == null || !CanAct() || !state.HasFlag(StoryIds.Flag.P2CabinetOpen)) return;
         state.AddItem(StoryIds.Item.MachineNote);
         state.AddItem(StoryIds.Item.TeamSheet);
         state.SetFlag(StoryIds.Flag.P2DrawerTaken);
         state.stepId = "p2Complete";
         state.timeId = "saturday.0050";
         SaveCheckpoint(true);
-        ShowInfo("社团自留资料 · 柜内纸张", "机房借用便签：林未，周五 23:30，单数栋 3F 机房靠窗第 3 台。\n\n去年的分工表残页：第五格被撕去，只剩编号 05。\n\n两件关键物品已入背包。", false);
+        ShowInfo("社团自留资料 · 柜内纸张",
+            "机房借用便签：林未，周五 23:30，单数栋 3F 机房靠窗第 3 台。\n\n去年的分工表残页：第五格被撕去，只剩编号 05。\n\n两件关键物品已入背包。",
+            false, ShowDrawerDialogue);
         UpdateView();
+    }
+
+    private void ShowDrawerDialogue()
+    {
+        Say(new[]
+        {
+            new DialogueLine("我", "开了。里面压着一沓去年的登记纸。"),
+            new DialogueLine("我", "林未在工牌背面写『玻璃两边，各存一半』，是把开这个柜子的线索分在了两栋楼吧。她去年也是周五晚上十一点半熄灯之后，一个人去了单数栋三楼机房。"),
+            new DialogueLine("袁祁（电话）", "分工表把第五个人的名字撕了？这什么毛病，退队了也不用把纸撕了吧。"),
+            new DialogueLine("唐澈（电话）", "单数栋三楼机房……靠窗第三台是吧？那间机房周末没锁死，这会儿应该还能刷开。你顺着单数栋楼梯下去看看那台机器，我在五楼活动室这台旧电脑里翻翻，看能不能搜到他们去年项目的名字。"),
+            new DialogueLine("许圆（电话）", "你要是觉得头晕就先回五楼坐会儿，别硬撑着往下走啊。")
+        });
     }
 
     public void GoOdd() => Navigate(StoryIds.Location.BridgeOdd4F);
@@ -391,12 +451,67 @@ public sealed class S2Controller : MonoBehaviour
     }
     public void ReturnTitle() { pausePanel.SetActive(false); GameFlow.LoadLocation(GameFlow.TitleScene); }
     public void CloseCode() => codePanel.SetActive(false);
-    public void CloseInfo() => infoPanel.SetActive(false);
-    private void ShowInfo(string title, string body, bool residue)
+    public void CloseInfo()
+    {
+        infoPanel.SetActive(false);
+        Action callback = afterInfo;
+        afterInfo = null;
+        callback?.Invoke();
+        UpdateView();
+    }
+    private void ShowInfo(string title, string body, bool residue, Action callback = null)
     {
         infoTitle.text = (residue ? "【残影】" : "") + title;
         infoBody.text = body;
+        afterInfo = callback;
         infoPanel.SetActive(true);
+    }
+
+    private void ShowIntroDialogue()
+    {
+        Say(new[]
+        {
+            new DialogueLine("我", "我到四楼连廊口了。这层灯全灭了，比五楼看着还黑。"),
+            new DialogueLine("袁祁（电话）", "信号还行，听得挺清楚。我们从五楼窗户能瞅见四楼连廊，你现在是在开关旁边吧？"),
+            new DialogueLine("许圆（电话）", "我下午看的时候，开关就在连廊右手边墙上，你要是看不清路就先打开吧。"),
+            new DialogueLine("我", "等会儿，连廊玻璃上好像映着点东西，跟刚才五楼门玻璃上那行字有点像。我想想。"),
+            new DialogueLine("系统", "开灯可看清纸面细节并停止夜间 4F 的 SAN 消耗，但会冲淡玻璃残影；保持黑暗可通过「凝视」读取隐藏痕迹，但会持续消耗 SAN。")
+        }, () =>
+        {
+            state.MarkDialogueSeen("s2.intro");
+            Persist();
+        });
+    }
+
+    private void Say(IEnumerable<DialogueLine> dialogue, Action callback = null)
+    {
+        if (dialoguePanel == null || dialogueSpeakerText == null || dialogueText == null)
+        {
+            callback?.Invoke();
+            return;
+        }
+        dialogueQueue.Clear();
+        foreach (DialogueLine line in dialogue) dialogueQueue.Enqueue(line);
+        afterDialogue = callback;
+        dialoguePanel.SetActive(true);
+        ContinueDialogue();
+    }
+
+    public void ContinueDialogue()
+    {
+        if (dialoguePanel == null || !dialoguePanel.activeSelf) return;
+        if (dialogueQueue.Count > 0)
+        {
+            DialogueLine line = dialogueQueue.Dequeue();
+            dialogueSpeakerText.text = line.speaker;
+            dialogueText.text = line.body;
+            return;
+        }
+        dialoguePanel.SetActive(false);
+        Action callback = afterDialogue;
+        afterDialogue = null;
+        callback?.Invoke();
+        UpdateView();
     }
 
     private void UpdateView()
@@ -411,7 +526,7 @@ public sealed class S2Controller : MonoBehaviour
         objectiveText.text = state.HasFlag(StoryIds.Flag.P2DrawerTaken) ? "借用便签指向单数栋 3F 机房" :
             string.IsNullOrEmpty(state.routeChoice) ? "在应急照明开关旁作出选择" : "查找四张海报，打开偶数栋资料柜";
         statusText.text = "SAN " + state.san + "/" + state.sanMax + "   生命 " + state.health + "/3";
-        if (glow != null) glow.SetActive(light);
+        if (glow != null) glow.SetActive(light && location != StoryIds.Location.ClubRoom);
         if (farRevealText != null)
         {
             bool odd = location == StoryIds.Location.BridgeOdd4F;
