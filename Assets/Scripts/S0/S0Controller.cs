@@ -421,6 +421,7 @@ public sealed class S0Controller : MonoBehaviour, IDialogueContext
             Debug.LogWarning("[Dialogue] 缺少文档 ID：" + documentId);
             yield break;
         }
+        if (DialogueService.Instance != null) DialogueService.Instance.HideOverlay();
         infoTitle.text = document.residue ? "【残影】" + document.title : document.title;
         infoBody.text = document.body;
         infoOpen = true;

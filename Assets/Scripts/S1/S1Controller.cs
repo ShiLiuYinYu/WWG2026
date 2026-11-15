@@ -545,6 +545,7 @@ public sealed class S1Controller : MonoBehaviour, IDialogueContext
 
     private void OpenPhoto()
     {
+        if (DialogueService.Instance != null) DialogueService.Instance.HideOverlay();
         photoShowingBack = false;
         photoFace.SetActive(true);
         photoBack.SetActive(false);
@@ -599,6 +600,7 @@ public sealed class S1Controller : MonoBehaviour, IDialogueContext
             Debug.LogWarning("[Dialogue] 缺少文档 ID：" + documentId);
             yield break;
         }
+        if (DialogueService.Instance != null) DialogueService.Instance.HideOverlay();
         infoTitle.text = document.residue ? "【残影】" + document.title : document.title;
         infoBody.text = document.body;
         infoPanel.SetActive(true);

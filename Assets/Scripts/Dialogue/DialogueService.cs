@@ -131,6 +131,12 @@ namespace WWG
             else if (runner != null) runner.RequestNextLine();
         }
 
+        /// <summary>Hides the line UI while a chapter info/photo panel is blocking the dialogue.</summary>
+        public void HideOverlay()
+        {
+            if (presenter != null) presenter.HideImmediate();
+        }
+
         public void Stop()
         {
             completionPending = false;
