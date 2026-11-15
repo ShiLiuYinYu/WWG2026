@@ -1,0 +1,8 @@
+{
+  "type": "execute_code",
+  "params": {
+    "action": "execute",
+    "safety_checks": false,
+    "code": "var sb = new System.Text.StringBuilder();\nvar sc = UnityEngine.SceneManagement.SceneManager.GetActiveScene();\nsb.Append(\"scene=\" + sc.name + \" dirty=\" + (UnityEditor.SceneManagement.EditorSceneManager.GetSceneManagerSetup().Length)).Append(\"\\n\");\nforeach (var root in sc.GetRootGameObjects())\n{\n    foreach (var t in root.GetComponentsInChildren<Transform>(true))\n    {\n        string p = t.name;\n        var par = t.parent;\n        int depth = 0;\n        while (par != null) { p = par.name + \"/\" + p; par = par.parent; depth++; }\n        var rt = t as RectTransform;\n        string extra = \"\";\n        if (rt != null) extra = \" anchored=\" + rt.anchoredPosition.x + \",\" + rt.anchoredPosition.y;\n        sb.Append(\"  \").Append(p).Append(\" active=\").Append(t.gameObject.activeSelf).Append(extra).Append(\"\\n\");\n    }\n}\nreturn sb.ToString();"
+  }
+}

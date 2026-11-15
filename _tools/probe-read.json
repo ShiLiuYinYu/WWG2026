@@ -1,0 +1,8 @@
+{
+  "type": "execute_code",
+  "params": {
+    "safety_checks": false,
+    "code": "var scene = UnityEngine.SceneManagement.SceneManager.GetActiveScene();\nvar sb = new System.Text.StringBuilder();\nforeach (var root in scene.GetRootGameObjects())\n{\n    var all = root.GetComponentsInChildren<RectTransform>(true);\n    foreach (var rt in all)\n    {\n        if (!rt.name.StartsWith(\"Slot \")) continue;\n        string path = rt.name;\n        var t = rt.parent;\n        while (t != null) { path = t.name + \"/\" + path; t = t.parent; }\n        var ap = rt.anchoredPosition;\n        var sd = rt.sizeDelta;\n        sb.Append(path)\n          .Append(\" | anchored=\").Append(ap.x).Append(\",\").Append(ap.y)\n          .Append(\" | sizeDelta=\").Append(sd.x).Append(\",\").Append(sd.y)\n          .Append(\" | anchorMin=\").Append(rt.anchorMin.x).Append(\",\").Append(rt.anchorMin.y)\n          .Append(\" | anchorMax=\").Append(rt.anchorMax.x).Append(\",\").Append(rt.anchorMax.y)\n          .Append(\" | pivot=\").Append(rt.pivot.x).Append(\",\").Append(rt.pivot.y)\n          .Append(\" | localPos=\").Append(rt.localPosition.x).Append(\",\").Append(rt.localPosition.y).Append(\",\").Append(rt.localPosition.z)\n          .Append(\"\\n\");\n    }\n}\nreturn sb.ToString();",
+    "action": "execute"
+  }
+}

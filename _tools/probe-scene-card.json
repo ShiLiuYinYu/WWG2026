@@ -1,0 +1,8 @@
+{
+  "type": "execute_code",
+  "params": {
+    "action": "execute",
+    "safety_checks": false,
+    "code": "var scene = UnityEngine.SceneManagement.SceneManager.GetActiveScene();\nvar sb = new System.Text.StringBuilder();\nforeach (var root in scene.GetRootGameObjects())\n{\n    var all = root.GetComponentsInChildren<RectTransform>(true);\n    foreach (var rt in all)\n    {\n        string n = rt.name;\n        bool hit = n.StartsWith(\"Slot \") || n.StartsWith(\"Overwrite \") || n.StartsWith(\"Delete \") || n == \"Save card\" || n == \"Save slot screen\" || n == \"Save slot canvas\" || n == \"Title Canvas\";\n        if (!hit) continue;\n        string p = n;\n        var t = rt.parent;\n        while (t != null) { p = t.name + \"/\" + p; t = t.parent; }\n        var ap = rt.anchoredPosition;\n        var sd = rt.sizeDelta;\n        sb.Append(p)\n          .Append(\" | anchored=\").Append(ap.x).Append(\",\").Append(ap.y)\n          .Append(\" | sizeDelta=\").Append(sd.x).Append(\",\").Append(sd.y)\n          .Append(\" | active=\").Append(rt.gameObject.activeSelf)\n          .Append(\"\\n\");\n    }\n}\nreturn sb.ToString();"
+  }
+}

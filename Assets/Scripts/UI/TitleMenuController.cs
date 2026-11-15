@@ -48,8 +48,9 @@ namespace WWG
             Button[] buttons = GetComponentsInChildren<Button>(true);
             for (int i = 0; i < buttons.Length; i++)
             {
-                if (buttons[i].GetComponent<TitleButtonFx>() == null)
-                    buttons[i].gameObject.AddComponent<TitleButtonFx>();
+                var fx = buttons[i].GetComponent<TitleButtonFx>();
+                if (fx == null) fx = buttons[i].gameObject.AddComponent<TitleButtonFx>();
+                if (buttons[i] == quitButton) fx.SetClickSound(TitleButtonFx.ClickSound.Cancel);
             }
         }
 
@@ -176,8 +177,19 @@ namespace WWG
             Debug.Log("[Title] 设置：尚未实现");
         }
 
+        private bool _quitting;
+
         public void QuitGame()
         {
+            if (_quitting) return;
+            _quitting = true;
+            StartCoroutine(QuitRoutine());
+        }
+
+        /// <summary>等返回音放完再退，不然 Application.Quit 会把音频直接掐掉。</summary>
+        private IEnumerator QuitRoutine()
+        {
+            yield return new WaitForSecondsRealtime(0.25f);
 #if UNITY_EDITOR
             UnityEditor.EditorApplication.isPlaying = false;
 #else

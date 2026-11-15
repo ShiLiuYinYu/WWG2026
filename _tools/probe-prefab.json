@@ -1,0 +1,8 @@
+{
+  "type": "execute_code",
+  "params": {
+    "action": "execute",
+    "safety_checks": false,
+    "code": "var path = \"Assets/Resources/UI/SaveSlotPanel.prefab\";\nvar go = AssetDatabase.LoadAssetAtPath<GameObject>(path);\nif (go == null) return \"PREFAB NOT FOUND: \" + path;\nvar sb = new System.Text.StringBuilder();\nsb.Append(\"prefab root: \").Append(go.name).Append(\"\\n\");\nforeach (var rt in go.GetComponentsInChildren<RectTransform>(true))\n{\n    string p = rt.name;\n    var t = rt.parent;\n    while (t != null) { p = t.name + \"/\" + p; t = t.parent; }\n    var ap = rt.anchoredPosition;\n    var sd = rt.sizeDelta;\n    sb.Append(p)\n      .Append(\" | anchored=\").Append(ap.x).Append(\",\").Append(ap.y)\n      .Append(\" | sizeDelta=\").Append(sd.x).Append(\",\").Append(sd.y)\n      .Append(\" | active=\").Append(rt.gameObject.activeSelf)\n      .Append(\"\\n\");\n}\nreturn sb.ToString();"
+  }
+}

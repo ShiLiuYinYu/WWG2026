@@ -23,6 +23,11 @@ namespace WWG
         [SerializeField] private bool playHoverSound = true;
         [SerializeField] private bool playClickSound = true;
 
+        [Tooltip("点击时播哪一种：Ok = 选择-确定，Cancel = 选择-取消（返回/关闭类按钮用），Buzzer = 无效")]
+        [SerializeField] private ClickSound clickSound = ClickSound.Ok;
+
+        public enum ClickSound { Ok, Cancel, Buzzer, None }
+
         private Button _button;
         private Vector3 _baseScale = Vector3.one;
         private Coroutine _tween;
@@ -59,8 +64,18 @@ namespace WWG
         public void OnPointerClick(PointerEventData eventData)
         {
             if (!Interactable) return;
-            if (playClickSound) UISound.Ok();
+            if (!playClickSound) return;
+            switch (clickSound)
+            {
+                case ClickSound.Cancel: UISound.Cancel(); break;
+                case ClickSound.Buzzer: UISound.Buzzer(); break;
+                case ClickSound.None: break;
+                default: UISound.Ok(); break;
+            }
         }
+
+        /// <summary>运行期改点击音，接线脚本用。</summary>
+        public void SetClickSound(ClickSound sound) { clickSound = sound; }
 
         private void TweenTo(Vector3 target)
         {
