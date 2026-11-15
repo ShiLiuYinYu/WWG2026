@@ -118,6 +118,7 @@ namespace WWG
             completedNodes.Clear();
             stopping = false;
             running = true;
+            context.RefreshHud();
             if (documentPanel != null) documentPanel.Hide();
             if (runner.VariableStorage != null) runner.VariableStorage.Clear();
             StartDialogueAsync(nodeId).Forget();
@@ -276,6 +277,9 @@ namespace WWG
             pendingCompletedNode = null;
             pendingCompletedContext = null;
             if (!ContextAlive(finishedContext) || string.IsNullOrEmpty(completedNode)) yield break;
+            // The runner has finished by now; refresh again so chapter hotspots
+            // become visible after the dialogue UI has fully closed.
+            finishedContext.RefreshHud();
             DialogueCompleted?.Invoke(completedNode);
         }
 
