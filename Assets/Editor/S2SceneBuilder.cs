@@ -161,6 +161,12 @@ public static class S2SceneBuilder
         Button(c.pausePanel.transform, "Load", "读档", 125, 374, 520, 72, c.LoadManual);
         Button(c.pausePanel.transform, "Title", "返回标题", 125, 481, 520, 72, c.ReturnTitle);
 
+        c.infoPanel.SetActive(false);
+        c.codePanel.SetActive(false);
+        c.recordPanel.SetActive(false);
+        c.inventoryPanel.SetActive(false);
+        c.pausePanel.SetActive(false);
+
         EditorSceneManager.SaveScene(scene, Folder + "/" + name + ".unity");
     }
 

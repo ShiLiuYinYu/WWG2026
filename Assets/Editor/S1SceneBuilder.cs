@@ -174,6 +174,13 @@ public static class S1SceneBuilder
         Button(controller.completionPanel.transform, "Return to 4F", "查看 4F 入口", 760, 730, 400, 70, controller.CloseCompletion);
         controller.dialoguePanel.transform.SetAsLastSibling();
 
+        controller.dialoguePanel.SetActive(false);
+        controller.infoPanel.SetActive(false);
+        controller.inventoryPanel.SetActive(false);
+        controller.photoPanel.SetActive(false);
+        controller.memoPanel.SetActive(false);
+        controller.completionPanel.SetActive(false);
+
         EditorSceneManager.SaveScene(scene, "Assets/Scenes/S1.unity");
         List<EditorBuildSettingsScene> scenes = new List<EditorBuildSettingsScene>();
         bool added = false;
