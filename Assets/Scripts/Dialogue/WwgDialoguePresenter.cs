@@ -9,6 +9,8 @@ namespace WWG
     public sealed class WwgDialoguePresenter : DialoguePresenterBase
     {
         public GameObject dialogueRoot;
+        public GameObject documentPanel;
+        public GameObject shade;
         public Text speakerText;
         public Text bodyText;
         public Image portraitImage;
@@ -31,6 +33,12 @@ namespace WWG
 
         private void Update()
         {
+            if (shade != null)
+            {
+                bool want = (dialogueRoot != null && dialogueRoot.activeSelf)
+                         || (documentPanel != null && documentPanel.activeSelf);
+                if (shade.activeSelf != want) shade.SetActive(want);
+            }
             if (!typing || bodyText == null) return;
             typeElapsed += Time.unscaledDeltaTime;
             float cps = PlayerPrefs.GetFloat("WWG_TextSpeed", charsPerSecond);

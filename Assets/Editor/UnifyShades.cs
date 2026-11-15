@@ -10,6 +10,45 @@ public static class UnifyShades
     const string Dlg = "Assets/Resources/Dialogue/WwgDialogueHost.prefab";
     const string Set = "Assets/Resources/UI/SettingsPanel.prefab";
 
+    [MenuItem("WWG/Fix Dialogue Shade")]
+    public static void FixDialogueShade()
+    {
+        var root = PrefabUtility.LoadPrefabContents(Dlg);
+        int off = 0;
+        foreach (var t in root.GetComponentsInChildren<Transform>(true))
+        {
+            if (t.name != "Screen shade") continue;
+            if (t.gameObject.activeSelf) { t.gameObject.SetActive(false); off++; }
+        }
+        var tr = root.transform.Find("Shade");
+        GameObject go = tr != null ? tr.gameObject : null;
+        if (go == null)
+        {
+            go = new GameObject("Shade", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
+            go.transform.SetParent(root.transform, false);
+            var rt = go.GetComponent<RectTransform>();
+            rt.anchorMin = Vector2.zero; rt.anchorMax = Vector2.one;
+            rt.offsetMin = Vector2.zero; rt.offsetMax = Vector2.zero;
+            var img = go.GetComponent<Image>();
+            img.color = ShadeColor;
+            img.raycastTarget = false;
+        }
+        go.transform.SetSiblingIndex(0);
+        var pres = root.GetComponentInChildren<WWG.WwgDialoguePresenter>(true);
+        if (pres != null)
+        {
+            pres.shade = go;
+            var dpTr = root.transform.Find("Document panel");
+            if (dpTr != null) pres.documentPanel = dpTr.gameObject;
+            if (pres.dialogueRoot == null) pres.dialogueRoot = root.transform.Find("Dialogue root")?.gameObject;
+        }
+        PrefabUtility.SaveAsPrefabAsset(root, Dlg);
+        PrefabUtility.UnloadPrefabContents(root);
+        AssetDatabase.SaveAssets();
+        AssetDatabase.Refresh();
+        Debug.Log("[Shade] 对话宿主：关掉 " + off + " 个子遮罩，根级 Shade 已置底");
+    }
+
     [MenuItem("WWG/Unify Shades")]
     public static void Run()
     {

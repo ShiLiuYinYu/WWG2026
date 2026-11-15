@@ -14,8 +14,11 @@ namespace WWG
 
         public bool IsOpen => panelRoot != null && panelRoot.activeSelf;
 
+        public static WwgDocumentPanel Instance { get; private set; }
+
         private void Awake()
         {
+            Instance = this;
             if (closeButton != null) closeButton.onClick.AddListener(Close);
             Hide();
         }

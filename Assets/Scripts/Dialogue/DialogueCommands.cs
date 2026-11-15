@@ -24,6 +24,10 @@ namespace WWG
             runner.AddCommandHandler("checkpoint", Checkpoint);
             runner.AddCommandHandler<string, string>("go_to", GoTo);
             runner.AddCommandHandler("refresh_hud", RefreshHud);
+            runner.AddCommandHandler<string, float>("bgm", PlayBgm);
+            runner.AddCommandHandler<string, float>("bgm_stop", StopBgm);
+            runner.AddCommandHandler<string, float>("bgm_vol", SetBgmVolume);
+            runner.AddCommandHandler<string, float>("sfx", PlaySfx);
         }
 
         private static IDialogueContext Context =>
@@ -35,6 +39,62 @@ namespace WWG
         private static void Warn(string command, string detail)
         {
             Debug.LogWarning("[Dialogue] 命令 " + command + " 失败（节点 " + (NodeName ?? "?") + "）：" + detail);
+        }
+
+        private static S0Audio Audio
+        {
+            get
+            {
+                var a = S0Audio.Instance;
+                if (a == null) a = S0Audio.Ensure(Object.FindFirstObjectByType<DialogueService>()?.transform);
+                return a;
+            }
+        }
+
+        /// <summary>把短 key 映射到 Resources 下的音频路径，剧本里只写 key.</summary>
+        private static string ResolveAudio(string key)
+        {
+            switch (key)
+            {
+                case "voice": return S0Audio.BgmVoice;
+                case "cricket": return S0Audio.BgmCricket;
+                case "room": return S0Audio.BgmClubRoom;
+                case "box": return S0Audio.SfxBoxDrop;
+                case "page": return S0Audio.SfxPage;
+                case "curtain": return S0Audio.SfxCurtain;
+                case "chair": return S0Audio.SfxMoveChair;
+                case "lighton": return S0Audio.SfxLightOn;
+                case "lightoff": return S0Audio.SfxLightOff;
+                default: return key;
+            }
+        }
+
+        private void PlayBgm(string key, float volume)
+        {
+            var a = Audio;
+            if (a == null) { Warn("bgm", "没有音频宿主"); return; }
+            a.Play(key, ResolveAudio(key), volume <= 0f ? 0.5f : volume);
+        }
+
+        private void StopBgm(string key, float fade)
+        {
+            var a = Audio;
+            if (a == null) { Warn("bgm_stop", "没有音频宿主"); return; }
+            a.Stop(key, fade <= 0f ? 1.2f : fade);
+        }
+
+        private void SetBgmVolume(string key, float volume)
+        {
+            var a = Audio;
+            if (a == null) { Warn("bgm_vol", "没有音频宿主"); return; }
+            a.SetVolume(key, volume);
+        }
+
+        private void PlaySfx(string key, float volume)
+        {
+            var a = Audio;
+            if (a == null) { Warn("sfx", "没有音频宿主"); return; }
+            a.PlaySfx(ResolveAudio(key), volume <= 0f ? 0.9f : volume);
         }
 
         private void SetFlag(string id)

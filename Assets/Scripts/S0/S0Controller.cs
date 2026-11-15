@@ -130,6 +130,7 @@ public sealed class S0Controller : MonoBehaviour, IDialogueContext
     private void Start()
     {
         Application.runInBackground = true;
+        S0Audio.Ensure(transform);
         // A system CJK font is used at runtime; the editor asset stays portable.
         Font font = Font.CreateDynamicFontFromOSFont(new[] { "Microsoft YaHei", "Noto Sans CJK SC", "SimHei" }, 24);
         if (font != null)
@@ -212,6 +213,34 @@ public sealed class S0Controller : MonoBehaviour, IDialogueContext
         SetHover("");
         UpdateHUD();
         UpdateInteractionVisibility();
+        if (S0Audio.Instance != null)
+        {
+            var audio = S0Audio.Instance;
+            if (screen == 0)
+            {
+                audio.Play("voice", S0Audio.BgmVoice, 0.5f, 2f);
+                audio.StopNow("room");
+                audio.StopNow("cricket");
+            }
+            else if (screen == 1)
+            {
+                audio.Play("voice", S0Audio.BgmVoice, 0.1f, 1.5f);
+                audio.StopNow("room");
+                audio.StopNow("cricket");
+            }
+            else if (screen == 2)
+            {
+                audio.Stop("voice", 1.5f);
+                audio.Play("room", S0Audio.BgmClubRoom, 0.25f, 1.2f);
+            }
+            else
+            {
+                audio.Stop("voice", 1.5f);
+                audio.StopNow("room");
+                audio.StopNow("cricket");
+            }
+            Debug.Log("[S0Audio] 应用场景音量 screen=" + screen);
+        }
     }
 
     private void UpdateInteractionVisibility()
@@ -416,12 +445,22 @@ public sealed class S0Controller : MonoBehaviour, IDialogueContext
 
     public IEnumerator ShowDocument(string documentId)
     {
+        if (DialogueService.Instance != null) DialogueService.Instance.HideOverlay();
+        var shared = WwgDocumentPanel.Instance;
+        if (shared != null)
+        {
+            infoOpen = true;
+            UpdateInteractionVisibility();
+            yield return shared.Show(documentId);
+            infoOpen = false;
+            UpdateInteractionVisibility();
+            yield break;
+        }
         if (!DialogueDocuments.TryGet(documentId, out DialogueDocuments.Entry document))
         {
             Debug.LogWarning("[Dialogue] 缺少文档 ID：" + documentId);
             yield break;
         }
-        if (DialogueService.Instance != null) DialogueService.Instance.HideOverlay();
         infoTitle.text = document.residue ? "【残影】" + document.title : document.title;
         infoBody.text = document.body;
         infoOpen = true;
@@ -455,7 +494,9 @@ public sealed class S0Controller : MonoBehaviour, IDialogueContext
 
     public void CloseInfo()
     {
-        infoPanel.SetActive(false);
+        var shared = WwgDocumentPanel.Instance;
+        if (shared != null) shared.Close();
+        if (infoPanel != null) infoPanel.SetActive(false);
         infoOpen = false;
         UpdateInteractionVisibility();
     }
