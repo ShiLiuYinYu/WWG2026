@@ -28,6 +28,7 @@ namespace WWG
         public bool HasSeenDialogue(string id) => Contains(seenDialogue, id);
 
         public bool SetFlag(string id) => AddUnique(flags, id);
+        public bool ClearFlag(string id) => flags != null && !string.IsNullOrWhiteSpace(id) && flags.Remove(id);
         public bool AddItem(string id) => AddUnique(inventory, id);
         public bool MarkDialogueSeen(string id) => AddUnique(seenDialogue, id);
 

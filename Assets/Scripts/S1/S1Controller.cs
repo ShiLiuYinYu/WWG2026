@@ -114,6 +114,14 @@ public sealed class S1Controller : MonoBehaviour
         return true;
     }
 
+    public SaveSlotSnapshot CaptureSaveSlot() => new SaveSlotSnapshot
+    {
+        chapter = "S1",
+        payload = JsonUtility.ToJson(Capture()),
+        gameTime = timeText.text,
+        locationLabel = "S1 · " + timeText.text + " · " + GameFlow.S1Location(screen)
+    };
+
     public void UseInventoryItem(string item, string hotspot)
     {
         if (ModalOpen) return;
@@ -158,12 +166,14 @@ public sealed class S1Controller : MonoBehaviour
             Apply(travel);
             UpdateView();
             if (!string.IsNullOrEmpty(arrival))
-                Say(new[] { new Line("我", arrival) }, screen == 2 && phase == 4 ? ShowBridgeCompletion : null);
+                Say(new[] { new Line("我", arrival) }, screen == 2 && phase == 4 ? EnterS2 : null);
+            else if (screen == 2 && phase == 4) EnterS2();
         }
         else if (!fresh && PlayerPrefs.HasKey(SaveKey))
         {
             Restore();
             if (screen != GameFlow.S1LocationIndex(SceneManager.GetActiveScene().name)) SwitchScreen(screen);
+            else if (screen == 2 && phase == 4) EnterS2();
         }
         else
         {
@@ -404,11 +414,28 @@ public sealed class S1Controller : MonoBehaviour
         }
     }
 
-    private void ShowBridgeCompletion()
+    private void EnterS2()
     {
-        completionText.text = "S1 完成 · 00:10\n\n下一阶段：4F 连廊双栋调查";
-        completionPanel.SetActive(true);
-        UpdateInteractionVisibility();
+        if (phase < 4 || !hasPhoto || !hasBadge) return;
+        var state = new GameState
+        {
+            chapterId = StoryIds.Chapter.BridgeRoute,
+            stepId = "bridgeReached",
+            locationId = StoryIds.Location.BridgeOdd4F,
+            locationVariant = StoryIds.Variant.Night,
+            timeId = "saturday.0010",
+            san = san,
+            health = health
+        };
+        state.SetFlag(StoryIds.Flag.P1Complete);
+        if (shockApplied) state.SetFlag(StoryIds.Flag.P1Shock);
+        if (curtainClosed) state.SetFlag("flag.p1.curtain");
+        if (lampOn) state.SetFlag("flag.p1.lamp");
+        if (chairPlaced) state.SetFlag("flag.p1.chair");
+        if (glassRead) state.SetFlag("flag.s1.glassRead");
+        state.AddItem(StoryIds.Item.Photo);
+        state.AddItem(StoryIds.Item.Badge);
+        S2Controller.Begin(state);
     }
 
     private Checkpoint Capture() => new Checkpoint { phase = phase, screen = screen, san = san, health = health,

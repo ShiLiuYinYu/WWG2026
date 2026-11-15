@@ -138,17 +138,23 @@ namespace WWG
         public void OnLoadGame()
         {
             if (_starting) return;
-            int chapter = PlayerPrefs.GetInt("WWG_LastCheckpointChapter", -1);
-            if (chapter == 1 && PlayerPrefs.HasKey("WWG_S1_Checkpoint"))
-                GameFlow.LoadLocation(GameFlow.S1Scene);
-            else if (PlayerPrefs.HasKey("WWG_S0_ManualCheckpoint"))
+            SaveSlotPanel.OpenLoad();
+            if (SaveSlotPanel.IsOpen) StartCoroutine(HideMenuWhileSaveOpen());
+        }
+
+        private IEnumerator HideMenuWhileSaveOpen()
+        {
+            var hidden = new System.Collections.Generic.List<GameObject>();
+            for (int i = 0; i < transform.childCount; i++)
             {
-                PlayerPrefs.SetInt("WWG_S0_LoadManual", 1);
-                GameFlow.LoadLocation(GameFlow.FirstGameplayScene);
+                GameObject child = transform.GetChild(i).gameObject;
+                if (child.name.StartsWith("Cover /") || !child.activeSelf) continue;
+                hidden.Add(child);
+                child.SetActive(false);
             }
-            else if (PlayerPrefs.HasKey("WWG_S1_Checkpoint"))
-                GameFlow.LoadLocation(GameFlow.S1Scene);
-            else Debug.Log("[Title] 目前没有可读取的章节检查点。");
+            while (SaveSlotPanel.IsOpen) yield return null;
+            foreach (GameObject child in hidden)
+                if (child != null) child.SetActive(true);
         }
 
         public void OnSettings()

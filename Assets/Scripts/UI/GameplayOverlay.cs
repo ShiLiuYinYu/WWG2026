@@ -72,6 +72,7 @@ namespace WWG
 
         private void Update()
         {
+            if (SaveSlotPanel.IsOpen) return;
             if (Keyboard.current != null && Keyboard.current.escapeKey.wasPressedThisFrame)
             {
                 if (settingsPanel.activeSelf) CloseSettings();
@@ -121,20 +122,18 @@ namespace WWG
 
         private void Save()
         {
-            bool saved = s0 != null ? s0.SaveManualCheckpoint() : s1 != null && s1.SaveManualCheckpoint();
             ClosePause();
-            ShowToast(saved ? "已保存当前章节检查点" : "转场过程中暂时无法存档");
+            SaveSlotPanel.OpenSave(CaptureSlot);
         }
 
         private void Load()
         {
             ClosePause();
-            if (s0 != null)
-            {
-                if (!s0.LoadManualCheckpoint()) ShowToast("暂无可读取的白天调查存档");
-            }
-            else if (s1 != null) s1.LoadCheckpointFromPause();
+            SaveSlotPanel.OpenLoad(CaptureSlot);
         }
+
+        private SaveSlotSnapshot CaptureSlot() => s0 != null ? s0.CaptureSaveSlot() :
+            s1 != null ? s1.CaptureSaveSlot() : null;
 
         private void OpenSettings() { settingsPanel.SetActive(true); UpdateVolumeLabel(); }
         private void CloseSettings() { settingsPanel.SetActive(false); }

@@ -12,6 +12,7 @@ namespace WWG
         public const string TitleScene = "Title";
         public const string FirstGameplayScene = "S0";
         public const string S1Scene = "S1";
+        public const string S2StartScene = "BridgeOdd4F";
 
         private static readonly string[] S0Locations = { "S0", "S0_Corridor", "S0_ClubRoom", "S0_Bridge" };
         private static readonly string[] S1Locations = { "S1", "S1_Corridor", "S1_BridgeEntrance" };

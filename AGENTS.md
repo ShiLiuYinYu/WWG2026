@@ -1,6 +1,6 @@
 # AGENTS.md — WWG
 
-本项目是 Unity 6 的 2D URP 点击式微恐怖解谜游戏《熄灯之后：48H》。当前已制作 Title、S0 和 S1；S0 按楼外/5F 走廊/活动室/4F 连廊入口拆为 4 个地点场景，S1 按夜间活动室/5F 走廊/4F 连廊入口拆为 3 个地点场景，均已加入 Build Settings。`SampleScene` 仍保留。S1 包含旧照片对位 P1、工牌、SAN 与阶段检查点；S2–S4、P2/P3、两次路线选择和完整 Demo 存档尚未实现。不要把设计文档中的目标功能描述成已完成实现。
+本项目是 Unity 6 的 2D URP 点击式微恐怖解谜游戏《熄灯之后：48H》。当前已制作 Title、S0、S1 与 S2；S0 有 4 个地点场景，S1 有 3 个，S2 有 4F 三处地点和 5F 安全屋视图，均已加入 Build Settings。`SampleScene` 仍保留。S1 包含 P1、工牌、SAN 与阶段检查点；S2 包含 P2、`RouteLight / RouteDark`、借用便签、分工表残页与 S2 检查点。S3–S4、P3、`ViewTogether / ViewAlone`、两种结尾和完整 Demo 存档尚未实现。不要把设计文档中的目标功能描述成已完成实现。
 
 ## 项目依据
 
@@ -15,7 +15,8 @@
 - 当前项目文件记录 Unity `6000.3.28f1`、URP `17.3.0`（2D）、Input System `1.20.1`、uGUI `2.0.0`。制作前以实际连接的 WWG 编辑器和 `ProjectSettings/ProjectVersion.txt`、`Packages/manifest.json` 为准。
 - 项目已安装 `com.coplaydev.unity-mcp`。使用 Unity MCP 时先确认连接的是 **WWG** 的编辑器实例；多项目同时打开时不要误操作 WJ。
 - 当前没有 `WjSceneBuilder`、`WJ/Setup` 菜单、`WJ.*` 命名空间或 WJ 的预制体。不要照搬 WJ 专属调用。
-- S0/S1 的七个地点场景已引用 `Assets/Prefabs/UI/GameplayOverlay.prefab`，包含暂停菜单、章节检查点存读档、物品栏和物品详情。S0 仅有手动白天调查检查点，S1 仍是阶段检查点；都不是完整 Demo 存档。调整共享 UI 时改预制体，显式安装命令为 `WWG/UI/Install Gameplay Overlay`。
+- S0/S1 的七个地点场景已引用 `Assets/Prefabs/UI/GameplayOverlay.prefab`，包含暂停菜单、物品栏和物品详情。标题页及各章暂停菜单共用 `Assets/Resources/UI/SaveSlotPanel.prefab` 的三槽位存读档界面，槽位仍承载各章节检查点，不是完整 Demo 存档。调整共享游戏内 UI 时改预制体，显式安装命令为 `WWG/UI/Install Gameplay Overlay`。
+- S2 使用 `Assets/Scenes/Locations/` 中的独立场景和 `S2Controller`；状态可写入 `GameStateStore`，但目前只覆盖 S2，未形成全章节 Demo 存档。`WWG/Dev/Play S2` 使用不写玩家存档的编辑器状态样本。`WWG/Setup/Build S2 Location Scenes` 仅在目标场景全都不存在时使用，已有人工维护场景不得重建。
 
 ## 制作约束
 

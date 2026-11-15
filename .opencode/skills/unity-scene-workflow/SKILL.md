@@ -5,7 +5,7 @@ description: 在 WWG 项目中创建或修改 Unity 2D 场景、点击热点、U
 
 # WWG 场景与 UI 工作流
 
-当前 Title、S0 和 S1 已按地点拆分；场景清单和运行流程见 `Document/Program/`。`SampleScene` 仍保留。先查看实际资产，再依 `Document/《熄灯之后：48H》前24H Demo剧本与关卡设计.md` 的对应章节制作。不要调用 WJ 项目的场景生成菜单或代码。
+当前 Title、S0、S1 和 S2 已按地点拆分；场景清单和运行流程见 `Document/Program/`。`SampleScene` 仍保留。先查看实际资产，再依 `Document/《熄灯之后：48H》前24H Demo剧本与关卡设计.md` 的对应章节制作。不要调用 WJ 项目的场景生成菜单或代码。
 
 ## 开始前
 
@@ -14,6 +14,9 @@ description: 在 WWG 项目中创建或修改 Unity 2D 场景、点击热点、U
 3. 确认目标场景或预制体是否已经存在。已有资产先检查引用和绑定，再改动；新增资产应加入正确的场景流程与 Build Settings。
 4. S0/S1 每个固定地点是独立 `.unity`，切屏状态由章节控制器传递。旧 `Build S0/S1 Scene` 脚手架不会覆盖现有场景；`Split Location Scenes` 只供未拆分原始场景一次性迁移，不要在已拆分项目上运行。
 5. S0/S1 七个地点共用 `Assets/Prefabs/UI/GameplayOverlay.prefab` 的场景实例。布局改动优先修改预制体；`WWG/UI/Install Gameplay Overlay` 只在显式执行时补装缺失实例，不在域重载时改写场景。
+6. S2 的 `Locations/BridgeOdd4F`、`BridgeSpan4F`、`BridgeEven4F` 和 `ClubRoom` 已存在。只编辑目标地点；`WWG/Setup/Build S2 Location Scenes` 在任何目标场景已存在时拒绝执行。编辑器样本入口为 `WWG/Dev/Play S2`，不写玩家检查点。
+7. S2 的路线操作在 4F 入口场景按钮上完成，没有自动弹出的分支选择面板。灯可再次开关；初次选择标记不改写。
+8. 标题页与 S0/S1/S2 暂停菜单共用 `Assets/Resources/UI/SaveSlotPanel.prefab` 的三槽位存读档界面；修改布局时编辑预制体。S0 时间推进和 S1→S2 交接不使用全屏黑色阶段提示。
 
 ## 修改方式
 
@@ -36,7 +39,7 @@ description: 在 WWG 项目中创建或修改 Unity 2D 场景、点击热点、U
 | Demo 剧本和关卡规格 | `Document/《熄灯之后：48H》前24H Demo剧本与关卡设计.md` |
 | 原始世界观 | `Document/《熄灯之后：48H》——午夜GameJam怪谈.md` |
 | 机制、系统、UI 草图 | `Document/Image/` |
-| 当前 Unity 场景 | `Assets/Scenes/Title.unity`、`S0.unity`、`S0/S0_*.unity`、`S1.unity`、`S1/S1_*.unity`；`SampleScene` 保留 |
+| 当前 Unity 场景 | `Assets/Scenes/Title.unity`、`S0.unity`、`S0/S0_*.unity`、`S1.unity`、`S1/S1_*.unity`、`Locations/*.unity`；`SampleScene` 保留 |
 | 共享游戏内 UI | `Assets/Prefabs/UI/GameplayOverlay.prefab`、`Assets/Scripts/UI/GameplayOverlay.cs` |
 | 当前 Build Settings | `ProjectSettings/EditorBuildSettings.asset` |
 | 程序规范与场景流程 | `Document/Program/` |

@@ -145,8 +145,8 @@ public static class GameplayOverlayBuilder
         Text("Heading", card, "暂 停 菜 单", 46, 44, 452, 60, 40, Ink);
         Text("Subheading", card, "熄灯之后  /  48H", 48, 110, 420, 35, 21, Muted);
         Button("Resume", pause, "继续游戏", 133, 367, 468, 62, true);
-        Button("Save", pause, "保存当前检查点", 133, 446, 468, 62, false);
-        Button("Load", pause, "读取当前章节存档", 133, 525, 468, 62, false);
+        Button("Save", pause, "存档", 133, 446, 468, 62, false);
+        Button("Load", pause, "读档", 133, 525, 468, 62, false);
         Button("Settings", pause, "游戏设置", 133, 604, 468, 62, false);
         Button("Title", pause, "返回主菜单", 133, 683, 468, 62, false);
         Button("Close", pause, "×", 554, 192, 68, 60, false);

@@ -99,6 +99,15 @@ public sealed class S0Controller : MonoBehaviour
         return true;
     }
 
+    public SaveSlotSnapshot CaptureSaveSlot()
+    {
+        if (transitionBusy || phase == 3) return null;
+        var data = new ManualCheckpoint { phase = phase, screen = screen, boardRead = boardRead,
+            chairRead = chairRead, signRead = signRead, timerRead = timerRead, guideRead = guideRead };
+        return new SaveSlotSnapshot { chapter = "S0", payload = JsonUtility.ToJson(data),
+            gameTime = timeText.text, locationLabel = "S0 · " + timeText.text + " · " + GameFlow.S0Location(screen) };
+    }
+
     public bool LoadManualCheckpoint()
     {
         if (!PlayerPrefs.HasKey(ManualSaveKey) || transitionBusy) return false;
@@ -318,45 +327,33 @@ public sealed class S0Controller : MonoBehaviour
         phase = 3;
         UpdateHUD();
         Say(new[] { new Line("袁祁", "参考图拍够了吗？来，趁现在脑子还清醒，我们把前三个场景的交互逻辑顺一遍。") },
-            () => StartCoroutine(TransitionSequence()));
+            TransitionSequence);
     }
 
-    private IEnumerator TransitionSequence()
+    private void TransitionSequence()
     {
         transitionBusy = true;
-        completionPanel.SetActive(true);
         UpdateInteractionVisibility();
         if (deskWorkSound != null) audioSource.PlayOneShot(deskWorkSound, 0.65f);
-        string[] cards = {
-            "18:30\n外卖袋堆上了桌角。白板上画满第一版流程图。",
-            "21:15\n唐澈喝掉第二罐咖啡。许圆把活动室布局画进背景草图。",
-            "23:29\n公共照明熄灭倒计时"
-        };
-        foreach (string card in cards) { completionText.text = card; yield return new WaitForSeconds(2.2f); }
-        completionPanel.SetActive(false);
-        ShowScreen(2);
-        transitionBusy = false;
         Say(new[] {
+            new Line("时间 · 18:30", "外卖袋堆上了桌角。白板上画满第一版流程图。"),
+            new Line("时间 · 21:15", "唐澈喝掉第二罐咖啡。许圆把活动室布局画进背景草图。"),
+            new Line("时间 · 23:29", "公共照明熄灭倒计时。"),
             new Line("唐澈", "二十九分了。我先把工程保存一下，万一跳闸，没保存的文件就完了。"),
             new Line("袁祁", "今晚大家轮流眯一会儿。明天下午四点，我们要凑出第一版能跑的 Demo。")
-        }, () => StartCoroutine(LightsOut()));
+        }, LightsOut);
     }
 
-    private IEnumerator LightsOut()
+    private void LightsOut()
     {
-        transitionBusy = true;
-        completionPanel.SetActive(true);
-        UpdateInteractionVisibility();
         if (breakerSound != null) audioSource.PlayOneShot(breakerSound, 0.75f);
-        completionText.text = "23:30\n咔哒——嗡。\n\n走廊的灯由远及近，逐盏熄灭。";
-        yield return new WaitForSeconds(2.8f);
-        completionPanel.SetActive(false);
         phase = 4;
         PlayerPrefs.SetInt("WWG_S0_Complete", 1);
         PlayerPrefs.Save();
         ShowScreen(2);
         transitionBusy = false;
         Say(new[] {
+            new Line("时间 · 23:30", "咔哒——嗡。走廊的灯由远及近，逐盏熄灭。"),
             new Line("我", "门玻璃外的走廊暗了。屋里的顶灯、电脑屏幕还亮着。"),
             new Line("我", "一声闷响。储物柜顶的旧纸盒掉到了第五把椅子旁，滑出一张背面朝上的照片。")
         });
