@@ -127,6 +127,17 @@ namespace WWG
                                "这行字只在玻璃反光里出现，门牌和现实墙面没有变化。",
                         residue = false
                     }
+                },
+                {
+                    "s2.drawer",
+                    new Entry
+                    {
+                        id = "s2.drawer",
+                        title = "社团自留资料 · 柜内纸张",
+                        body = "机房借用便签：林未，周五 23:30，单数栋 3F 机房靠窗第 3 台。\n\n" +
+                               "去年的分工表残页：第五格被撕去，只剩编号 05。\n\n两件关键物品已入背包。",
+                        residue = false
+                    }
                 }
             };
 

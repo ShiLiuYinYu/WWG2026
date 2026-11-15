@@ -1,0 +1,39 @@
+title: S2_Odd4F_Intro
+tags: chapter_bridge_route location_bridgeodd4f
+---
+我: 我到四楼连廊口了。这层灯全灭了，比五楼看着还黑。 #line:s2_intro_01
+袁祁（电话）: 信号还行，听得挺清楚。我们从五楼窗户能瞅见四楼连廊，你现在是在开关旁边吧？ #line:s2_intro_02
+许圆（电话）: 我下午看的时候，开关就在连廊右手边墙上，你要是看不清路就先打开吧。 #line:s2_intro_03
+我: 等会儿，连廊玻璃上好像映着点东西，跟刚才五楼门玻璃上那行字有点像。我想想。 #line:s2_intro_04
+系统: 开灯可看清纸面细节并停止夜间 4F 的 SAN 消耗，但会冲淡玻璃残影；保持黑暗可通过「凝视」读取隐藏痕迹，但会持续消耗 SAN。 #line:s2_intro_05
+===
+
+title: S2_Odd4F_RouteLight
+tags: chapter_bridge_route location_bridgeodd4f route_light
+---
+许圆（电话）: 看见了！四楼连廊亮了。还是开着灯稳妥点，大晚上的别摸黑走。 #line:s2_route_light_01
+我: 亮是亮了，不过玻璃上刚才那点影子确实晃没了，可惜。算了，事已至此，先看看墙上和柜子吧。 #line:s2_route_light_02
+===
+
+title: S2_Odd4F_RouteDark
+tags: chapter_bridge_route location_bridgeodd4f route_dark
+---
+我: 我先不开灯，打个手机电筒看看。玻璃上好像真留了东西。 #line:s2_route_dark_01
+唐澈（电话）: 行吧，那你慢点走啊，实在太黑就退回来把灯打开。 #line:s2_route_dark_02
+===
+
+title: S2_Odd4F_Hint_Far
+tags: chapter_bridge_route location_bridgeodd4f hint
+---
+<<if has_flag("flag.p2.emergencyLightOn")>>
+许圆: 远端海报的新贴纸，或许能揭开。 #line:s2_hint_far_light_01
+<<else>>
+我: 新贴纸下面像还有一层旧字。试着凝视。 #line:s2_hint_far_dark_01
+<<endif>>
+===
+
+title: S2_Odd4F_Hint_Record
+tags: chapter_bridge_route location_bridgeodd4f hint
+---
+系统: 任务记录已整理目前发现的数字与位置。 #line:s2_hint_record_01
+===

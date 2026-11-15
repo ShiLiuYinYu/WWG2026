@@ -161,32 +161,11 @@ public static class S2SceneBuilder
         Button(c.pausePanel.transform, "Load", "读档", 125, 374, 520, 72, c.LoadManual);
         Button(c.pausePanel.transform, "Title", "返回标题", 125, 481, 520, 72, c.ReturnTitle);
 
-        c.dialoguePanel = Panel(canvas.transform, "S2 Dialogue", 0, 0, 1920, 1080, new Color(0f, 0f, 0f, 0.52f));
-        var advance = c.dialoguePanel.AddComponent<Button>();
-        advance.targetGraphic = c.dialoguePanel.GetComponent<Image>();
-        advance.transition = Selectable.Transition.None;
-        UnityEventTools.AddPersistentListener(advance.onClick, c.ContinueDialogue);
-        GameObject dialogueBox = Panel(c.dialoguePanel.transform, "Box", 45, 810, 1830, 225,
-            new Color(Ink.r, Ink.g, Ink.b, 1f), false);
-        c.dialogueSpeakerText = Label(dialogueBox.transform, "Speaker", "", 35, 17, 460, 48, 30, Accent, TextAnchor.MiddleLeft);
-        c.dialogueText = Label(dialogueBox.transform, "Body", "", 35, 73, 1740, 108, 32, Paper, TextAnchor.UpperLeft);
-        c.dialogueText.resizeTextForBestFit = true;
-        c.dialogueText.resizeTextMinSize = 24;
-        c.dialogueText.resizeTextMaxSize = 32;
-        foreach (Text label in new[] { c.dialogueSpeakerText, c.dialogueText })
-        {
-            var outline = label.gameObject.AddComponent<Outline>();
-            outline.effectColor = Color.black;
-            outline.effectDistance = new Vector2(1, -1);
-        }
-        Label(dialogueBox.transform, "Continue hint", "点击继续 ▶", 1510, 187, 265, 28, 22, Accent, TextAnchor.MiddleRight);
-
         c.infoPanel.SetActive(false);
         c.codePanel.SetActive(false);
         c.recordPanel.SetActive(false);
         c.inventoryPanel.SetActive(false);
         c.pausePanel.SetActive(false);
-        c.dialoguePanel.SetActive(false);
 
         EditorSceneManager.SaveScene(scene, Folder + "/" + name + ".unity");
     }
