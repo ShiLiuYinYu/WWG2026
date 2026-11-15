@@ -38,6 +38,19 @@ namespace WWG
             if (loadButton != null) loadButton.onClick.AddListener(OnLoadGame);
             if (settingsButton != null) settingsButton.onClick.AddListener(OnSettings);
             if (quitButton != null) quitButton.onClick.AddListener(QuitGame);
+
+            EnsureButtonFx();
+        }
+
+        /// <summary>给子按钮补上悬停放大与音效组件，重复调用安全。</summary>
+        private void EnsureButtonFx()
+        {
+            Button[] buttons = GetComponentsInChildren<Button>(true);
+            for (int i = 0; i < buttons.Length; i++)
+            {
+                if (buttons[i].GetComponent<TitleButtonFx>() == null)
+                    buttons[i].gameObject.AddComponent<TitleButtonFx>();
+            }
         }
 
         private void OnDestroy()
