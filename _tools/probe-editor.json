@@ -1,0 +1,8 @@
+{
+  "type": "execute_code",
+  "params": {
+    "action": "execute",
+    "safety_checks": false,
+    "code": "var sb = new System.Text.StringBuilder();\nsb.Append(\"isPlaying=\" + UnityEditor.EditorApplication.isPlaying).Append(\"\\n\");\nsb.Append(\"isPlayingOrWillChangePlaymode=\" + UnityEditor.EditorApplication.isPlayingOrWillChangePlaymode).Append(\"\\n\");\nvar stage = UnityEditor.SceneManagement.PrefabStageUtility.GetCurrentPrefabStage();\nsb.Append(\"prefabStage=\" + (stage == null ? \"(none)\" : stage.assetPath)).Append(\"\\n\");\nvar sc = UnityEngine.SceneManagement.SceneManager.GetActiveScene();\nsb.Append(\"activeScene=\" + sc.name + \" roots=\" + sc.rootCount).Append(\"\\n\");\nvar panels = UnityEngine.Object.FindObjectsOfType<MonoBehaviour>(true);\nint n = 0;\nforeach (var mb in panels) { if (mb != null && mb.GetType().Name == \"SaveSlotPanel\") n++; }\nsb.Append(\"SaveSlotPanel instances=\" + n).Append(\"\\n\");\nreturn sb.ToString();"
+  }
+}

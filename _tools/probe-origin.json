@@ -1,0 +1,8 @@
+{
+  "type": "execute_code",
+  "params": {
+    "action": "execute",
+    "safety_checks": false,
+    "code": "var scene = UnityEngine.SceneManagement.SceneManager.GetActiveScene();\nvar sb = new System.Text.StringBuilder();\nsb.Append(\"activeScene=\" + scene.name + \" path=\" + scene.path + \" rootCount=\" + scene.rootCount).Append(\"\\n\");\nGameObject found = null;\nforeach (var root in scene.GetRootGameObjects())\n{\n    foreach (var t in root.GetComponentsInChildren<Transform>(true))\n    {\n        if (t.name == \"Slot 1\") { found = t.gameObject; break; }\n    }\n    if (found != null) break;\n}\nif (found == null) return sb.ToString() + \"Slot 1 NOT FOUND in active scene\";\nsb.Append(\"found.scene=\" + found.scene.name + \" path=\" + found.scene.path).Append(\"\\n\");\nvar outer = PrefabUtility.GetOutermostPrefabInstanceRoot(found);\nsb.Append(\"outermostPrefabRoot=\" + (outer == null ? \"(none)\" : outer.name)).Append(\"\\n\");\nvar src = PrefabUtility.GetCorrespondingObjectFromSource(found);\nsb.Append(\"correspondingSource=\" + (src == null ? \"(none)\" : AssetDatabase.GetAssetPath(src))).Append(\"\\n\");\nsb.Append(\"isPartOfPrefabInstance=\" + PrefabUtility.IsPartOfPrefabInstance(found)).Append(\"\\n\");\nsb.Append(\"isPartOfPrefabAsset=\" + PrefabUtility.IsPartOfPrefabAsset(found)).Append(\"\\n\");\nreturn sb.ToString();"
+  }
+}

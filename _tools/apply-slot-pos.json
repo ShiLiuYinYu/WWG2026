@@ -1,0 +1,8 @@
+{
+  "type": "execute_code",
+  "params": {
+    "action": "execute",
+    "safety_checks": false,
+    "code": "var path = \"Assets/Resources/UI/SaveSlotPanel.prefab\";\nvar root = PrefabUtility.LoadPrefabContents(path);\nif (root == null) return \"LOAD FAILED: \" + path;\nvar sb = new System.Text.StringBuilder();\nvar targets = new Dictionary<string, Vector2>();\ntargets[\"Slot 1\"] = new Vector2(180f, -243f);\ntargets[\"Slot 2\"] = new Vector2(180f, -433f);\ntargets[\"Slot 3\"] = new Vector2(180f, -623f);\nint changed = 0;\nforeach (var rt in root.GetComponentsInChildren<RectTransform>(true))\n{\n    if (!targets.ContainsKey(rt.name)) continue;\n    Vector2 want = targets[rt.name];\n    sb.Append(rt.name).Append(\": \").Append(rt.anchoredPosition.x).Append(\",\").Append(rt.anchoredPosition.y)\n      .Append(\" -> \").Append(want.x).Append(\",\").Append(want.y).Append(\"\\n\");\n    rt.anchoredPosition = want;\n    changed++;\n}\nif (changed != 3) { PrefabUtility.UnloadPrefabContents(root); return \"ABORT: matched \" + changed + \" slots\"; }\nPrefabUtility.SaveAsPrefabAsset(root, path);\nPrefabUtility.UnloadPrefabContents(root);\nAssetDatabase.SaveAssets();\nAssetDatabase.Refresh();\nreturn sb.ToString() + \"SAVED \" + path;"
+  }
+}
