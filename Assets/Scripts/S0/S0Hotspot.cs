@@ -18,13 +18,17 @@ public sealed class S0Hotspot : MonoBehaviour, IPointerClickHandler, IPointerEnt
     public void OnPointerClick(PointerEventData eventData)
     {
         if (eventData.button == PointerEventData.InputButton.Left)
+        {
+            WWG.UISound.Ok();
             controller.HandleHotspot(action);
+        }
     }
 
     public void OnPointerEnter(PointerEventData eventData)
     {
         if (image != null) image.color = new Color(0.65f, 0.88f, 0.95f, 0.20f);
         controller.SetHover(label);
+        WWG.UISound.Cursor();
     }
 
     public void OnPointerExit(PointerEventData eventData)

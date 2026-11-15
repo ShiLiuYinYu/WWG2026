@@ -14,14 +14,36 @@ namespace WWG
         public Image portraitImage;
         public DialogueCast cast;
 
+        [Tooltip("每秒显示多少个字。0 表示不做打字机效果。")]
+        [SerializeField] private float charsPerSecond = 30f;
+
         public event Action<string> NodeExited;
         public event Action DialogueFinished;
 
         public string CurrentNode { get; private set; }
 
         private bool advanceRequested;
+        private string fullBody = string.Empty;
+        private float typeElapsed;
+        private bool typing;
 
         public void RequestAdvance() => advanceRequested = true;
+
+        private void Update()
+        {
+            if (!typing || bodyText == null) return;
+            typeElapsed += Time.unscaledDeltaTime;
+            float cps = PlayerPrefs.GetFloat("WWG_TextSpeed", charsPerSecond);
+            int shown = Mathf.Clamp(Mathf.FloorToInt(typeElapsed * cps), 0, fullBody.Length);
+            bodyText.text = fullBody.Substring(0, shown);
+            if (shown >= fullBody.Length) typing = false;
+        }
+
+        private void FinishTyping()
+        {
+            typing = false;
+            if (bodyText != null) bodyText.text = fullBody;
+        }
 
         public override void OnNodeEnter(string nodeName)
         {
@@ -37,6 +59,7 @@ namespace WWG
         public void HideImmediate()
         {
             advanceRequested = false;
+            typing = false;
             if (dialogueRoot != null) dialogueRoot.SetActive(false);
             if (portraitImage != null) portraitImage.enabled = false;
         }
@@ -53,6 +76,22 @@ namespace WWG
             if (dialogueRoot != null && !dialogueRoot.activeSelf) dialogueRoot.SetActive(true);
             ShowLine(line);
             advanceRequested = false;
+
+            while (typing)
+            {
+                if (advanceRequested)
+                {
+                    FinishTyping();
+                    advanceRequested = false;
+                }
+                if (token.IsNextContentRequested || token.IsHurryUpRequested)
+                {
+                    FinishTyping();
+                    break;
+                }
+                await YarnTask.Yield();
+            }
+
             while (!advanceRequested && !token.IsNextContentRequested && !token.IsHurryUpRequested)
                 await YarnTask.Yield();
             advanceRequested = false;
@@ -78,7 +117,17 @@ namespace WWG
                     ? entry.speakerColor
                     : new Color(0.56f, 0.82f, 0.86f, 1f);
             }
-            if (bodyText != null) bodyText.text = body;
+
+            fullBody = body ?? string.Empty;
+            typeElapsed = 0f;
+            if (bodyText != null)
+            {
+                bodyText.text = string.Empty;
+                bool rich = fullBody.IndexOf('<') >= 0;
+                typing = !rich && charsPerSecond > 0f && fullBody.Length > 0;
+                if (!typing) bodyText.text = fullBody;
+            }
+            else typing = false;
 
             Sprite portrait = entry != null ? entry.portrait : null;
             bool hasPortrait = portrait != null;

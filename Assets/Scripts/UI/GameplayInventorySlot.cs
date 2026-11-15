@@ -15,11 +15,15 @@ namespace WWG
         public void OnPointerClick(PointerEventData eventData)
         {
             if (eventData.button == PointerEventData.InputButton.Left || eventData.button == PointerEventData.InputButton.Right)
+            {
+                UISound.Ok();
                 owner.OpenItem(item);
+            }
         }
 
         public void OnBeginDrag(PointerEventData eventData)
         {
+            UISound.Cursor();
             group = GetComponent<CanvasGroup>();
             if (group == null) group = gameObject.AddComponent<CanvasGroup>();
             group.blocksRaycasts = false;
