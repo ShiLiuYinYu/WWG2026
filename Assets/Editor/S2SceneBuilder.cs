@@ -74,12 +74,12 @@ public static class S2SceneBuilder
         c.glow = Panel(canvas.transform, "Emergency lighting", 0, 0, 1920, 1080,
             new Color(0.64f, 0.86f, 0.85f, 0.28f), false);
 
-        Panel(canvas.transform, "Top bar", 0, 0, 1920, 136, Ink);
         c.locationText = Label(canvas.transform, "Location", "", 34, 17, 520, 55, 32, Accent, TextAnchor.MiddleLeft);
         c.objectiveText = Label(canvas.transform, "Objective", "", 570, 18, 980, 50, 30, Paper, TextAnchor.MiddleCenter);
+        c.objectiveText.gameObject.SetActive(false);
         c.timeText = Label(canvas.transform, "Time", "", 1590, 15, 290, 48, 29, Accent, TextAnchor.MiddleRight);
-        c.statusText = Label(canvas.transform, "Status", "", 1450, 75, 430, 42, 27, Paper, TextAnchor.MiddleRight);
-        Button(canvas.transform, "Record", "任务记录", 36, 78, 180, 42, c.OpenRecord);
+        c.timeText.gameObject.SetActive(false);
+        c.vitals = Vitals(canvas.transform);
         Button(canvas.transform, "Inventory", "背包", 235, 78, 130, 42, c.OpenInventory);
         Button(canvas.transform, "Pause", "暂停", 385, 78, 130, 42, c.TogglePause);
 
@@ -170,6 +170,13 @@ public static class S2SceneBuilder
         EditorSceneManager.SaveScene(scene, Folder + "/" + name + ".unity");
     }
 
+    private static VitalsBars Vitals(Transform parent)
+    {
+        GameObject prefab = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Prefabs/UI/VitalsBars.prefab");
+        GameObject go = (GameObject)PrefabUtility.InstantiatePrefab(prefab, parent);
+        go.name = "Vitals";
+        return go.GetComponent<VitalsBars>();
+    }
     private static GameObject Rect(Transform parent, string name, float x, float y, float w, float h)
     {
         var go = new GameObject(name, typeof(RectTransform));

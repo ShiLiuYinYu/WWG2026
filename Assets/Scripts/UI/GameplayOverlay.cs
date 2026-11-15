@@ -17,6 +17,7 @@ namespace WWG
         private Slider volumeSlider, textSpeedSlider;
         private Text textSpeedLabel;
         private Text timeLabel, objectiveLabel, statusLabel, messageLabel;
+        private VitalsBars vitals;
         private Text detailName, detailBody, selectionLabel, volumeLabel;
         private GameObject photoSlot, badgeSlot;
         private string selectedItem;
@@ -39,6 +40,8 @@ namespace WWG
             timeLabel = FindText("Top bar/Time");
             objectiveLabel = FindText("Top bar/Objective");
             statusLabel = FindText("Top bar/Status");
+            var vitalsTr = transform.Find("Top bar/Vitals");
+            if (vitalsTr != null) vitals = vitalsTr.GetComponent<VitalsBars>();
             messageLabel = FindText("Toast/Message");
             detailName = FindText("Item detail/Name");
             detailBody = FindText("Item detail/Body");
@@ -137,13 +140,20 @@ namespace WWG
             {
                 timeLabel.text = s0.timeText.text;
                 objectiveLabel.text = s0.objectiveText.text;
-                statusLabel.text = "白天调查  ·  安全";
+                if (vitals != null) vitals.gameObject.SetActive(false);
+                else if (statusLabel != null) statusLabel.text = "白天调查  ·  安全";
             }
             else if (s1 != null)
             {
                 timeLabel.text = s1.timeText.text;
                 objectiveLabel.text = s1.objectiveText.text;
-                statusLabel.text = "SAN  " + s1.San + "/100    生命  " + s1.Health + "/3";
+                if (vitals != null)
+                {
+                    vitals.gameObject.SetActive(true);
+                    vitals.SetSan(s1.San, 100);
+                    vitals.SetHealth(s1.Health, 3);
+                }
+                else if (statusLabel != null) statusLabel.text = "SAN  " + s1.San + "/100    生命  " + s1.Health + "/3";
             }
             photoSlot.SetActive(s1 != null && s1.HasPhoto);
             badgeSlot.SetActive(s1 != null && s1.HasBadge);
