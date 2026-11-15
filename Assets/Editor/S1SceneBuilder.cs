@@ -115,12 +115,6 @@ public static class S1SceneBuilder
         Button(hud.transform, "Load checkpoint", "读取检查点", 455, 72, 220, 42, controller.LoadCheckpoint);
         controller.hoverText = Label(canvas.transform, "Hover caption", "", 390, 915, 1140, 55, 27, Color.white, TextAnchor.MiddleCenter);
 
-        controller.dialoguePanel = Panel(canvas.transform, "Dialogue", 45, 825, 1830, 225, Ink);
-        controller.speakerText = Label(controller.dialoguePanel.transform, "Speaker", "", 35, 17, 460, 48, 34, Accent, TextAnchor.MiddleLeft);
-        controller.dialogueText = Label(controller.dialoguePanel.transform, "Line", "", 35, 73, 1740, 108, 31, Paper, TextAnchor.UpperLeft);
-        Label(controller.dialoguePanel.transform, "Continue hint", "点击继续  ▸", 1510, 187, 265, 28, 22, Accent, TextAnchor.MiddleRight);
-        Button(controller.dialoguePanel.transform, "Continue", "", 0, 0, 1830, 225, controller.ContinueDialogue, true);
-
         controller.infoPanel = Panel(canvas.transform, "Inspect panel", 400, 170, 1120, 730, Ink);
         controller.infoTitle = Label(controller.infoPanel.transform, "Title", "", 55, 42, 1010, 65, 38, Accent, TextAnchor.MiddleLeft);
         controller.infoBody = Label(controller.infoPanel.transform, "Body", "", 55, 140, 1010, 480, 31, Paper, TextAnchor.UpperLeft);
@@ -172,9 +166,7 @@ public static class S1SceneBuilder
         controller.completionText = Label(controller.completionPanel.transform, "Completion", "", 250, 335, 1420, 300,
             54, Paper, TextAnchor.MiddleCenter);
         Button(controller.completionPanel.transform, "Return to 4F", "查看 4F 入口", 760, 730, 400, 70, controller.CloseCompletion);
-        controller.dialoguePanel.transform.SetAsLastSibling();
 
-        controller.dialoguePanel.SetActive(false);
         controller.infoPanel.SetActive(false);
         controller.inventoryPanel.SetActive(false);
         controller.photoPanel.SetActive(false);

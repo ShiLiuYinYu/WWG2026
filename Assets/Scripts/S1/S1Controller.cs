@@ -1,20 +1,13 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 using WWG;
 
-public sealed class S1Controller : MonoBehaviour
+public sealed class S1Controller : MonoBehaviour, IDialogueContext
 {
-    [Serializable]
-    private struct Line
-    {
-        public string speaker;
-        public string body;
-        public Line(string speaker, string body) { this.speaker = speaker; this.body = body; }
-    }
-
     [Serializable]
     private sealed class Checkpoint
     {
@@ -29,6 +22,7 @@ public sealed class S1Controller : MonoBehaviour
         public bool chairPlaced;
         public bool shockApplied;
         public bool glassRead;
+        public List<string> seenDialogue;
     }
 
     public GameObject room;
@@ -47,7 +41,6 @@ public sealed class S1Controller : MonoBehaviour
     public GameObject badgeHotspot;
     public GameObject curtainOverlay;
     public GameObject lampGlow;
-    public GameObject dialoguePanel;
     public GameObject infoPanel;
     public GameObject inventoryPanel;
     public GameObject photoPanel;
@@ -58,8 +51,6 @@ public sealed class S1Controller : MonoBehaviour
     public Image photoLamp;
     public GameObject hintLampHighlight;
     public GameObject hintTapeHighlight;
-    public Text speakerText;
-    public Text dialogueText;
     public Text infoTitle;
     public Text infoBody;
     public Text hoverText;
@@ -77,8 +68,6 @@ public sealed class S1Controller : MonoBehaviour
     public GameObject completionPanel;
 
     private const string SaveKey = "WWG_S1_Checkpoint";
-    private readonly Queue<Line> lines = new Queue<Line>();
-    private Action afterDialogue;
     private int phase; // 0 box, 1 P1, 2 badge, 3 corridor unlocked, 4 S1 complete
     private int screen; // 0 room, 1 corridor, 2 4F entrance
     private int san = 100;
@@ -91,36 +80,49 @@ public sealed class S1Controller : MonoBehaviour
     private bool shockApplied;
     private bool glassRead;
     private bool photoShowingBack;
+    private bool subscribed;
     private float idleSeconds;
     private float dangerSeconds;
     private float zeroSanSeconds;
     private int hintStage;
+    private readonly HashSet<string> extraFlags = new HashSet<string>();
+    private readonly HashSet<string> extraItems = new HashSet<string>();
+    private readonly HashSet<string> dialogueSeen = new HashSet<string>();
     private static Checkpoint pendingTravel;
-    private static string pendingArrival;
+    private static string pendingArrivalNode;
 
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
-    private static void ResetTravel() { pendingTravel = null; pendingArrival = null; }
+    private static void ResetTravel() { pendingTravel = null; pendingArrivalNode = null; }
 
-    private bool ModalOpen => dialoguePanel.activeSelf || infoPanel.activeSelf || inventoryPanel.activeSelf ||
+    private static bool DialogueRunning =>
+        DialogueService.Instance != null && DialogueService.Instance.IsRunning;
+
+    private bool ModalOpen => DialogueRunning || infoPanel.activeSelf || inventoryPanel.activeSelf ||
                               photoPanel.activeSelf || memoPanel.activeSelf || completionPanel.activeSelf;
     public bool IsGameplayModalOpen => ModalOpen;
     public bool HasPhoto => hasPhoto;
     public bool HasBadge => hasBadge;
     public int San => san;
     public int Health => health;
+
     public bool SaveManualCheckpoint()
     {
+        if (DialogueRunning) return false;
         Save();
         return true;
     }
 
-    public SaveSlotSnapshot CaptureSaveSlot() => new SaveSlotSnapshot
+    public SaveSlotSnapshot CaptureSaveSlot()
     {
-        chapter = "S1",
-        payload = JsonUtility.ToJson(Capture()),
-        gameTime = timeText.text,
-        locationLabel = "S1 · " + timeText.text + " · " + GameFlow.S1Location(screen)
-    };
+        if (DialogueRunning) return null;
+        return new SaveSlotSnapshot
+        {
+            chapter = "S1",
+            payload = JsonUtility.ToJson(Capture()),
+            gameTime = timeText.text,
+            locationLabel = "S1 · " + timeText.text + " · " + GameFlow.S1Location(screen)
+        };
+    }
 
     public void UseInventoryItem(string item, string hotspot)
     {
@@ -129,16 +131,17 @@ public sealed class S1Controller : MonoBehaviour
         {
             if (screen == 0 && (hotspot == "curtain" || hotspot == "lamp" || hotspot == "chair"))
             {
-                ShowPhoto();
+                OpenPhoto();
                 return;
             }
-            ShowInfo("去年的活动室照片", "这是社团留下的旧照片。照片记录的是活动室里窗帘、桌灯和第五把椅子的位置；可放大查看。", null);
+            ShowInfoPanel("去年的活动室照片", DialogueDocuments.GetBody("s1.photoInfo"));
         }
         else if (item == "badge" && hasBadge)
         {
-            ShowInfo("林未的旧工牌", "背面写着：玻璃两边，各存一半。4F。\n\n这是调查线索，工牌会留在物品栏中。", null);
+            ShowInfoPanel("林未的旧工牌", DialogueDocuments.GetBody("s1.badgeInfo"));
         }
     }
+
     private int Matches => (curtainClosed ? 1 : 0) + (lampOn ? 1 : 0) + (chairPlaced ? 1 : 0);
 
     private void Start()
@@ -148,7 +151,13 @@ public sealed class S1Controller : MonoBehaviour
         if (font != null)
             foreach (Text item in GetComponentsInChildren<Text>(true)) item.font = font;
 
-        dialoguePanel.SetActive(false);
+        DialogueService service = DialogueService.Ensure();
+        if (service != null)
+        {
+            service.DialogueCompleted += HandleDialogueCompleted;
+            subscribed = true;
+        }
+
         infoPanel.SetActive(false);
         inventoryPanel.SetActive(false);
         photoPanel.SetActive(false);
@@ -156,17 +165,17 @@ public sealed class S1Controller : MonoBehaviour
         completionPanel.SetActive(false);
 
         Checkpoint travel = pendingTravel;
-        string arrival = pendingArrival;
+        string arrivalNode = pendingArrivalNode;
         pendingTravel = null;
-        pendingArrival = null;
+        pendingArrivalNode = null;
         bool fresh = PlayerPrefs.GetInt("WWG_S1_EnterFresh", 0) == 1;
         PlayerPrefs.DeleteKey("WWG_S1_EnterFresh");
         if (travel != null)
         {
             Apply(travel);
             UpdateView();
-            if (!string.IsNullOrEmpty(arrival))
-                Say(new[] { new Line("我", arrival) }, screen == 2 && phase == 4 ? EnterS2 : null);
+            if (!string.IsNullOrEmpty(arrivalNode))
+                PlayNode(arrivalNode);
             else if (screen == 2 && phase == 4) EnterS2();
         }
         else if (!fresh && PlayerPrefs.HasKey(SaveKey))
@@ -179,12 +188,15 @@ public sealed class S1Controller : MonoBehaviour
         {
             screen = Mathf.Max(0, GameFlow.S1LocationIndex(SceneManager.GetActiveScene().name));
             UpdateView();
-            if (screen == 0)
-                Say(new[] {
-                    new Line("唐澈", "吓我一跳……储物柜顶上那盒子怎么自己震下来了？"),
-                    new Line("袁祁", "正好在你脚边，帮忙捡一下，看看有没有摔坏社团的东西。")
-                });
+            if (screen == 0) PlayNode("S1_ClubRoom_Intro");
         }
+    }
+
+    private void OnDestroy()
+    {
+        if (subscribed && DialogueService.Instance != null)
+            DialogueService.Instance.DialogueCompleted -= HandleDialogueCompleted;
+        subscribed = false;
     }
 
     private void Update()
@@ -196,12 +208,13 @@ public sealed class S1Controller : MonoBehaviour
             if (hintStage == 0 && idleSeconds >= 30f)
             {
                 hintStage = 1;
-                Say(new[] { new Line("许圆", "照片里的窗帘是关着的。现在这边似乎还漏着窗外的光。") });
+                PlayNode("S1_ClubRoom_Hint_30", true);
             }
             else if (hintStage == 1 && idleSeconds >= 60f)
             {
                 hintStage = 2;
-                ShowPhoto();
+                UpdateView();
+                PlayNode("S1_ClubRoom_Hint_60", true);
             }
         }
         if (screen == 1)
@@ -225,8 +238,9 @@ public sealed class S1Controller : MonoBehaviour
                 {
                     health = 3;
                     san = 60;
+                    UpdateView();
                     Save();
-                    SwitchScreen(0, "眼前一黑。再睁眼时，我已经回到亮着灯的活动室。照片和工牌还在。");
+                    SwitchScreen(0, "S1_ClubRoom_Revive");
                     return;
                 }
                 UpdateView();
@@ -243,60 +257,37 @@ public sealed class S1Controller : MonoBehaviour
         {
             case "box":
                 if (phase != 0) return;
-                hasPhoto = true;
-                phase = 1;
-                Say(new[] {
-                    new Line("我", "盒子里都是过期的社团招新传单，最上面夹着一张洗出来的照片。背面写着：23:30 / 旧项目场景参考图。"),
-                    new Line("许圆", "这是去年的活动室。照片里窗帘拉着，长桌边的旧桌灯亮着，第五把椅子摆在窗边白色地胶框里。"),
-                    new Line("许圆", "要不照着它把灯光和位置还原一下？我拍张对比图。"),
-                    new Line("袁祁", "你帮许圆把这三处对一下吧，我把分支表存个档。")
-                }, () => ShowPhoto());
+                PlayNode("S1_ClubRoom_Box");
                 break;
             case "curtain":
                 if (phase != 1) return;
                 curtainClosed = !curtainClosed;
-                MatchChanged(curtainClosed ? "把窗帘拉严了，窗外的光被挡住。" : "窗帘重新拉开了。照片里不是这样。");
+                MatchToggled();
+                PlayNode("S1_ClubRoom_Curtain");
                 break;
             case "lamp":
                 if (phase != 1) return;
                 lampOn = !lampOn;
-                MatchChanged(lampOn ? "旧桌灯还能亮，暖光打在靠窗那块空地上。" : "桌灯关了，照片里的它是亮着的。");
+                MatchToggled();
+                PlayNode("S1_ClubRoom_Lamp");
                 break;
             case "chair":
                 if (phase != 1) return;
                 chairPlaced = !chairPlaced;
-                MatchChanged(chairPlaced ? "椅脚刚好卡进白色地胶框。" : "把第五把椅子挪回储物柜旁。" );
+                MatchToggled();
+                PlayNode("S1_ClubRoom_Chair");
                 break;
             case "badge":
                 if (phase != 2 || hasBadge) return;
-                hasBadge = true;
-                phase = 3;
-                Save();
-                Say(new[] {
-                    new Line("我", "坐垫夹缝里塞着去年的参赛工牌。正面是林未，编号 05。"),
-                    new Line("我", "背面写着：玻璃两边，各存一半。4F。"),
-                    new Line("许圆", "林未？她好像是去年在这间活动室参赛的人。"),
-                    new Line("唐澈", "四楼带玻璃的地方，就是你下午去过的跨栋连廊。"),
-                    new Line("袁祁", "先坐着缓两分钟。照片刚才在我看来还是空的。")
-                });
+                PlayNode("S1_ClubRoom_Badge");
                 break;
             case "glass":
-                if (phase < 3) { Say(new[] { new Line("我", "门玻璃外的公共走廊已经全黑，屋里的电脑还亮着。") }); return; }
-                glassRead = true;
-                Save();
-                ShowInfo("残影 · 门玻璃", "水雾般的旧字一闪而过：\n\n「不要让她独自过连廊……」\n\n这行字只在玻璃反光里出现，门牌和现实墙面没有变化。", null);
+                if (phase < 3) PlayNode("S1_ClubRoom_GlassBeforeBadge");
+                else PlayNode("S1_ClubRoom_GlassResidue");
                 break;
             case "toCorridor":
-                if (phase < 3) { Say(new[] { new Line("我", "先看清这张照片，还有椅垫下露出的东西。") }); return; }
-                if (screen == 0)
-                {
-                    Say(new[] {
-                        new Line("我", "工牌背面写了 4F，我想去四楼连廊看看。"),
-                        new Line("袁祁", "走廊灯全灭了。手机保持通话，觉得不舒服就回来歇会儿。"),
-                        new Line("许圆", "四楼入口有应急灯开关，看不清就先打开。"),
-                        new Line("唐澈", "找到东西拍个照就回来。")
-                    }, () => { dangerSeconds = 0; SwitchScreen(1); });
-                }
+                if (phase < 3) PlayNode("S1_ClubRoom_NeedBadge");
+                else if (screen == 0) PlayNode("S1_ClubRoom_ToCorridor");
                 break;
             case "toRoom":
                 dangerSeconds = 0;
@@ -306,15 +297,16 @@ public sealed class S1Controller : MonoBehaviour
                 if (screen != 0 || phase < 3) return;
                 san = 100;
                 health = 3;
-                Save();
                 UpdateView();
-                Say(new[] { new Line("我", "在亮着灯的活动室坐了一会儿，呼吸终于平稳了。") });
+                Save();
+                PlayNode("S1_ClubRoom_Rest");
                 break;
             case "toBridge":
                 if (screen != 1) return;
                 phase = 4;
+                UpdateView();
                 Save();
-                SwitchScreen(2, "单数栋 4F 连廊入口。玻璃外的天井黑着，应急照明开关亮着红点。");
+                SwitchScreen(2, "S1_Bridge_Arrive");
                 break;
             case "bridgeBack":
                 SwitchScreen(1);
@@ -322,28 +314,65 @@ public sealed class S1Controller : MonoBehaviour
         }
     }
 
-    private void MatchChanged(string line)
+    private void MatchToggled()
     {
         idleSeconds = 0;
         hintStage = 0;
         UpdateView();
-        if (Matches == 3) CompleteP1();
-        else Say(new[] { new Line("我", line), new Line("任务记录", "环境匹配 " + Matches + "/3") });
     }
 
     private void CompleteP1()
     {
+        if (phase != 1) return;
         phase = 2;
-        if (!shockApplied) { san = Mathf.Max(0, san - 25); shockApplied = true; }
-        Save();
         UpdateView();
-        ShowPhoto();
-        Say(new[] {
-            new Line("我", "这张照片……第五把椅子上刚才明明是空的。现在怎么有个人影？"),
-            new Line("许圆", "什么人影？让我看看？"),
-            new Line("唐澈", "这不是照片上的污渍吗？"),
-            new Line("袁祁", "先看现实里那把椅子，坐垫底下是不是夹着什么？")
-        });
+        PlayNode("S1_ClubRoom_P1Complete");
+    }
+
+    private void HandleDialogueCompleted(string nodeId)
+    {
+        switch (nodeId)
+        {
+            case "S1_ClubRoom_Box":
+                phase = 1;
+                Save();
+                UpdateView();
+                break;
+            case "S1_ClubRoom_Curtain":
+            case "S1_ClubRoom_Lamp":
+            case "S1_ClubRoom_Chair":
+                if (phase == 1 && Matches == 3) CompleteP1();
+                break;
+            case "S1_ClubRoom_P1Complete":
+                Save();
+                UpdateView();
+                break;
+            case "S1_ClubRoom_Badge":
+                phase = 3;
+                Save();
+                UpdateView();
+                break;
+            case "S1_ClubRoom_GlassResidue":
+                Save();
+                UpdateView();
+                break;
+            case "S1_ClubRoom_ToCorridor":
+                dangerSeconds = 0;
+                SwitchScreen(1);
+                break;
+            case "S1_Bridge_Arrive":
+                EnterS2();
+                break;
+            case "S1_System_Checkpoint":
+                if (screen == 2 && phase == 4) EnterS2();
+                break;
+        }
+    }
+
+    private void PlayNode(string nodeId, bool once = false)
+    {
+        DialogueService service = DialogueService.Ensure();
+        if (service != null) service.Play(nodeId, this, once);
     }
 
     private void UpdateView()
@@ -391,7 +420,7 @@ public sealed class S1Controller : MonoBehaviour
         if (!visible) SetHover("");
     }
 
-    private void SwitchScreen(int index, string arrival = null)
+    private void SwitchScreen(int index, string arrivalNode = null)
     {
         int previous = screen;
         screen = index;
@@ -400,16 +429,16 @@ public sealed class S1Controller : MonoBehaviour
         if (SceneManager.GetActiveScene().name == destination)
         {
             UpdateView();
-            if (!string.IsNullOrEmpty(arrival)) Say(new[] { new Line("我", arrival) });
+            if (!string.IsNullOrEmpty(arrivalNode)) PlayNode(arrivalNode);
             return;
         }
         pendingTravel = Capture();
-        pendingArrival = arrival;
+        pendingArrivalNode = arrivalNode;
         if (!GameFlow.LoadLocation(destination))
         {
             screen = previous;
             pendingTravel = null;
-            pendingArrival = null;
+            pendingArrivalNode = null;
             UpdateView();
         }
     }
@@ -433,6 +462,7 @@ public sealed class S1Controller : MonoBehaviour
         if (lampOn) state.SetFlag("flag.p1.lamp");
         if (chairPlaced) state.SetFlag("flag.p1.chair");
         if (glassRead) state.SetFlag("flag.s1.glassRead");
+        foreach (string node in dialogueSeen) state.MarkDialogueSeen(node);
         state.AddItem(StoryIds.Item.Photo);
         state.AddItem(StoryIds.Item.Badge);
         S2Controller.Begin(state);
@@ -440,7 +470,8 @@ public sealed class S1Controller : MonoBehaviour
 
     private Checkpoint Capture() => new Checkpoint { phase = phase, screen = screen, san = san, health = health,
         hasPhoto = hasPhoto, hasBadge = hasBadge, curtainClosed = curtainClosed, lampOn = lampOn,
-        chairPlaced = chairPlaced, shockApplied = shockApplied, glassRead = glassRead };
+        chairPlaced = chairPlaced, shockApplied = shockApplied, glassRead = glassRead,
+        seenDialogue = new List<string>(dialogueSeen) };
 
     private void Apply(Checkpoint data)
     {
@@ -448,10 +479,13 @@ public sealed class S1Controller : MonoBehaviour
         hasPhoto = data.hasPhoto; hasBadge = data.hasBadge; curtainClosed = data.curtainClosed;
         lampOn = data.lampOn; chairPlaced = data.chairPlaced; shockApplied = data.shockApplied;
         glassRead = data.glassRead;
+        dialogueSeen.Clear();
+        if (data.seenDialogue != null) dialogueSeen.UnionWith(data.seenDialogue);
     }
 
     private void Save()
     {
+        if (DialogueRunning) return;
         PlayerPrefs.SetString(SaveKey, JsonUtility.ToJson(Capture()));
         PlayerPrefs.SetInt("WWG_LastCheckpointChapter", 1);
         PlayerPrefs.Save();
@@ -467,56 +501,62 @@ public sealed class S1Controller : MonoBehaviour
 
     public void LoadCheckpoint()
     {
-        if (ModalOpen && !memoPanel.activeSelf) return;
-        if (!PlayerPrefs.HasKey(SaveKey)) { ShowInfo("检查点", "目前还没有可读取的 S1 检查点。", null); return; }
+        if (DialogueRunning) return;
+        if (!PlayerPrefs.HasKey(SaveKey)) { ShowInfoPanel("检查点", "目前还没有可读取的 S1 检查点。"); return; }
         memoPanel.SetActive(false);
         Restore();
-        if (screen != GameFlow.S1LocationIndex(SceneManager.GetActiveScene().name)) SwitchScreen(screen, "检查点已读取。照片、工牌、P1 进度和 SAN/生命已恢复。");
-        else ShowInfo("检查点已读取", "照片、工牌、P1 进度和 SAN/生命已恢复。", null);
+        if (screen != GameFlow.S1LocationIndex(SceneManager.GetActiveScene().name))
+            SwitchScreen(screen, "S1_System_Checkpoint");
+        else ShowInfoPanel("检查点已读取", "照片、工牌、P1 进度和 SAN/生命已恢复。");
     }
 
     public void LoadCheckpointFromPause()
     {
-        dialoguePanel.SetActive(false);
         infoPanel.SetActive(false);
         inventoryPanel.SetActive(false);
         photoPanel.SetActive(false);
         memoPanel.SetActive(false);
         completionPanel.SetActive(false);
-        lines.Clear();
-        afterDialogue = null;
-        afterInfo = null;
         LoadCheckpoint();
     }
 
     public void ToggleInventory()
     {
-        if (dialoguePanel.activeSelf || infoPanel.activeSelf || photoPanel.activeSelf || memoPanel.activeSelf) return;
+        if (DialogueRunning || infoPanel.activeSelf || photoPanel.activeSelf || memoPanel.activeSelf) return;
         inventoryPanel.SetActive(!inventoryPanel.activeSelf);
         UpdateInteractionVisibility();
     }
 
     public void InspectPhoto()
     {
+        if (DialogueRunning) return;
         inventoryPanel.SetActive(false);
-        if (!hasPhoto) { ShowInfo("背包", "照片还在地上的纸盒里。", null); return; }
-        ShowPhoto();
+        if (!hasPhoto) { ShowInfoPanel("背包", "照片还在地上的纸盒里。"); return; }
+        OpenPhoto();
     }
 
     public void InspectBadge()
     {
+        if (DialogueRunning) return;
         inventoryPanel.SetActive(false);
-        if (!hasBadge) { ShowInfo("背包", "工牌还没有取得。", null); return; }
-        ShowInfo("社团旧资料 · 林未的工牌", "48H GameJam 参赛证\n姓名：林未    编号：05\n\n背面手写：玻璃两边，各存一半。4F。\n\n关键物品 · 不可丢弃", null);
+        if (!hasBadge) { ShowInfoPanel("背包", "工牌还没有取得。"); return; }
+        ShowInfoPanel("社团旧资料 · 林未的工牌", DialogueDocuments.GetBody("s1.badgeDetail"));
     }
 
-    private void ShowPhoto()
+    private void OpenPhoto()
     {
         photoShowingBack = false;
         photoFace.SetActive(true);
         photoBack.SetActive(false);
         photoPanel.SetActive(true);
         UpdateView();
+    }
+
+    public IEnumerator ShowPhoto()
+    {
+        if (!hasPhoto) yield break;
+        OpenPhoto();
+        while (photoPanel.activeSelf) yield return null;
     }
 
     public void FlipPhoto()
@@ -531,19 +571,17 @@ public sealed class S1Controller : MonoBehaviour
 
     public void ToggleMemo()
     {
-        if (dialoguePanel.activeSelf || infoPanel.activeSelf || photoPanel.activeSelf || inventoryPanel.activeSelf) return;
+        if (DialogueRunning || infoPanel.activeSelf || photoPanel.activeSelf || inventoryPanel.activeSelf) return;
         memoPanel.SetActive(!memoPanel.activeSelf);
         UpdateInteractionVisibility();
     }
 
     public void CloseCompletion() { completionPanel.SetActive(false); UpdateInteractionVisibility(); }
 
-    private Action afterInfo;
-    private void ShowInfo(string title, string body, Action callback)
+    private void ShowInfoPanel(string title, string body)
     {
         infoTitle.text = title;
         infoBody.text = body;
-        afterInfo = callback;
         infoPanel.SetActive(true);
         UpdateInteractionVisibility();
     }
@@ -551,38 +589,123 @@ public sealed class S1Controller : MonoBehaviour
     public void CloseInfo()
     {
         infoPanel.SetActive(false);
-        Action callback = afterInfo;
-        afterInfo = null;
-        callback?.Invoke();
         UpdateInteractionVisibility();
     }
 
-    private void Say(IEnumerable<Line> dialogue, Action callback = null)
+    public IEnumerator ShowDocument(string documentId)
     {
-        lines.Clear();
-        foreach (Line line in dialogue) lines.Enqueue(line);
-        afterDialogue = callback;
-        dialoguePanel.SetActive(true);
+        if (!DialogueDocuments.TryGet(documentId, out DialogueDocuments.Entry document))
+        {
+            Debug.LogWarning("[Dialogue] 缺少文档 ID：" + documentId);
+            yield break;
+        }
+        infoTitle.text = document.residue ? "【残影】" + document.title : document.title;
+        infoBody.text = document.body;
+        infoPanel.SetActive(true);
         UpdateInteractionVisibility();
-        ContinueDialogue();
+        while (infoPanel.activeSelf) yield return null;
     }
 
-    public void ContinueDialogue()
+    public bool HasFlag(string id)
     {
-        if (!dialoguePanel.activeSelf) return;
-        if (lines.Count > 0)
+        switch (id)
         {
-            Line line = lines.Dequeue();
-            speakerText.text = line.speaker;
-            dialogueText.text = line.body;
+            case "flag.p1.curtain": return curtainClosed;
+            case "flag.p1.lamp": return lampOn;
+            case "flag.p1.chair": return chairPlaced;
+            case "flag.p1.complete": return phase >= 2;
+            case "flag.p1.shock": return shockApplied;
+            case "flag.s1.box": return phase >= 1;
+            case "flag.s1.badge": return hasBadge;
+            case "flag.s1.corridorUnlocked": return phase >= 3;
+            case "flag.s1.glassRead": return glassRead;
+            default: return extraFlags.Contains(id);
         }
-        else
+    }
+
+    public bool HasItem(string id)
+    {
+        if (id == "photo") return hasPhoto;
+        if (id == "badge") return hasBadge;
+        return extraItems.Contains(id);
+    }
+
+    public bool HasSeenDialogue(string nodeId) => dialogueSeen.Contains(nodeId);
+    public void MarkDialogueSeen(string nodeId)
+    {
+        if (!string.IsNullOrWhiteSpace(nodeId)) dialogueSeen.Add(nodeId);
+    }
+
+    public string Route => string.Empty;
+    public string View => string.Empty;
+
+    public void SetFlag(string id)
+    {
+        switch (id)
         {
-            dialoguePanel.SetActive(false);
-            Action callback = afterDialogue;
-            afterDialogue = null;
-            callback?.Invoke();
-            UpdateInteractionVisibility();
+            case "flag.p1.curtain": curtainClosed = true; break;
+            case "flag.p1.lamp": lampOn = true; break;
+            case "flag.p1.chair": chairPlaced = true; break;
+            case "flag.p1.complete": phase = Mathf.Max(phase, 2); break;
+            case "flag.p1.shock": shockApplied = true; break;
+            case "flag.s1.badge": hasBadge = true; break;
+            case "flag.s1.glassRead": glassRead = true; break;
+            default: extraFlags.Add(id); break;
         }
+    }
+
+    public void ClearFlag(string id)
+    {
+        switch (id)
+        {
+            case "flag.p1.curtain": curtainClosed = false; break;
+            case "flag.p1.lamp": lampOn = false; break;
+            case "flag.p1.chair": chairPlaced = false; break;
+            case "flag.p1.shock": shockApplied = false; break;
+            case "flag.s1.badge": hasBadge = false; break;
+            case "flag.s1.glassRead": glassRead = false; break;
+            default: extraFlags.Remove(id); break;
+        }
+    }
+
+    public void AddItem(string id)
+    {
+        if (id == "photo") hasPhoto = true;
+        else if (id == "badge") hasBadge = true;
+        else if (!string.IsNullOrWhiteSpace(id)) extraItems.Add(id);
+    }
+
+    public void ApplyShock(string id, int sanDelta, int healthDelta = 0)
+    {
+        string guard = "flag." + id + ".shock";
+        if (HasFlag(guard)) return;
+        if (id == "p1") shockApplied = true;
+        else extraFlags.Add(guard);
+        san = Mathf.Max(0, san + sanDelta);
+        health = Mathf.Clamp(health + healthDelta, 0, 3);
+        UpdateView();
+    }
+
+    public void ChooseRoute(string choice) { }
+    public void ChooseView(string choice) { }
+
+    public void RequestCheckpoint()
+    {
+        if (DialogueRunning)
+        {
+            Debug.LogWarning("[Dialogue] 对话进行中不允许写入 S1 检查点。");
+            return;
+        }
+        Save();
+    }
+
+    public void RequestGoTo(string locationId, string variant)
+    {
+        Debug.LogWarning("[Dialogue] S1 不使用 go_to：" + locationId + "/" + variant);
+    }
+
+    public void RefreshHud()
+    {
+        UpdateView();
     }
 }

@@ -85,6 +85,48 @@ namespace WWG
                         body = "墙上有个独立的『连廊应急照明』开关。现在是白天，还不用打开。",
                         residue = false
                     }
+                },
+                {
+                    "s1.photoInfo",
+                    new Entry
+                    {
+                        id = "s1.photoInfo",
+                        title = "去年的活动室照片",
+                        body = "这是社团留下的旧照片。照片记录的是活动室里窗帘、桌灯和第五把椅子的位置；可放大查看。",
+                        residue = false
+                    }
+                },
+                {
+                    "s1.badgeInfo",
+                    new Entry
+                    {
+                        id = "s1.badgeInfo",
+                        title = "林未的旧工牌",
+                        body = "背面写着：玻璃两边，各存一半。4F。\n\n这是调查线索，工牌会留在物品栏中。",
+                        residue = false
+                    }
+                },
+                {
+                    "s1.badgeDetail",
+                    new Entry
+                    {
+                        id = "s1.badgeDetail",
+                        title = "社团旧资料 · 林未的工牌",
+                        body = "48H GameJam 参赛证\n姓名：林未    编号：05\n\n" +
+                               "背面手写：玻璃两边，各存一半。4F。\n\n关键物品 · 不可丢弃",
+                        residue = false
+                    }
+                },
+                {
+                    "s1.glassResidue",
+                    new Entry
+                    {
+                        id = "s1.glassResidue",
+                        title = "残影 · 门玻璃",
+                        body = "水雾般的旧字一闪而过：\n\n「不要让她独自过连廊……」\n\n" +
+                               "这行字只在玻璃反光里出现，门牌和现实墙面没有变化。",
+                        residue = false
+                    }
                 }
             };
 

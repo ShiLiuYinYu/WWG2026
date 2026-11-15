@@ -1,0 +1,152 @@
+title: S1_ClubRoom_Intro
+tags: chapter_night_photo location_clubroom
+---
+唐澈: 吓我一跳……储物柜顶上那盒子怎么自己震下来了？ #line:s1_intro_01
+袁祁: 正好在你脚边，帮忙捡一下，看看有没有摔坏社团的东西。 #line:s1_intro_02
+===
+
+title: S1_ClubRoom_Box
+tags: chapter_night_photo location_clubroom
+---
+<<give_item "photo">>
+我: 盒子里都是过期的社团招新传单，最上面夹着一张洗出来的照片。背面写着：23:30 / 旧项目场景参考图。 #line:s1_box_01
+许圆: 这是去年的活动室。照片里窗帘拉着，长桌边的旧桌灯亮着，第五把椅子摆在窗边白色地胶框里。 #line:s1_box_02
+许圆: 要不照着它把灯光和位置还原一下？我拍张对比图。 #line:s1_box_03
+袁祁: 你帮许圆把这三处对一下吧，我把分支表存个档。 #line:s1_box_04
+<<show_photo>>
+===
+
+title: S1_ClubRoom_Curtain
+tags: chapter_night_photo location_clubroom
+---
+<<set $match_count = 0>>
+<<if has_flag("flag.p1.curtain")>>
+我: 把窗帘拉严了，窗外的光被挡住。 #line:s1_curtain_on_01
+<<set $match_count = $match_count + 1>>
+<<else>>
+我: 窗帘重新拉开了。照片里不是这样。 #line:s1_curtain_off_01
+<<endif>>
+<<if has_flag("flag.p1.lamp")>>
+<<set $match_count = $match_count + 1>>
+<<endif>>
+<<if has_flag("flag.p1.chair")>>
+<<set $match_count = $match_count + 1>>
+<<endif>>
+任务记录: 环境匹配 {$match_count}/3
+===
+
+title: S1_ClubRoom_Lamp
+tags: chapter_night_photo location_clubroom
+---
+<<set $match_count = 0>>
+<<if has_flag("flag.p1.lamp")>>
+我: 旧桌灯还能亮，暖光打在靠窗那块空地上。 #line:s1_lamp_on_01
+<<set $match_count = $match_count + 1>>
+<<else>>
+我: 桌灯关了，照片里的它是亮着的。 #line:s1_lamp_off_01
+<<endif>>
+<<if has_flag("flag.p1.curtain")>>
+<<set $match_count = $match_count + 1>>
+<<endif>>
+<<if has_flag("flag.p1.chair")>>
+<<set $match_count = $match_count + 1>>
+<<endif>>
+任务记录: 环境匹配 {$match_count}/3
+===
+
+title: S1_ClubRoom_Chair
+tags: chapter_night_photo location_clubroom
+---
+<<set $match_count = 0>>
+<<if has_flag("flag.p1.chair")>>
+我: 椅脚刚好卡进白色地胶框。 #line:s1_chair_on_01
+<<set $match_count = $match_count + 1>>
+<<else>>
+我: 把第五把椅子挪回储物柜旁。 #line:s1_chair_off_01
+<<endif>>
+<<if has_flag("flag.p1.curtain")>>
+<<set $match_count = $match_count + 1>>
+<<endif>>
+<<if has_flag("flag.p1.lamp")>>
+<<set $match_count = $match_count + 1>>
+<<endif>>
+任务记录: 环境匹配 {$match_count}/3
+===
+
+title: S1_ClubRoom_P1Complete
+tags: chapter_night_photo location_clubroom
+---
+<<apply_shock "p1" -25>>
+<<show_photo>>
+我: 这张照片……第五把椅子上刚才明明是空的。现在怎么有个人影？ #line:s1_p1_01
+许圆: 什么人影？让我看看？ #line:s1_p1_02
+唐澈: 这不是照片上的污渍吗？ #line:s1_p1_03
+袁祁: 先看现实里那把椅子，坐垫底下是不是夹着什么？ #line:s1_p1_04
+===
+
+title: S1_ClubRoom_Badge
+tags: chapter_night_photo location_clubroom
+---
+<<give_item "badge">>
+我: 坐垫夹缝里塞着去年的参赛工牌。正面是林未，编号 05。 #line:s1_badge_01
+我: 背面写着：玻璃两边，各存一半。4F。 #line:s1_badge_02
+许圆: 林未？她好像是去年在这间活动室参赛的人。 #line:s1_badge_03
+唐澈: 四楼带玻璃的地方，就是你下午去过的跨栋连廊。 #line:s1_badge_04
+袁祁: 先坐着缓两分钟。照片刚才在我看来还是空的。 #line:s1_badge_05
+===
+
+title: S1_ClubRoom_GlassBeforeBadge
+tags: chapter_night_photo location_clubroom
+---
+我: 门玻璃外的公共走廊已经全黑，屋里的电脑还亮着。 #line:s1_glass_before_01
+===
+
+title: S1_ClubRoom_GlassResidue
+tags: chapter_night_photo location_clubroom
+---
+<<set_flag "flag.s1.glassRead">>
+<<show_info "s1.glassResidue">>
+===
+
+title: S1_ClubRoom_NeedBadge
+tags: chapter_night_photo location_clubroom
+---
+我: 先看清这张照片，还有椅垫下露出的东西。 #line:s1_need_badge_01
+===
+
+title: S1_ClubRoom_ToCorridor
+tags: chapter_night_photo location_clubroom
+---
+我: 工牌背面写了 4F，我想去四楼连廊看看。 #line:s1_to_corridor_01
+袁祁: 走廊灯全灭了。手机保持通话，觉得不舒服就回来歇会儿。 #line:s1_to_corridor_02
+许圆: 四楼入口有应急灯开关，看不清就先打开。 #line:s1_to_corridor_03
+唐澈: 找到东西拍个照就回来。 #line:s1_to_corridor_04
+===
+
+title: S1_ClubRoom_Rest
+tags: chapter_night_photo location_clubroom
+---
+我: 在亮着灯的活动室坐了一会儿，呼吸终于平稳了。 #line:s1_rest_01
+===
+
+title: S1_ClubRoom_Revive
+tags: chapter_night_photo location_clubroom
+---
+我: 眼前一黑。再睁眼时，我已经回到亮着灯的活动室。照片和工牌还在。 #line:s1_revive_01
+===
+
+title: S1_ClubRoom_Hint_30
+tags: chapter_night_photo location_clubroom hint
+---
+<<if san() <= 60>>
+许圆: 你手在抖。先看一眼照片里的窗帘，再对现实。 #line:s1_hint30_low_01
+<<else>>
+许圆: 照片里的窗帘是关着的。现在这边似乎还漏着窗外的光。 #line:s1_hint30_01
+<<endif>>
+===
+
+title: S1_ClubRoom_Hint_60
+tags: chapter_night_photo location_clubroom hint
+---
+<<show_photo>>
+===

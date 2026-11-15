@@ -1,6 +1,6 @@
 # YarnSpinner 接入与对话系统重构
 
-> 状态：**阶段 0–1 已实施，S1/S2 尚未迁移**。`dev.yarnspinner.unity` 3.2.8 已写入 `Packages/manifest.json` 与 `Packages/packages-lock.json`；`Assets/Yarn/WWG.yarnproject`、`Assets/Scripts/Dialogue/` 共享服务与自定义 uGUI 呈现器、`Assets/Resources/Dialogue/WwgDialogueHost.prefab`、立绘配置、`WWG/Yarn/Validate Dialogue` 和 `WWG/Dev/Play Dialogue Test` 已建立。S0 的开场、记忆点、转场和熄灯对白已迁移到 `Assets/Yarn/Chapters/Prologue/`，`S0Controller` 实现 `IDialogueContext`，旧场景内对白面板已移除；S1/S2 仍继续使用各自控制器里的私有对白队列，阶段 2–5 未实施。
+> 状态：**阶段 0–2 已实施，S2 尚未迁移**。`dev.yarnspinner.unity` 3.2.8 已写入 `Packages/manifest.json` 与 `Packages/packages-lock.json`；`Assets/Yarn/WWG.yarnproject`、`Assets/Scripts/Dialogue/` 共享服务与自定义 uGUI 呈现器、`Assets/Resources/Dialogue/WwgDialogueHost.prefab`、立绘配置、`WWG/Yarn/Validate Dialogue` 和 `WWG/Dev/Play Dialogue Test` 已建立。S0 对白已迁移到 `Assets/Yarn/Chapters/Prologue/`；S1 的盒中照片、P1、工牌、玻璃残影、提示、走廊准备、休息和 4F 到达对白已迁移到 `Assets/Yarn/Chapters/NightPhoto/`，两个控制器都实现 `IDialogueContext` 并移除旧场景对白面板。S2 仍继续使用 `S2Controller` 的私有对白队列，阶段 3–5 未实施。
 >
 > 关联文档：[架构重构设计](./架构重构设计.md)、[架构规范](./架构规范.md)、[运行流程](./运行流程.md)、[目录结构组织](./目录结构组织.md)、[程序规范文档](./程序规范文档.md)。
 
