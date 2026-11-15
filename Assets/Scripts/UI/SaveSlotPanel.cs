@@ -59,6 +59,33 @@ namespace WWG
             yesButton.onClick.AddListener(Confirm);
             noButton.onClick.AddListener(CancelConfirmation);
             confirmationPanel.SetActive(false);
+            AttachSounds();
+        }
+
+        /// <summary>存档面板里的按钮也要有悬停音和点击音；返回/取消一类的走选择-取消。</summary>
+        private void AttachSounds()
+        {
+            AttachAll(slotButtons, TitleButtonFx.ClickSound.Ok);
+            AttachAll(overwriteButtons, TitleButtonFx.ClickSound.Ok);
+            AttachAll(deleteButtons, TitleButtonFx.ClickSound.Cancel);
+            Attach(latestButton, TitleButtonFx.ClickSound.Ok);
+            Attach(backButton, TitleButtonFx.ClickSound.Cancel);
+            Attach(yesButton, TitleButtonFx.ClickSound.Ok);
+            Attach(noButton, TitleButtonFx.ClickSound.Cancel);
+        }
+
+        private static void AttachAll(Button[] buttons, TitleButtonFx.ClickSound sound)
+        {
+            if (buttons == null) return;
+            for (int i = 0; i < buttons.Length; i++) Attach(buttons[i], sound);
+        }
+
+        private static void Attach(Button button, TitleButtonFx.ClickSound sound)
+        {
+            if (button == null) return;
+            TitleButtonFx fx = button.GetComponent<TitleButtonFx>();
+            if (fx == null) fx = button.gameObject.AddComponent<TitleButtonFx>();
+            fx.SetClickSound(sound);
         }
 
         private void OnDestroy()

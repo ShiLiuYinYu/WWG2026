@@ -1,0 +1,8 @@
+{
+  "type": "execute_code",
+  "params": {
+    "action": "execute",
+    "safety_checks": false,
+    "code": "var sb = new System.Text.StringBuilder();\nsb.Append(\"sceneCount=\" + UnityEngine.SceneManagement.SceneManager.sceneCount).Append(\"\\n\");\nfor (int i = 0; i < UnityEngine.SceneManagement.SceneManager.sceneCount; i++)\n{\n    var sc = UnityEngine.SceneManagement.SceneManager.GetSceneAt(i);\n    sb.Append(\"SCENE[\").Append(i).Append(\"] \").Append(sc.name).Append(\" path=\").Append(sc.path).Append(\" roots=\").Append(sc.rootCount).Append(\" loaded=\").Append(sc.isLoaded).Append(\"\\n\");\n    if (!sc.isLoaded) continue;\n    foreach (var root in sc.GetRootGameObjects())\n    {\n        sb.Append(\"  ROOT: \").Append(root.name).Append(\"\\n\");\n        foreach (var t in root.GetComponentsInChildren<Transform>(true))\n        {\n            if (t.name.StartsWith(\"Slot\"))\n            {\n                var rt = t as RectTransform;\n                string ap = rt == null ? \"(no-rt)\" : (rt.anchoredPosition.x + \",\" + rt.anchoredPosition.y);\n                sb.Append(\"    [\").Append(t.name).Append(\"] len=\").Append(t.name.Length).Append(\" anchored=\").Append(ap).Append(\"\\n\");\n            }\n        }\n    }\n}\nreturn sb.ToString();"
+  }
+}
