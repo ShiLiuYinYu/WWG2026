@@ -13,8 +13,9 @@ namespace WWG
         private S0Controller s0;
         private S1Controller s1;
         private GameObject pausePanel, settingsPanel, detailPanel, dock;
-        private Text timeLabel, objectiveLabel, statusLabel, messageLabel;
-        private Text detailName, detailBody, selectionLabel, volumeLabel;
+        private Text messageLabel;
+        private Text detailName, detailBody, volumeLabel;
+        private VitalsBars vitals;
         private GameObject photoSlot, badgeSlot;
         private string selectedItem;
         private string detailItem;
@@ -30,18 +31,14 @@ namespace WWG
             settingsPanel = pausePanel.transform.Find("Settings panel").gameObject;
             detailPanel = transform.Find("Item detail").gameObject;
             dock = transform.Find("Inventory dock").gameObject;
-            timeLabel = FindText("Top bar/Time");
-            objectiveLabel = FindText("Top bar/Objective");
-            statusLabel = FindText("Top bar/Status");
+            vitals = transform.Find("Top bar/Vitals").GetComponent<VitalsBars>();
             messageLabel = FindText("Toast/Message");
             detailName = FindText("Item detail/Name");
             detailBody = FindText("Item detail/Body");
-            selectionLabel = FindText("Inventory dock/Selection");
             volumeLabel = FindText("Pause panel/Settings panel/Volume value");
             photoSlot = transform.Find("Inventory dock/Photo slot").gameObject;
             badgeSlot = transform.Find("Inventory dock/Badge slot").gameObject;
             Bind("Top bar/Pause button", TogglePause);
-            Bind("Top bar/Record button", OpenRecord);
             Bind("Pause panel/Resume", ClosePause);
             Bind("Pause panel/Save", Save);
             Bind("Pause panel/Load", Load);
@@ -82,20 +79,16 @@ namespace WWG
             }
             if (s0 != null)
             {
-                timeLabel.text = s0.timeText.text;
-                objectiveLabel.text = s0.objectiveText.text;
-                statusLabel.text = "白天调查  ·  安全";
+                vitals.gameObject.SetActive(false);
             }
             else if (s1 != null)
             {
-                timeLabel.text = s1.timeText.text;
-                objectiveLabel.text = s1.objectiveText.text;
-                statusLabel.text = "SAN  " + s1.San + "/100    生命  " + s1.Health + "/3";
+                vitals.gameObject.SetActive(true);
+                vitals.SetSan(s1.San, 100);
+                vitals.SetHealth(s1.Health, 3);
             }
             photoSlot.SetActive(s1 != null && s1.HasPhoto);
             badgeSlot.SetActive(s1 != null && s1.HasBadge);
-            selectionLabel.text = selectedItem == null ? (s1 == null || (!s1.HasPhoto && !s1.HasBadge) ? "暂无物品" : "右键查看 · 拖到场景使用") :
-                "已选择 " + (selectedItem == "photo" ? "旧照片" : "旧工牌") + " · 点击场景热点使用";
             dock.SetActive(!pausePanel.activeSelf && !GameplayModalOpen);
             if (messageLabel.transform.parent.gameObject.activeSelf && Time.unscaledTime >= messageUntil)
                 messageLabel.transform.parent.gameObject.SetActive(false);
@@ -148,12 +141,6 @@ namespace WWG
         }
         private void UpdateVolumeLabel() { volumeLabel.text = "主音量  " + Mathf.RoundToInt(AudioListener.volume * 100f) + "%"; }
         private void ReturnToTitle() { ClosePause(); GameFlow.LoadLocation(GameFlow.TitleScene); }
-        private void OpenRecord()
-        {
-            if (pausePanel.activeSelf || detailPanel.activeSelf) return;
-            if (s0 != null) s0.ToggleMemo();
-            else if (s1 != null) s1.ToggleMemo();
-        }
 
         public void OpenItem(string item)
         {
