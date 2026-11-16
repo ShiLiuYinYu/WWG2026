@@ -388,6 +388,20 @@ public sealed class S2Controller : MonoBehaviour, IDialogueContext
         inventoryPanel.SetActive(true);
     }
     public void CloseInventory() => inventoryPanel.SetActive(false);
+    public void ShowInventoryUseHint(string item)
+    {
+        feedbackText.text = S2InventoryGrid.ItemName(item) + "是调查线索。请在背包中点“查看”核对内容。";
+    }
+
+    public void InspectInventoryItem(string item)
+    {
+        if (state == null || !state.HasItem(item)) return;
+        string body = item == StoryIds.Item.Photo ? "【社团自留资料】\n去年活动室的照片。背面标注 23:30。" :
+            item == StoryIds.Item.Badge ? "【社团自留资料】\n林未的旧工牌，编号 05。背面写着“玻璃两边，各存一半”。" :
+            item == StoryIds.Item.MachineNote ? "【社团自留资料】\n机房借用便签：林未，周五 23:30，单数栋 3F 机房靠窗第 3 台。" :
+            item == StoryIds.Item.TeamSheet ? "【社团自留资料】\n去年的分工表残页。第五格被撕去，残存编号 05。" : string.Empty;
+        ShowInfo(S2InventoryGrid.ItemName(item), body, false);
+    }
     public void TogglePause()
     {
         if (DialogueRunning || state == null) return;

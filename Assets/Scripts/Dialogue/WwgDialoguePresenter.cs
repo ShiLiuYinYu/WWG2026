@@ -16,6 +16,11 @@ namespace WWG
         public Image portraitImage;
         public DialogueCast cast;
 
+        [Header("可在预制体中调整的对白排版")]
+        [SerializeField] private float textLeftWithoutPortrait = 36f;
+        [SerializeField] private float textLeftWithPortrait = 36f;
+        [SerializeField] private float textRightMargin = 110f;
+
         [Tooltip("每秒显示多少个字。0 表示不做打字机效果。")]
         [SerializeField] private float charsPerSecond = 30f;
 
@@ -116,7 +121,8 @@ namespace WWG
         {
             string speaker = line.CharacterName ?? string.Empty;
             string body = line.TextWithoutCharacterName.Text;
-            DialogueCast.Entry entry = cast != null ? cast.Find(speaker) : null;
+            string portraitSpeaker = speaker.Replace("（电话）", string.Empty).Replace("(电话)", string.Empty);
+            DialogueCast.Entry entry = cast != null ? cast.Find(portraitSpeaker) : null;
 
             if (speakerText != null)
             {
@@ -146,14 +152,17 @@ namespace WWG
             }
 
             float indent = hasPortrait
-                ? (entry != null && entry.textIndent > 0f ? entry.textIndent : 290f)
-                : 36f;
+                ? (entry != null && entry.textIndent > 0f ? entry.textIndent : textLeftWithPortrait)
+                : textLeftWithoutPortrait;
             if (speakerText != null)
-                speakerText.rectTransform.anchoredPosition = new Vector2(indent, -18f);
+                speakerText.rectTransform.anchoredPosition = new Vector2(indent, speakerText.rectTransform.anchoredPosition.y);
             if (bodyText != null)
             {
-                bodyText.rectTransform.anchoredPosition = new Vector2(indent, -68f);
-                bodyText.rectTransform.sizeDelta = new Vector2(hasPortrait ? 1480f : 1745f, 115f);
+                bodyText.rectTransform.anchoredPosition = new Vector2(indent, bodyText.rectTransform.anchoredPosition.y);
+                var panel = bodyText.rectTransform.parent as RectTransform;
+                if (panel != null)
+                    bodyText.rectTransform.sizeDelta = new Vector2(
+                        Mathf.Max(200f, panel.rect.width - indent - textRightMargin), bodyText.rectTransform.sizeDelta.y);
             }
         }
     }
