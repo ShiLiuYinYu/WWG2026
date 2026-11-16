@@ -11,11 +11,17 @@ public sealed class S1Hotspot : MonoBehaviour, IPointerClickHandler, IPointerEnt
     public RectTransform tapeTarget;
 
     private Image image;
+    private WWG.HotspotHoverOutline outlineHover;
     private RectTransform rect;
     private Vector2 dragStart;
     private bool dropSucceeded;
 
-    private void Awake() { image = GetComponent<Image>(); rect = GetComponent<RectTransform>(); }
+    private void Awake()
+    {
+        image = GetComponent<Image>();
+        rect = GetComponent<RectTransform>();
+        outlineHover = GetComponent<WWG.HotspotHoverOutline>();
+    }
 
     public void OnPointerClick(PointerEventData eventData)
     {
@@ -39,14 +45,19 @@ public sealed class S1Hotspot : MonoBehaviour, IPointerClickHandler, IPointerEnt
 
     public void OnPointerEnter(PointerEventData eventData)
     {
-        if (image != null && action != "chair") image.color = new Color(0.65f, 0.88f, 0.95f, 0.16f);
-        controller.SetHover(label);
+        if (outlineHover == null)
+        {
+            if (image != null && action != "chair") image.color = new Color(0.65f, 0.88f, 0.95f, 0.16f);
+            controller.SetHover(label);
+        }
+        else controller.SetHover("");
         WWG.UISound.Cursor();
     }
 
     public void OnPointerExit(PointerEventData eventData)
     {
-        if (image != null && action != "chair") image.color = new Color(0.65f, 0.88f, 0.95f, 0.005f);
+        if (outlineHover == null && image != null && action != "chair")
+            image.color = new Color(0.65f, 0.88f, 0.95f, 0.005f);
         controller.SetHover("");
     }
 

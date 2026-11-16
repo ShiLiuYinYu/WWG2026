@@ -9,10 +9,12 @@ public sealed class S0Hotspot : MonoBehaviour, IPointerClickHandler, IPointerEnt
     public string label;
 
     private Image image;
+    private WWG.HotspotHoverOutline outlineHover;
 
     private void Awake()
     {
         image = GetComponent<Image>();
+        outlineHover = GetComponent<WWG.HotspotHoverOutline>();
     }
 
     public void OnPointerClick(PointerEventData eventData)
@@ -26,14 +28,19 @@ public sealed class S0Hotspot : MonoBehaviour, IPointerClickHandler, IPointerEnt
 
     public void OnPointerEnter(PointerEventData eventData)
     {
-        if (image != null) image.color = new Color(0.65f, 0.88f, 0.95f, 0.20f);
-        controller.SetHover(label);
+        if (outlineHover == null)
+        {
+            if (image != null) image.color = new Color(0.65f, 0.88f, 0.95f, 0.20f);
+            controller.SetHover(label);
+        }
+        else controller.SetHover("");
         WWG.UISound.Cursor();
     }
 
     public void OnPointerExit(PointerEventData eventData)
     {
-        if (image != null) image.color = new Color(0.65f, 0.88f, 0.95f, 0.005f);
+        if (outlineHover == null && image != null)
+            image.color = new Color(0.65f, 0.88f, 0.95f, 0.005f);
         controller.SetHover("");
     }
 }

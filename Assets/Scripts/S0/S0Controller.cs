@@ -508,8 +508,10 @@ public sealed class S0Controller : MonoBehaviour, IDialogueContext
         memoPanel.SetActive(memoOpen);
         UpdateInteractionVisibility();
         if (!memoOpen) return;
-        memoText.text = "【建筑导览】\n" + (boardRead ? DialogueDocuments.GetBody("s0.directory") : "尚未查阅门口展板。") +
-            "\n\n【白天取景】\n" +
+        memoText.text = "【建筑导览】\n" +
+            (boardRead ? DialogueDocuments.GetBody("s0.directory") : "尚未查阅门口展板。");
+        if (phase < 2) return;
+        memoText.text += "\n\n【白天取景】\n" +
             (chairRead ? "✓ 活动室：第五把椅子、白色地胶框和柜顶旧纸盒。\n" : "○ 活动室：靠窗区域待查看。\n") +
             (signRead && timerRead ? "✓ 5F 走廊：安全出口与 23:30 公共照明定时箱。\n" : "○ 5F 走廊：安全指示牌和定时箱待查看。\n") +
             (guideRead ? "✓ 4F 连廊：先单数栋、后偶数栋；从连廊口向外。" : "○ 4F 连廊：导览练习稿待查看。");

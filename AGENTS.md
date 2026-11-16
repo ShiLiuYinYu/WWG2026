@@ -16,7 +16,7 @@
 - `dev.yarnspinner.unity` 3.2.8 已接入：`Assets/Yarn/WWG.yarnproject`、`Assets/Scripts/Dialogue/` 共享服务与自定义 uGUI 呈现器、`Assets/Resources/Dialogue/WwgDialogueHost.prefab`、`WWG/Yarn/Validate Dialogue` 校验菜单已存在；S0、S1、S2 对白已分别迁移到 `Assets/Yarn/Chapters/Prologue/`、`NightPhoto/`、`BridgeRoute/`，三个控制器都实现 `IDialogueContext`。S2 仍使用自己的暂停/背包/记录 UI 和 `GameState`，`GameplayOverlay` 与 `GameRuntime` 的目标架构合并（阶段 4–5）尚未实施。接入方案和迁移顺序见 `Document/Program/YarnSpinner接入与对话系统重构.md`。
 - 项目已安装 `com.coplaydev.unity-mcp`。使用 Unity MCP 时先确认连接的是 **WWG** 的编辑器实例；多项目同时打开时不要误操作 WJ。
 - 当前没有 `WjSceneBuilder`、`WJ/Setup` 菜单、`WJ.*` 命名空间或 WJ 的预制体。不要照搬 WJ 专属调用。
-- S0/S1 的七个地点场景已引用 `Assets/Prefabs/UI/GameplayOverlay.prefab`，包含暂停菜单、物品栏和物品详情。标题页及各章暂停菜单共用 `Assets/Resources/UI/SaveSlotPanel.prefab` 的三槽位存读档界面，槽位仍承载各章节检查点，不是完整 Demo 存档。调整共享游戏内 UI 时改预制体，显式安装命令为 `WWG/UI/Install Gameplay Overlay`。
+- S0/S1 的七个地点场景已引用 `Assets/Prefabs/UI/GameplayOverlay.prefab`，包含暂停菜单、右下角背包按钮、5×5 背包格网和物品详情。标题页及各章暂停菜单共用 `Assets/Resources/UI/SaveSlotPanel.prefab` 的三槽位存读档界面，槽位仍承载各章节检查点，不是完整 Demo 存档。调整共享游戏内 UI 时改预制体，显式安装命令为 `WWG/UI/Install Gameplay Overlay`。
 - S2 使用 `Assets/Scenes/Locations/` 中的独立场景和 `S2Controller`；状态可写入 `GameStateStore`，但目前只覆盖 S2，未形成全章节 Demo 存档。`WWG/Dev/Play S2` 使用不写玩家存档的编辑器状态样本。`WWG/Setup/Build S2 Location Scenes` 仅在目标场景全都不存在时使用，已有人工维护场景不得重建。
 
 ## 制作约束
@@ -26,7 +26,11 @@
 - 保留 P1 旧照片对位、P2 双栋四位数、P3 三项证据恢复旧工程，以及 `RouteLight / RouteDark` 和 `ViewTogether / ViewAlone` 两次选择。两条调查路线和两种结尾都应可通关。
 - 低 SAN 残影可提供真实线索，不能给出随机错误答案。SAN 或生命耗尽后可继续，关键物品与谜题进度不能丢失。
 - 当前真实场景、社团留下的资料、低 SAN 残影须能被玩家区分。不要添加赛事监控、强制汇报或统一上传设定。
+- 每次制作决策都记录到 `Document/Requirement/决策记录.md`，即使当次没有单独需求文件；备忘录文案清单见 `Document/Requirement/备忘录内容.md`，美术方向见 `Document/Requirement/美术方向.md`。
+- 程序创建的资源、游戏对象和预制体只创建一次；已有对象保留可在编辑器手动调整的位置。`WWG/UI/Apply temp1 Layout` 仅用于给现有资源补缺失结构与指定样式，不得重建已人工调整的布局。
 
 ## 场景与 UI 工作
 
 修改或新增 Unity 场景、UI、预制体及相关交互时，遵循 `.opencode/skills/unity-scene-workflow/SKILL.md` 的流程。配置文件为 `opencode.json`；Unity MCP 服务需在目标编辑器中运行后才能连接。
+
+已有独立透明抠图的可交互物，悬停提示使用黄色边缘高亮；图片留在画面层，透明热点留在交互层。未抠图物件暂保留原提示，逐个迁移。接入方式见 `Document/Requirement/交互高亮规范.md`。
