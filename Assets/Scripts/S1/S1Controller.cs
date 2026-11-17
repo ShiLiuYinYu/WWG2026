@@ -35,12 +35,25 @@ public sealed class S1Controller : MonoBehaviour, IDialogueContext
     public GameObject boxHotspot;
     public GameObject chair;
     public RectTransform chairRect;
+    public RectTransform chairHotspotRect;
     public RectTransform chairCabinet;
     public RectTransform chairTape;
     public RectTransform tapeTarget;
     public GameObject badgeHotspot;
     public GameObject curtainOverlay;
     public GameObject lampGlow;
+    public Sprite curtainOpenSprite;
+    public Sprite curtainClosedSprite;
+    public Image curtainHoverImage;
+    public Material curtainOpenHoverMaterial;
+    public Material curtainClosedHoverMaterial;
+    public RectTransform curtainHotspotRect;
+    public Vector2 closedCurtainPosition = new Vector2(875, -247);
+    public Vector2 closedCurtainSize = new Vector2(470, 374);
+    public Vector2 openCurtainHotspotPosition = new Vector2(875, -247);
+    public Vector2 openCurtainHotspotSize = new Vector2(170, 374);
+    public Sprite lampOffSprite;
+    public Sprite lampOnSprite;
     public GameObject infoPanel;
     public GameObject inventoryPanel;
     public GameObject photoPanel;
@@ -383,9 +396,41 @@ public sealed class S1Controller : MonoBehaviour, IDialogueContext
         if (box != null) box.SetActive(screen == 0 && phase == 0);
         if (boxHotspot != null) boxHotspot.SetActive(screen == 0 && phase == 0);
         if (badgeHotspot != null) badgeHotspot.SetActive(screen == 0 && phase == 2 && !hasBadge);
-        if (curtainOverlay != null) curtainOverlay.SetActive(curtainClosed);
-        if (lampGlow != null) lampGlow.GetComponent<Image>().color = lampOn ? Color.white : new Color(0.40f, 0.43f, 0.50f, 0.95f);
+        if (curtainOverlay != null)
+        {
+            curtainOverlay.SetActive(true);
+            Sprite curtainSprite = curtainClosed ? curtainClosedSprite : curtainOpenSprite;
+            curtainOverlay.GetComponent<Image>().sprite = curtainSprite;
+            RectTransform curtainRect = curtainOverlay.GetComponent<RectTransform>();
+            Vector2 curtainPosition = curtainClosed ? closedCurtainPosition : new Vector2(curtainSprite.rect.x,
+                -(curtainSprite.texture.height - curtainSprite.rect.yMax));
+            Vector2 curtainSize = curtainClosed ? closedCurtainSize : curtainSprite.rect.size;
+            curtainRect.anchoredPosition = curtainPosition;
+            curtainRect.sizeDelta = curtainSize;
+            if (curtainHoverImage != null)
+            {
+                curtainHoverImage.sprite = curtainSprite;
+                curtainHoverImage.rectTransform.sizeDelta = curtainSize;
+                Material hoverMaterial = curtainClosed ? curtainClosedHoverMaterial : curtainOpenHoverMaterial;
+                if (hoverMaterial != null) curtainHoverImage.material = hoverMaterial;
+            }
+            if (curtainHotspotRect != null)
+            {
+                curtainHotspotRect.anchoredPosition = curtainClosed ? curtainPosition : openCurtainHotspotPosition;
+                curtainHotspotRect.sizeDelta = curtainClosed ? curtainSize : openCurtainHotspotSize;
+            }
+        }
+        if (lampGlow != null)
+        {
+            Sprite lampSprite = lampOn ? lampOnSprite : lampOffSprite;
+            lampGlow.GetComponent<Image>().sprite = lampSprite;
+            RectTransform lampRect = lampGlow.GetComponent<RectTransform>();
+            lampRect.anchoredPosition = new Vector2(lampSprite.rect.x,
+                -(lampSprite.texture.height - lampSprite.rect.yMax));
+            lampRect.sizeDelta = lampSprite.rect.size;
+        }
         if (chairRect != null) chairRect.anchoredPosition = (chairPlaced ? chairTape : chairCabinet).anchoredPosition;
+        if (chairHotspotRect != null) chairHotspotRect.anchoredPosition = chairRect.anchoredPosition;
         timeText.text = phase >= 4 ? "周六 00:10" : phase >= 2 ? "周六 00:00" : "周五 23:30";
         objectiveText.text = phase == 0 ? "捡起掉落的旧照片" : phase == 1 ? "对照旧照片还原活动室" :
             phase == 2 ? "查看第五把椅子的坐垫" : phase == 3 ? "前往 4F 玻璃连廊" : "抵达 4F 连廊入口";
@@ -394,8 +439,8 @@ public sealed class S1Controller : MonoBehaviour, IDialogueContext
         inventoryText.text = "任务物品\n\n" + (hasPhoto ? "✓ 去年的活动室照片\n" : "○ 照片待取得\n") +
                              (hasBadge ? "✓ 林未的旧工牌" : "○ 工牌待取得");
         // The old photograph is the target arrangement, independent of the room's current state.
-        photoCurtain.enabled = true;
-        photoLamp.enabled = true;
+        photoCurtain.enabled = false;
+        photoLamp.enabled = false;
         hintLampHighlight.SetActive(phase == 1 && hintStage >= 2);
         hintTapeHighlight.SetActive(phase == 1 && hintStage >= 2);
         photoShadow.color = new Color(0.04f, 0.07f, 0.10f, phase >= 2 ? 0.72f : Matches * 0.11f);

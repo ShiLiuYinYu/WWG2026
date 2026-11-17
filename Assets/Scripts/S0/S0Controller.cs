@@ -29,11 +29,22 @@ public sealed class S0Controller : MonoBehaviour, IDialogueContext
     public Text completionText;
     public Image roomBackdrop;
     public Sprite nightRoomSprite;
+    public Image roomLower;
+    public Image roomCurtain;
+    public Image roomLamp;
+    public GameObject cabinetBox;
+    public GameObject cabinetBoxHotspot;
+    public Sprite nightLowerSprite;
+    public Sprite nightCurtainSprite;
+    public Sprite nightLampSprite;
     public AudioSource audioSource;
     public AudioClip deskWorkSound;
     public AudioClip breakerSound;
 
     private Sprite dayRoomSprite;
+    private Sprite dayLowerSprite;
+    private Sprite dayCurtainSprite;
+    private Sprite dayLampSprite;
 
     private int phase; // 0 arrival, 1 opening, 2 daytime investigation, 3 transition, 4 S0 complete
     private int screen; // 0 exterior, 1 corridor, 2 club room, 3 bridge
@@ -45,6 +56,7 @@ public sealed class S0Controller : MonoBehaviour, IDialogueContext
     private bool memoOpen;
     private bool infoOpen;
     private bool transitionBusy;
+    private bool boxFallen;
     private bool subscribed;
     private readonly HashSet<string> extraFlags = new HashSet<string>();
     private readonly HashSet<string> extraItems = new HashSet<string>();
@@ -108,6 +120,7 @@ public sealed class S0Controller : MonoBehaviour, IDialogueContext
         var data = JsonUtility.FromJson<ManualCheckpoint>(PlayerPrefs.GetString(ManualSaveKey));
         if (data == null) return false;
         phase = data.phase; screen = data.screen; boardRead = data.boardRead;
+        boxFallen = phase == 4;
         chairRead = data.chairRead; signRead = data.signRead; timerRead = data.timerRead;
         guideRead = data.guideRead;
         dialogueSeen.Clear();
@@ -146,6 +159,7 @@ public sealed class S0Controller : MonoBehaviour, IDialogueContext
         TravelState travel = pendingTravel;
         pendingTravel = null;
         phase = travel?.phase ?? 0;
+        boxFallen = phase == 4;
         screen = travel?.screen ?? Mathf.Max(0, GameFlow.S0LocationIndex(SceneManager.GetActiveScene().name));
         if (travel != null)
         {
@@ -155,6 +169,9 @@ public sealed class S0Controller : MonoBehaviour, IDialogueContext
             if (travel.seenDialogue != null) dialogueSeen.UnionWith(travel.seenDialogue);
         }
         if (roomBackdrop != null) dayRoomSprite = roomBackdrop.sprite;
+        if (roomLower != null) dayLowerSprite = roomLower.sprite;
+        if (roomCurtain != null) dayCurtainSprite = roomCurtain.sprite;
+        if (roomLamp != null) dayLampSprite = roomLamp.sprite;
         infoPanel.SetActive(false);
         memoPanel.SetActive(false);
         completionPanel.SetActive(false);
@@ -207,9 +224,28 @@ public sealed class S0Controller : MonoBehaviour, IDialogueContext
         if (corridor != null) corridor.SetActive(screen == 1);
         if (clubRoom != null) clubRoom.SetActive(screen == 2);
         if (bridge != null) bridge.SetActive(screen == 3);
-        if (roomBackdrop != null) roomBackdrop.sprite = phase == 4 ? nightRoomSprite : dayRoomSprite;
-        nightTint.SetActive(phase == 4 && screen == 2);
-        fallenBox.SetActive(phase == 4 && screen == 2);
+        bool lightsOut = phase == 4;
+        if (roomBackdrop != null) roomBackdrop.sprite = lightsOut ? nightRoomSprite : dayRoomSprite;
+        if (roomLower != null)
+        {
+            Sprite lowerSprite = lightsOut ? nightLowerSprite : dayLowerSprite;
+            roomLower.sprite = lowerSprite;
+            roomLower.rectTransform.anchoredPosition = new Vector2(lowerSprite.rect.x,
+                -(lowerSprite.texture.height - lowerSprite.rect.yMax));
+            roomLower.rectTransform.sizeDelta = lowerSprite.rect.size;
+        }
+        if (roomCurtain != null)
+        {
+            Sprite curtainSprite = lightsOut ? nightCurtainSprite : dayCurtainSprite;
+            roomCurtain.sprite = curtainSprite;
+            roomCurtain.rectTransform.anchoredPosition = new Vector2(curtainSprite.rect.x,
+                -(curtainSprite.texture.height - curtainSprite.rect.yMax));
+            roomCurtain.rectTransform.sizeDelta = curtainSprite.rect.size;
+        }
+        if (roomLamp != null) roomLamp.sprite = lightsOut ? nightLampSprite : dayLampSprite;
+        if (cabinetBox != null) cabinetBox.SetActive(!boxFallen);
+        nightTint.SetActive(false);
+        fallenBox.SetActive(boxFallen && screen == 2);
         SetHover("");
         UpdateHUD();
         UpdateInteractionVisibility();
@@ -250,7 +286,8 @@ public sealed class S0Controller : MonoBehaviour, IDialogueContext
         if (interactionLayers != null)
             foreach (GameObject layer in interactionLayers)
                 if (layer != null) layer.SetActive(visible);
-        if (fallenBoxHotspot != null) fallenBoxHotspot.SetActive(visible && phase == 4 && screen == 2);
+        if (fallenBoxHotspot != null) fallenBoxHotspot.SetActive(visible && boxFallen && screen == 2);
+        if (cabinetBoxHotspot != null) cabinetBoxHotspot.SetActive(visible && !boxFallen && screen == 2);
         if (!visible) SetHover("");
     }
 
@@ -286,6 +323,14 @@ public sealed class S0Controller : MonoBehaviour, IDialogueContext
             case "chair":
                 if (phase < 2) break;
                 PlayNode("S0_ClubRoom_Chair");
+                break;
+            case "box":
+                if (phase < 2 || phase == 4) break;
+                PlayNode("S0_ClubRoom_Box");
+                break;
+            case "lamp":
+                if (phase < 2) break;
+                PlayNode("S0_ClubRoom_Lamp");
                 break;
             case "sign":
                 PlayNode("S0_ClubRoom_Sign");
@@ -344,6 +389,9 @@ public sealed class S0Controller : MonoBehaviour, IDialogueContext
             case "S0_ClubRoom_WorkMontage":
                 LightsOut();
                 break;
+            case "S0_ClubRoom_LightsOut":
+                DropBox();
+                break;
         }
     }
 
@@ -367,12 +415,20 @@ public sealed class S0Controller : MonoBehaviour, IDialogueContext
     {
         if (breakerSound != null) audioSource.PlayOneShot(breakerSound, 0.75f);
         phase = 4;
-        PlayerPrefs.SetInt("WWG_S0_Complete", 1);
-        PlayerPrefs.Save();
+        boxFallen = false;
         ShowScreen(2);
         PlayNode("S0_ClubRoom_LightsOut");
         transitionBusy = false;
         UpdateInteractionVisibility();
+    }
+
+    private void DropBox()
+    {
+        boxFallen = true;
+        PlayerPrefs.SetInt("WWG_S0_Complete", 1);
+        PlayerPrefs.Save();
+        ApplyScreen();
+        PlayNode("S0_ClubRoom_BoxFalls");
     }
 
     public bool HasFlag(string id)
@@ -521,10 +577,10 @@ public sealed class S0Controller : MonoBehaviour, IDialogueContext
     {
         if (timeText == null) return;
         timeText.text = phase == 4 ? "周五 23:30" : phase == 3 ? "周五 16:30 → 23:30" : phase == 2 ? "周五 16:10" : phase == 1 ? "周五 15:55" : "周五 15:40";
-        if (phase == 4) objectiveText.text = "储物柜的旧纸盒掉了下来……";
+        if (phase == 4) objectiveText.text = boxFallen ? "储物柜的旧纸盒掉了下来……" : "走廊灯熄了，活动室仍亮着";
         else if (phase == 3) objectiveText.text = "与队友整理关卡草图";
         else if (phase == 2) objectiveText.text = AllMemories ? "回 5F 活动室，向袁祁汇报" : "查看活动室、5F 走廊和 4F 连廊入口";
         else objectiveText.text = "前往单数栋 5F 游戏开发协会活动室";
-        progressText.text = phase == 4 ? "S0 完成 · 旧照片待调查" : phase == 3 ? "时间推进中" : phase < 2 ? "开题前" : "白天记忆点 " + ((chairRead ? 1 : 0) + (signRead && timerRead ? 1 : 0) + (guideRead ? 1 : 0)) + "/3";
+        progressText.text = phase == 4 ? (boxFallen ? "S0 完成 · 旧照片待调查" : "23:30 · 公共照明熄灭") : phase == 3 ? "时间推进中" : phase < 2 ? "开题前" : "白天记忆点 " + ((chairRead ? 1 : 0) + (signRead && timerRead ? 1 : 0) + (guideRead ? 1 : 0)) + "/3";
     }
 }

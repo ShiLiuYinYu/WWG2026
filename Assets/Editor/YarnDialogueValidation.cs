@@ -18,7 +18,8 @@ public static class YarnDialogueValidation
         "if", "elseif", "else", "endif", "jump", "stop", "declare", "set", "enum", "case",
         "endcase", "once", "endonce", "local", "call", "wait",
         "set_flag", "clear_flag", "give_item", "apply_shock", "choose_route", "choose_view",
-        "show_info", "show_photo", "checkpoint", "go_to", "refresh_hud"
+        "show_info", "show_photo", "checkpoint", "go_to", "refresh_hud",
+        "bgm", "bgm_stop", "bgm_vol", "sfx"
     };
 
     private static readonly Regex LineIdPattern = new Regex(@"#line:([A-Za-z0-9_]+)");
