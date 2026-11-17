@@ -1,0 +1,60 @@
+title: S3_Intro
+tags: chapter_server_recovery location_serverroom3f
+---
+我: 我进三楼机房了。门果然没锁死，里面黑漆漆的一片，就靠窗第三台电脑的电源灯还闪着。 #line:s3_intro_01
+唐澈（电话）: 三楼机房有还原卡，但 D 盘有社团专用的本地暂存区，重启不会清。你先把那台机器唤醒看看。 #line:s3_intro_02
+袁祁（电话）: 拷完东西赶紧回五楼，一个人在底下待久了怪渗人的。 #line:s3_intro_03
+===
+
+title: S3_Sketch
+tags: chapter_server_recovery location_serverroom3f
+---
+我: 键盘底下压着去年的手绘关卡草图，画的就是五楼活动室、四楼连廊和三楼机房。 #line:s3_sketch_01
+<<show_info "s3.sketch">>
+我: 她去年的队友周六早上来过，机器还开着，林未却没回来？ #line:s3_sketch_02
+唐澈（电话）: 先别瞎猜，看看电脑里有没有她的工程文件。 #line:s3_sketch_03
+===
+
+title: S3_Computer
+tags: chapter_server_recovery location_serverroom3f
+---
+我: 靠窗第三台唤醒了。桌面上有个社团本地归档提取工具。 #line:s3_computer_01
+<<show_info "s3.archive">>
+唐澈（电话）: 这防误删脚本是上一届会长写的。工牌、借用便签和旧照片都在你手里，按纸面记录对一下。 #line:s3_computer_02
+===
+
+title: S3_Hint_Index
+tags: chapter_server_recovery hint
+---
+唐澈（电话）: 旧工程按作者、机位和时间分过文件夹。先翻翻工牌和借用便签。 #line:s3_hint_01
+===
+
+title: S3_Recovered
+tags: chapter_server_recovery location_serverroom3f
+---
+系统: 三项索引一致。历史暂存包 AfterLightsOut_Backup 已恢复。 #line:s3_recovered_01
+我: 文件夹里有录音备忘，还有一个工程主目录。 #line:s3_recovered_02
+===
+
+title: S3_Memo
+tags: chapter_server_recovery location_serverroom3f
+---
+系统: 正在播放「备忘_别删.wav」。 #line:s3_memo_01
+林未（录音）: ……喂？能录上吗。现在是周五晚上十一点半，外头走廊刚熄灯。我借口说下三楼导备份，其实是不敢在五楼待了。 #line:s3_memo_02
+林未（录音）: 刚才熄灯前，我拍了张活动室的参考图。洗出来后，靠窗那把空着的第五张椅子上，明明坐着一个人。我凑近了看才发现，上面坐着的是我自己……可照片是我站在桌边亲手拍的。 #line:s3_memo_03
+林未（录音）: 我去四楼连廊看过了，现在在三楼机房把工程锁死。如果明天早上我没回五楼，你们谁也别拿那张照片当素材，还有……千万别去坐那把椅子。 #line:s3_memo_04
+系统: 门把手传来一声轻响。录音戛然而止。 #line:s3_memo_05
+<<apply_shock "p3.memo" -15>>
+我: ……你们听见了吗？她说照片里第五把椅子上坐着她自己。 #line:s3_memo_06
+许圆（电话）: 最后那声开门声是怎么回事？有人进机房了？ #line:s3_memo_07
+袁祁（电话）: 没准是上一届搞的 ARG 彩蛋呢？ #line:s3_memo_08
+唐澈（电话）: 去年提交名单只有四个人，但旧群文件里确实有林未的入群登记。先把整个工程拷进 U 盘，回来再说。 #line:s3_memo_09
+===
+
+title: S3_Copied
+tags: chapter_server_recovery location_serverroom3f
+---
+我: 正在拷……等等，Scenes 文件夹里有个打不开的「周六_16:00.scene」，修改日期还是乱码。 #line:s3_copied_01
+唐澈（电话）: 今天下午四点正好要跑第一版 Demo。现在打不开就别在机房折腾了，拔了 U 盘快上来！ #line:s3_copied_02
+我: 屏幕刚黑了一下。反光里那把椅子……算了，赶紧回五楼。 #line:s3_copied_03
+===

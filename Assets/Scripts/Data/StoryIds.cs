@@ -58,6 +58,10 @@ namespace WWG
             public const string P2OddNearRead = "flag.p2.oddNearRead";
             public const string P2EvenNearRead = "flag.p2.evenNearRead";
             public const string P2DrawerTaken = "flag.p2.drawerTaken";
+            public const string P3SketchRead = "flag.p3.sketchRead";
+            public const string P3Recovered = "flag.p3.recovered";
+            public const string P3MemoHeard = "flag.p3.memoHeard";
+            public const string P3Copied = "flag.p3.copied";
         }
 
         public static bool IsChapter(string id) => id == Chapter.Prologue || id == Chapter.NightPhoto ||

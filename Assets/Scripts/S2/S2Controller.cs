@@ -42,6 +42,26 @@ public sealed class S2Controller : MonoBehaviour, IDialogueContext
             throw new InvalidOperationException("S2 起点未加入 Build Settings");
     }
 
+    public static void ReturnFromS3(GameState handoff, bool editorDevelopment, bool toSafeRoom)
+    {
+        if (handoff == null) throw new ArgumentNullException(nameof(handoff));
+        if (!handoff.Validate(out string error))
+            throw new ArgumentException("S3 返回状态无效：" + error);
+        pending = Clone(handoff);
+        pending.locationId = toSafeRoom ? StoryIds.Location.ClubRoom : StoryIds.Location.BridgeOdd4F;
+        pending.locationVariant = StoryIds.Variant.Night;
+        pending.chapterId = StoryIds.Chapter.BridgeRoute;
+        pending.stepId = pending.HasFlag(StoryIds.Flag.P3Copied) ? "copyComplete" : "p2Complete";
+        pendingDevelopment = editorDevelopment;
+        if (!editorDevelopment && GameStateStore.SaveCheckpoint(pending, out _))
+        {
+            PlayerPrefs.SetInt("WWG_LastCheckpointChapter", 2);
+            PlayerPrefs.Save();
+        }
+        if (!GameFlow.LoadLocation(toSafeRoom ? SafeScene : GameFlow.S2StartScene))
+            throw new InvalidOperationException("S3 返回地点未加入 Build Settings");
+    }
+
     private static GameState Clone(GameState source) => JsonUtility.FromJson<GameState>(JsonUtility.ToJson(source));
     public GameState CurrentState => state;
     public SaveSlotSnapshot CaptureSaveSlot()
@@ -97,7 +117,8 @@ public sealed class S2Controller : MonoBehaviour, IDialogueContext
         }
         state.EnsureCollections();
         state.chapterId = StoryIds.Chapter.BridgeRoute;
-        state.stepId = state.HasFlag(StoryIds.Flag.P2DrawerTaken) ? "p2Complete" : "bridgeReached";
+        state.stepId = state.HasFlag(StoryIds.Flag.P3Copied) ? "copyComplete" :
+            state.HasFlag(StoryIds.Flag.P2DrawerTaken) ? "p2Complete" : "bridgeReached";
         if (!string.IsNullOrEmpty(state.routeChoice)) state.locationVariant =
             state.locationId != StoryIds.Location.ClubRoom && state.HasFlag(StoryIds.Flag.P2EmergencyLightOn)
                 ? StoryIds.Variant.Emergency : StoryIds.Variant.Night;
@@ -328,9 +349,12 @@ public sealed class S2Controller : MonoBehaviour, IDialogueContext
     public void GoMachineRoom()
     {
         if (!CanAct()) return;
-        ShowInfo("单数栋 3F 机房", state.HasItem(StoryIds.Item.MachineNote)
-            ? "目标已确认：靠窗第 3 台。S3 机房阶段尚未制作；可以继续调查四楼或返回 5F 安全屋。"
-            : "需要先在偶数栋资料柜里找到机房借用记录。", false);
+        if (!state.HasItem(StoryIds.Item.MachineNote))
+        {
+            ShowInfo("单数栋 3F 机房", "需要先在偶数栋资料柜里找到机房借用记录。", false);
+            return;
+        }
+        S3Controller.Begin(state, development);
     }
     private void Navigate(string location)
     {
@@ -362,7 +386,13 @@ public sealed class S2Controller : MonoBehaviour, IDialogueContext
         Navigate(StoryIds.Location.BridgeOdd4F);
     }
 
-    public void OpenRecord() { if (CanAct()) { recordText.text = BuildRecord(); recordPanel.SetActive(true); } }
+    public void OpenRecord()
+    {
+        if (!CanAct()) return;
+        recordText.fontSize = state.HasFlag(StoryIds.Flag.P3MemoHeard) ? 23 : 30;
+        recordText.text = BuildRecord();
+        recordPanel.SetActive(true);
+    }
     public void CloseRecord() => recordPanel.SetActive(false);
     private string BuildRecord()
     {
@@ -373,9 +403,11 @@ public sealed class S2Controller : MonoBehaviour, IDialogueContext
         return "【社团自留资料】\n旧照片：背面 23:30。工牌：林未，编号 05；玻璃两边各存一半。\n双栋导览：先单数栋，后偶数栋；每栋从连廊口向外。\n" +
             (state.HasItem(StoryIds.Item.MachineNote) ? "机房借用便签：单数栋 3F，靠窗第 3 台。\n" : "") +
             (state.HasItem(StoryIds.Item.TeamSheet) ? "分工表残页：第五格被撕去，余编号 05。\n" : "") +
+            (state.HasItem(StoryIds.Item.OldProjectUsb) ? "旧工程 U 盘：已拷贝 AfterLightsOut_Backup。\n" : "") +
             "\n【现实调查】\n" + order + "\n路线：" + state.routeChoice +
             "；应急灯：" + (state.HasFlag(StoryIds.Flag.P2EmergencyLightOn) ? "亮" : "灭") +
-            (state.HasFlag(StoryIds.Flag.P2GlassRead) ? "\n\n【残影】\n玻璃旧字：别只看照片，看看他们留下了什么。" : "");
+            (state.HasFlag(StoryIds.Flag.P2GlassRead) ? "\n\n【残影】\n玻璃旧字：别只看照片，看看他们留下了什么。" : "") +
+            (state.HasFlag(StoryIds.Flag.P3MemoHeard) ? "\n\n【林未的录音备忘全文】\n" + DialogueDocuments.GetBody("s3.memo") : "");
     }
     public void OpenInventory()
     {
@@ -384,7 +416,8 @@ public sealed class S2Controller : MonoBehaviour, IDialogueContext
             (state.HasItem(StoryIds.Item.Photo) ? "✓ 去年的活动室照片（背面 23:30）\n" : "") +
             (state.HasItem(StoryIds.Item.Badge) ? "✓ 林未的旧工牌（编号 05）\n" : "") +
             (state.HasItem(StoryIds.Item.MachineNote) ? "✓ 机房借用便签（3F 靠窗第 3 台）\n" : "") +
-            (state.HasItem(StoryIds.Item.TeamSheet) ? "✓ 去年的分工表残页（第五格 05）" : "");
+            (state.HasItem(StoryIds.Item.TeamSheet) ? "✓ 去年的分工表残页（第五格 05）\n" : "") +
+            (state.HasItem(StoryIds.Item.OldProjectUsb) ? "✓ 装有旧工程的 U 盘" : "");
         inventoryPanel.SetActive(true);
     }
     public void CloseInventory() => inventoryPanel.SetActive(false);
@@ -400,6 +433,7 @@ public sealed class S2Controller : MonoBehaviour, IDialogueContext
             item == StoryIds.Item.Badge ? "【社团自留资料】\n林未的旧工牌，编号 05。背面写着“玻璃两边，各存一半”。" :
             item == StoryIds.Item.MachineNote ? "【社团自留资料】\n机房借用便签：林未，周五 23:30，单数栋 3F 机房靠窗第 3 台。" :
             item == StoryIds.Item.TeamSheet ? "【社团自留资料】\n去年的分工表残页。第五格被撕去，残存编号 05。" : string.Empty;
+        if (item == StoryIds.Item.OldProjectUsb) body = "【旧工程拷贝】\nAfterLightsOut_Backup 已存入 U 盘；其中有打不开的 周六_16:00.scene。";
         ShowInfo(S2InventoryGrid.ItemName(item), body, false);
     }
     public void TogglePause()
@@ -564,9 +598,11 @@ public sealed class S2Controller : MonoBehaviour, IDialogueContext
         locationText.text = location == StoryIds.Location.BridgeOdd4F ? "单数栋 · 4F 连廊入口" :
             location == StoryIds.Location.BridgeSpan4F ? "4F · 玻璃连廊中段" :
             location == StoryIds.Location.BridgeEven4F ? "偶数栋 · 4F 连廊尽头" : "单数栋 · 5F 活动室";
-        timeText.text = state.HasFlag(StoryIds.Flag.P2DrawerTaken) ? "周六 00:50" : "周六 00:10";
+        timeText.text = state.HasFlag(StoryIds.Flag.P3Copied) ? "周六 01:45" :
+            state.HasFlag(StoryIds.Flag.P2DrawerTaken) ? "周六 00:50" : "周六 00:10";
         objectiveText.text = state.HasFlag(StoryIds.Flag.P2DrawerTaken) ? "借用便签指向单数栋 3F 机房" :
             string.IsNullOrEmpty(state.routeChoice) ? "在应急照明开关旁作出选择" : "查找四张海报，打开偶数栋资料柜";
+        if (state.HasFlag(StoryIds.Flag.P3Copied)) objectiveText.text = "旧工程已带回 5F；等待整理证据";
         vitals.SetSan(state.san, state.sanMax);
         vitals.SetHealth(state.health, 3);
         if (glow != null) glow.SetActive(light && location != StoryIds.Location.ClubRoom);

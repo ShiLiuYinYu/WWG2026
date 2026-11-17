@@ -61,11 +61,13 @@ namespace WWG
         public static SaveSlotSnapshot ReadLatestCheckpoint()
         {
             int chapter = PlayerPrefs.GetInt("WWG_LastCheckpointChapter", -1);
-            string[] order = chapter == 0 ? new[] { "S0", "S1", "S2" } :
-                chapter == 1 ? new[] { "S1", "S0", "S2" } : new[] { "S2", "S1", "S0" };
+            string[] order = chapter == 0 ? new[] { "S0", "S1", "S2", "S3" } :
+                chapter == 1 ? new[] { "S1", "S0", "S2", "S3" } :
+                chapter == 3 ? new[] { "S3", "S2", "S1", "S0" } :
+                new[] { "S2", "S3", "S1", "S0" };
             foreach (string current in order)
             {
-                string key = current == "S2" ? GameStateStore.SaveKey :
+                string key = current == "S2" || current == "S3" ? GameStateStore.SaveKey :
                     current == "S1" ? "WWG_S1_Checkpoint" : "WWG_S0_ManualCheckpoint";
                 if (!PlayerPrefs.HasKey(key)) continue;
                 var slot = new SaveSlotSnapshot { chapter = current, locationLabel = current + " · 最近检查点",
@@ -105,7 +107,7 @@ namespace WWG
             if (state == null) { error = "存档内容为空"; return false; }
             if (!state.Validate(out error)) return false;
             if (!GameStateStore.SaveCheckpoint(state, out error)) return false;
-            PlayerPrefs.SetInt("WWG_LastCheckpointChapter", 2);
+            PlayerPrefs.SetInt("WWG_LastCheckpointChapter", state.chapterId == StoryIds.Chapter.ServerRecovery ? 3 : 2);
             PlayerPrefs.Save();
             string scene = state.locationId == StoryIds.Location.ClubRoom ? "ClubRoom" : state.locationId;
             return LoadScene(scene, out error);
@@ -129,11 +131,13 @@ namespace WWG
                 string.IsNullOrWhiteSpace(slot.locationLabel)) return false;
             if (slot.chapter == "S0" || slot.chapter == "S1")
                 return slot.payload.Contains("\"phase\"") && slot.payload.Contains("\"screen\"");
-            if (slot.chapter != "S2") return false;
+            if (slot.chapter != "S2" && slot.chapter != "S3") return false;
             try
             {
                 GameState state = JsonUtility.FromJson<GameState>(slot.payload);
-                return state != null && state.chapterId == StoryIds.Chapter.BridgeRoute && state.Validate(out _);
+                return state != null && state.chapterId ==
+                    (slot.chapter == "S3" ? StoryIds.Chapter.ServerRecovery : StoryIds.Chapter.BridgeRoute) &&
+                    state.Validate(out _);
             }
             catch (Exception) { return false; }
         }
@@ -149,10 +153,17 @@ namespace WWG
             }
             try
             {
+                if (slot.chapter == "S3")
+                {
+                    GameState state = JsonUtility.FromJson<GameState>(slot.payload);
+                    return state.HasFlag(StoryIds.Flag.P3Copied) ? "周六 01:45" :
+                        state.HasFlag(StoryIds.Flag.P3Recovered) ? "周六 01:35" : "周六 01:00";
+                }
                 if (slot.chapter == "S2")
                 {
                     GameState state = JsonUtility.FromJson<GameState>(slot.payload);
-                    return state.timeId == "saturday.0050" ? "周六 00:50" : "周六 00:10";
+                    return state.HasFlag(StoryIds.Flag.P3Copied) ? "周六 01:45" :
+                        state.timeId == "saturday.0050" ? "周六 00:50" : "周六 00:10";
                 }
                 LegacyTime time = JsonUtility.FromJson<LegacyTime>(slot.payload);
                 if (slot.chapter == "S1") return time.phase >= 4 ? "周六 00:10" :
