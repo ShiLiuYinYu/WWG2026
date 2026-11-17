@@ -36,6 +36,13 @@ namespace WWG
 
         public void RequestAdvance() => advanceRequested = true;
 
+        // 预制体里让对话框与立绘保持可见，方便在 Prefab 模式手动调整位置；运行时先隐藏。
+        private void Awake()
+        {
+            if (dialogueRoot != null) dialogueRoot.SetActive(false);
+            if (portraitImage != null) portraitImage.enabled = false;
+        }
+
         private void Update()
         {
             if (shade != null)

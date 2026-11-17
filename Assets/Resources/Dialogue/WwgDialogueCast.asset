@@ -15,25 +15,25 @@ MonoBehaviour:
   entries:
   - speaker: "\u8881\u7941"
     portrait: {fileID: -6903408638832066278, guid: 601cf7e140bd9eb4d9da0f8aa570470f, type: 3}
-    speakerColor: {r: 0.56, g: 0.82, b: 0.86, a: 1}
+    speakerColor: {r: 0.17, g: 0.13, b: 0.09, a: 1}
     textIndent: 0
   - speaker: "\u5510\u6F88"
     portrait: {fileID: -2821857489287343665, guid: 625697d3baaebac48b1030eca256e169, type: 3}
-    speakerColor: {r: 0.56, g: 0.82, b: 0.86, a: 1}
+    speakerColor: {r: 0.17, g: 0.13, b: 0.09, a: 1}
     textIndent: 0
   - speaker: "\u8BB8\u5706"
     portrait: {fileID: 1519300830667199199, guid: 035bd25ef2a191945a9376bd885594f4, type: 3}
-    speakerColor: {r: 0.56, g: 0.82, b: 0.86, a: 1}
+    speakerColor: {r: 0.17, g: 0.13, b: 0.09, a: 1}
     textIndent: 0
   - speaker: "\u6211"
     portrait: {fileID: 418040989706042425, guid: 193621b2b8579f347ae1c59c9372e271, type: 3}
-    speakerColor: {r: 0.56, g: 0.82, b: 0.86, a: 1}
+    speakerColor: {r: 0.17, g: 0.13, b: 0.09, a: 1}
     textIndent: 0
   - speaker: "\u6797\u672A"
     portrait: {fileID: 6225229081082758175, guid: 82b6e08d41214e540b525ac7cc6c794b, type: 3}
-    speakerColor: {r: 0.56, g: 0.82, b: 0.86, a: 1}
+    speakerColor: {r: 0.17, g: 0.13, b: 0.09, a: 1}
     textIndent: 0
   - speaker: "\u5931\u8E2A\u5973\u751F"
     portrait: {fileID: 6225229081082758175, guid: 82b6e08d41214e540b525ac7cc6c794b, type: 3}
-    speakerColor: {r: 0.56, g: 0.82, b: 0.86, a: 1}
+    speakerColor: {r: 0.17, g: 0.13, b: 0.09, a: 1}
     textIndent: 0
