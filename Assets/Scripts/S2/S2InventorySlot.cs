@@ -16,6 +16,6 @@ public sealed class S2InventorySlot : MonoBehaviour, IPointerEnterHandler, IPoin
     public void OnPointerExit(PointerEventData data) { transform.localScale = originalScale; }
     public void OnPointerClick(PointerEventData data)
     {
-        if (owner != null) owner.Hover(item);
+        if (owner != null) owner.Select(item);
     }
 }

@@ -10,6 +10,7 @@ public sealed class S2InventoryGrid : MonoBehaviour
     private GameObject tooltip;
     private Text nameLabel;
     private string selected;
+    private bool tooltipPinned;
     private GameObject bagButton;
     private S2InventorySlot[] slots;
 
@@ -32,6 +33,8 @@ public sealed class S2InventoryGrid : MonoBehaviour
     private void OnEnable()
     {
         if (tooltip != null) tooltip.SetActive(false);
+        selected = null;
+        tooltipPinned = false;
         if (bagButton != null) bagButton.SetActive(false);
     }
     private void OnDisable()
@@ -54,6 +57,18 @@ public sealed class S2InventoryGrid : MonoBehaviour
 
     public void Hover(string item)
     {
+        if (tooltipPinned) return;
+        ShowTooltip(item);
+    }
+
+    public void Select(string item)
+    {
+        ShowTooltip(item);
+        tooltipPinned = true;
+    }
+
+    private void ShowTooltip(string item)
+    {
         selected = item;
         nameLabel.text = ItemName(item);
         tooltip.SetActive(true);
@@ -65,6 +80,7 @@ public sealed class S2InventoryGrid : MonoBehaviour
         if (controller != null) { controller.CloseInventory(); controller.ShowInventoryUseHint(selected); }
         else { s3Controller.CloseInventory(); s3Controller.ShowInventoryUseHint(selected); }
         selected = null;
+        tooltipPinned = false;
     }
 
     private void Inspect()
@@ -72,6 +88,7 @@ public sealed class S2InventoryGrid : MonoBehaviour
         if (selected == null) return;
         string item = selected;
         selected = null;
+        tooltipPinned = false;
         if (controller != null) { controller.CloseInventory(); controller.InspectInventoryItem(item); }
         else { s3Controller.CloseInventory(); s3Controller.InspectInventoryItem(item); }
     }
