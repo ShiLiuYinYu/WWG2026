@@ -9,6 +9,7 @@ public sealed class S1Hotspot : MonoBehaviour, IPointerClickHandler, IPointerEnt
     public string action;
     public string label;
     public RectTransform tapeTarget;
+    public RectTransform dragVisual;
 
     private Image image;
     private WWG.HotspotHoverOutline outlineHover;
@@ -72,12 +73,19 @@ public sealed class S1Hotspot : MonoBehaviour, IPointerClickHandler, IPointerEnt
         if (action != "chair") return;
         RectTransform parent = rect.parent as RectTransform;
         if (RectTransformUtility.ScreenPointToLocalPointInRectangle(parent, eventData.position, null, out Vector2 local))
+        {
             rect.anchoredPosition = local;
+            if (dragVisual != null) dragVisual.anchoredPosition = local;
+        }
     }
 
     public void OnEndDrag(PointerEventData eventData)
     {
         if (action != "chair") return;
-        if (!dropSucceeded) rect.anchoredPosition = dragStart;
+        if (!dropSucceeded)
+        {
+            rect.anchoredPosition = dragStart;
+            if (dragVisual != null) dragVisual.anchoredPosition = dragStart;
+        }
     }
 }

@@ -1099,7 +1099,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &534469709
 RectTransform:
   m_ObjectHideFlags: 0
@@ -1117,8 +1117,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 1280, y: -615}
-  m_SizeDelta: {x: 390, y: 235}
+  m_AnchoredPosition: {x: 1585.2449, y: -696}
+  m_SizeDelta: {x: 154.0962, y: 104.6794}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &534469710
 MonoBehaviour:
@@ -1291,6 +1291,10 @@ PrefabInstance:
     - target: {fileID: 999702483755371115, guid: ed3751d1613ce374a9e248739158e5a4, type: 3}
       propertyPath: m_Name
       value: GameplayOverlay
+      objectReference: {fileID: 0}
+    - target: {fileID: 999702483755371115, guid: ed3751d1613ce374a9e248739158e5a4, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 2405174246292062834, guid: ed3751d1613ce374a9e248739158e5a4, type: 3}
       propertyPath: m_Pivot.x
@@ -1548,6 +1552,14 @@ MonoBehaviour:
   completionText: {fileID: 1739925264}
   roomBackdrop: {fileID: 0}
   nightRoomSprite: {fileID: 21300000, guid: f88774b937eea85428e7ec5e94a5cbda, type: 3}
+  roomLower: {fileID: 0}
+  roomCurtain: {fileID: 0}
+  roomLamp: {fileID: 0}
+  cabinetBox: {fileID: 0}
+  cabinetBoxHotspot: {fileID: 0}
+  nightLowerSprite: {fileID: 0}
+  nightCurtainSprite: {fileID: 0}
+  nightLampSprite: {fileID: 0}
   audioSource: {fileID: 932417012}
   deskWorkSound: {fileID: 8300000, guid: ca412342374a1a94c8ef9614d71f938c, type: 3}
   breakerSound: {fileID: 8300000, guid: 2a8182e75cce5e541ac6251392ee97aa, type: 3}

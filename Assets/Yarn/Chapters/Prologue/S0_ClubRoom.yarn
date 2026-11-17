@@ -32,6 +32,19 @@ tags: chapter_prologue location_corridor5f
 我: 单数栋 5F，数智设计学院。安全出口指示灯常亮，往下是去 4F 和 3F 的楼梯。 #line:s0_clubroom_sign_01
 ===
 
+title: S0_ClubRoom_Box
+tags: chapter_prologue location_clubroom
+---
+<<set_flag "flag.s0.chair">>
+我: 储物柜顶的旧纸盒没盖严，半截边角悬在外面。第五把椅子就摆在柜子旁边。 #line:s0_clubroom_box_01
+===
+
+title: S0_ClubRoom_Lamp
+tags: chapter_prologue location_clubroom
+---
+我: 桌边有一盏旧台灯，和电脑一样接着活动室的插座。 #line:s0_clubroom_lamp_01
+===
+
 title: S0_ClubRoom_LeaderReminder
 tags: chapter_prologue location_clubroom
 ---

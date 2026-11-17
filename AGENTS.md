@@ -1,6 +1,6 @@
 # AGENTS.md — WWG
 
-本项目是 Unity 6 的 2D URP 点击式微恐怖解谜游戏《熄灯之后：48H》。当前已制作 Title、S0、S1 与 S2；S0 有 4 个地点场景，S1 有 3 个，S2 有 4F 三处地点和 5F 安全屋视图，均已加入 Build Settings。`SampleScene` 仍保留。S1 包含 P1、工牌、SAN 与阶段检查点；S2 包含 P2、`RouteLight / RouteDark`、借用便签、分工表残页与 S2 检查点。S3–S4、P3、`ViewTogether / ViewAlone`、两种结尾和完整 Demo 存档尚未实现。不要把设计文档中的目标功能描述成已完成实现。
+本项目是 Unity 6 的 2D URP 点击式微恐怖解谜游戏《熄灯之后：48H》。当前已制作 Title、S0、S1 与 S2；S0 有 4 个地点场景，S1 有 3 个，S2 有 4F 三处地点和 5F 安全屋视图，均已加入 Build Settings。旧 `SampleScene` 已不存在，也不在 Build Settings 中。S1 包含 P1、工牌、SAN 与阶段检查点；S2 包含 P2、`RouteLight / RouteDark`、借用便签、分工表残页与 S2 检查点。S3–S4、P3、`ViewTogether / ViewAlone`、两种结尾和完整 Demo 存档尚未实现。不要把设计文档中的目标功能描述成已完成实现。
 
 ## 项目依据
 

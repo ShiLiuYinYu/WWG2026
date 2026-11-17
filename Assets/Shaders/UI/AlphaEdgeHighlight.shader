@@ -5,6 +5,7 @@ Shader "WWG/UI/Alpha Edge Highlight"
         [PerRendererData] _MainTex ("Sprite Texture", 2D) = "white" {}
         _EdgeColor ("Edge Color", Color) = (1, 0.92, 0.05, 1)
         _Thickness ("Edge Width (UV)", Range(0.001, 0.05)) = 0.02
+        _AlphaThreshold ("Ignore Alpha Below", Range(0, 1)) = 0
     }
 
     SubShader
@@ -26,6 +27,7 @@ Shader "WWG/UI/Alpha Edge Highlight"
             sampler2D _MainTex;
             fixed4 _EdgeColor;
             float _Thickness;
+            float _AlphaThreshold;
 
             struct Attributes
             {
@@ -63,6 +65,11 @@ Shader "WWG/UI/Alpha Edge Highlight"
                 neighbor = min(neighbor, tex2D(_MainTex, input.uv + offsetX - offsetY).a);
                 neighbor = min(neighbor, tex2D(_MainTex, input.uv - offsetX + offsetY).a);
                 neighbor = min(neighbor, tex2D(_MainTex, input.uv - offsetX - offsetY).a);
+                if (_AlphaThreshold > 0)
+                {
+                    center = step(_AlphaThreshold, center);
+                    neighbor = step(_AlphaThreshold, neighbor);
+                }
                 return fixed4(_EdgeColor.rgb, saturate(center - neighbor) * _EdgeColor.a * input.color.a);
             }
             ENDCG

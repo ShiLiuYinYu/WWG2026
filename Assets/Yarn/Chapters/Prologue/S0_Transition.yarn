@@ -24,6 +24,11 @@ tags: chapter_prologue location_clubroom
 时间 · 23：30: 咔哒——嗡。走廊的灯由远及近，逐盏熄灭。 #line:s0_lightsout_01
 <<sfx lightoff 0.8>>
 我: 门玻璃外的走廊暗了。屋里的顶灯、电脑屏幕还亮着。 #line:s0_lightsout_02
+===
+
+title: S0_ClubRoom_BoxFalls
+tags: chapter_prologue location_clubroom
+---
 我: 一声闷响。储物柜顶的旧纸盒掉到了第五把椅子旁，滑出一张背面朝上的照片。 #line:s0_lightsout_03
 <<sfx box 0.9>>
 ===
