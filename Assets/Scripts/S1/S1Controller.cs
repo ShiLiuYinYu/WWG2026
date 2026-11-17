@@ -33,6 +33,8 @@ public sealed class S1Controller : MonoBehaviour, IDialogueContext
     public GameObject bridgeHotspots;
     public GameObject box;
     public GameObject boxHotspot;
+    public Vector2 boxCabinetPosition = new Vector2(1611f, -224f);
+    public Vector2 boxCabinetSize = new Vector2(248f, 173f);
     public GameObject chair;
     public RectTransform chairRect;
     public RectTransform chairHotspotRect;
@@ -93,6 +95,9 @@ public sealed class S1Controller : MonoBehaviour, IDialogueContext
     private bool shockApplied;
     private bool glassRead;
     private bool photoShowingBack;
+    private Vector2 boxFloorPosition;
+    private Vector2 boxFloorSize;
+    private Vector3 boxFloorScale;
     private bool subscribed;
     private float idleSeconds;
     private float dangerSeconds;
@@ -160,6 +165,13 @@ public sealed class S1Controller : MonoBehaviour, IDialogueContext
     private void Start()
     {
         Application.runInBackground = true;
+        if (box != null)
+        {
+            RectTransform boxRect = box.GetComponent<RectTransform>();
+            boxFloorPosition = boxRect.anchoredPosition;
+            boxFloorSize = boxRect.sizeDelta;
+            boxFloorScale = boxRect.localScale;
+        }
         Font font = Font.CreateDynamicFontFromOSFont(new[] { "Microsoft YaHei", "Noto Sans CJK SC", "SimHei" }, 24);
         if (font != null)
             foreach (Text item in GetComponentsInChildren<Text>(true)) item.font = font;
@@ -393,7 +405,14 @@ public sealed class S1Controller : MonoBehaviour, IDialogueContext
         if (room != null) room.SetActive(screen == 0);
         if (corridor != null) corridor.SetActive(screen == 1);
         if (bridge != null) bridge.SetActive(screen == 2);
-        if (box != null) box.SetActive(screen == 0 && phase == 0);
+        if (box != null)
+        {
+            box.SetActive(screen == 0);
+            RectTransform boxRect = box.GetComponent<RectTransform>();
+            boxRect.anchoredPosition = phase == 0 ? boxFloorPosition : boxCabinetPosition;
+            boxRect.sizeDelta = phase == 0 ? boxFloorSize : boxCabinetSize;
+            boxRect.localScale = phase == 0 ? boxFloorScale : Vector3.one;
+        }
         if (boxHotspot != null) boxHotspot.SetActive(screen == 0 && phase == 0);
         if (badgeHotspot != null) badgeHotspot.SetActive(screen == 0 && phase == 2 && !hasBadge);
         if (curtainOverlay != null)

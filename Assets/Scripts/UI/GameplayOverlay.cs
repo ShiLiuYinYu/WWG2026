@@ -205,10 +205,27 @@ namespace WWG
             if (pausePanel.activeSelf) ClosePause();
             else
             {
+                CloseGameplayModals();
                 detailPanel.SetActive(false);
                 inventoryPanel.SetActive(false);
                 pausePanel.SetActive(true);
                 Time.timeScale = 0f;
+            }
+        }
+
+        /// <summary>信息窗口排在常驻 HUD 之上，暂停前先收起，避免暂停菜单被窗口遮住。</summary>
+        private void CloseGameplayModals()
+        {
+            if (s0 != null)
+            {
+                if (s0.infoPanel != null && s0.infoPanel.activeSelf) s0.CloseInfo();
+                if (s0.memoPanel != null && s0.memoPanel.activeSelf) s0.ToggleMemo();
+            }
+            else if (s1 != null)
+            {
+                if (s1.infoPanel != null && s1.infoPanel.activeSelf) s1.CloseInfo();
+                if (s1.memoPanel != null && s1.memoPanel.activeSelf) s1.ToggleMemo();
+                if (s1.photoPanel != null && s1.photoPanel.activeSelf) s1.ClosePhoto();
             }
         }
 

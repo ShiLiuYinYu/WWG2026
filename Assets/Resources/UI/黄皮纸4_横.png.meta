@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 4ed5f22b4e085534793ed50a1ec04d46
+guid: 595ffb9fc8273ba4bbe8127f7b64aa65
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -4789315655615413830
-    second: BridgeNight_0
+      213: -3587508425598939424
+    second: "\u9EC4\u76AE\u7EB84_\u6A2A_0"
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -100,13 +100,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: BridgeNight_0
+      name: "\u9EC4\u76AE\u7EB84_\u6A2A_0"
       rect:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 1672
-        height: 941
+        width: 910
+        height: 604
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -115,8 +115,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: ab183dd39cee88db0800000000000000
-      internalID: -4789315655615413830
+      spriteID: 0ee4477281c963ec0800000000000000
+      internalID: -3587508425598939424
       vertices: []
       indices: 
       edges: []
@@ -135,7 +135,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      BridgeNight_0: -4789315655615413830
+      "\u9EC4\u76AE\u7EB84_\u6A2A_0": -3587508425598939424
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

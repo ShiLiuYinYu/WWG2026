@@ -564,7 +564,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Text
   m_Material: {fileID: 0}
-  m_Color: {r: 0.56, g: 0.82, b: 0.86, a: 1}
+  m_Color: {r: 0.1, g: 0.3, b: 0.36, a: 1}
   m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -799,7 +799,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Text
   m_Material: {fileID: 0}
-  m_Color: {r: 0.87, g: 0.92, b: 0.93, a: 1}
+  m_Color: {r: 0.1, g: 0.3, b: 0.36, a: 1}
   m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -894,7 +894,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 148a36f5ff574aceba0af1a5f9f9d9f4, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 024fcc6a699a48dfaa832af959da8fe3, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -970,7 +970,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Text
   m_Material: {fileID: 0}
-  m_Color: {r: 0.87, g: 0.92, b: 0.93, a: 1}
+  m_Color: {r: 0.1, g: 0.3, b: 0.36, a: 1}
   m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -1180,8 +1180,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 50, y: -125}
-  m_SizeDelta: {x: 1190, y: 665}
+  m_AnchoredPosition: {x: 144, y: -125}
+  m_SizeDelta: {x: 1096, y: 665}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &574952253
 MonoBehaviour:
@@ -1470,6 +1470,14 @@ MonoBehaviour:
   completionText: {fileID: 1739925264}
   roomBackdrop: {fileID: 0}
   nightRoomSprite: {fileID: 21300000, guid: f88774b937eea85428e7ec5e94a5cbda, type: 3}
+  roomLower: {fileID: 0}
+  roomCurtain: {fileID: 0}
+  roomLamp: {fileID: 0}
+  cabinetBox: {fileID: 0}
+  cabinetBoxHotspot: {fileID: 0}
+  nightLowerSprite: {fileID: 0}
+  nightCurtainSprite: {fileID: 0}
+  nightLampSprite: {fileID: 0}
   audioSource: {fileID: 932417012}
   deskWorkSound: {fileID: 8300000, guid: ca412342374a1a94c8ef9614d71f938c, type: 3}
   breakerSound: {fileID: 8300000, guid: 2a8182e75cce5e541ac6251392ee97aa, type: 3}
@@ -2904,8 +2912,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 50, y: -35}
-  m_SizeDelta: {x: 1050, y: 60}
+  m_AnchoredPosition: {x: 144, y: -35}
+  m_SizeDelta: {x: 956, y: 60}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &1427847908
 MonoBehaviour:
@@ -2920,7 +2928,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Text
   m_Material: {fileID: 0}
-  m_Color: {r: 0.56, g: 0.82, b: 0.86, a: 1}
+  m_Color: {r: 0.1, g: 0.3, b: 0.36, a: 1}
   m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -3183,10 +3191,10 @@ RectTransform:
   - {fileID: 1569731632}
   - {fileID: 444483274}
   - {fileID: 534469709}
+  - {fileID: 1534633651}
   - {fileID: 495824128}
   - {fileID: 2115976549}
   - {fileID: 1370132824}
-  - {fileID: 1534633651}
   m_Father: {fileID: 932417014}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
@@ -4092,7 +4100,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 148a36f5ff574aceba0af1a5f9f9d9f4, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 6ee21e1306345a34e95d471fed9c06ec, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1

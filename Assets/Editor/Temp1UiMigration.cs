@@ -11,16 +11,19 @@ namespace WWG.Editor
     {
         private static Sprite frame;
         private static Sprite button;
+        private static Sprite dialoguePaper;
 
         [MenuItem("WWG/UI/Apply temp1 Layout")]
         public static void Apply()
         {
             PrepareSprite("Assets/Resources/UI/选择框.png", new Vector4(28, 28, 28, 28));
             PrepareSprite("Assets/Resources/S0/选项按钮.png", new Vector4(20, 20, 20, 20));
+            PrepareSprite("Assets/Resources/UI/黄皮纸4_横.png", Vector4.zero);
             foreach (string name in new[] { "YuanQi", "TangChe", "XuYuan", "主角", "失踪女生" })
                 PrepareSprite("Assets/Resources/Characters/" + name + ".png", Vector4.zero);
             frame = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Resources/UI/选择框.png");
             button = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Resources/S0/选项按钮.png");
+            dialoguePaper = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Resources/UI/黄皮纸4_横.png");
             EditPrefab("Assets/Prefabs/UI/GameplayOverlay.prefab", EditOverlay);
             EditPrefab("Assets/Resources/Dialogue/WwgDialogueHost.prefab", EditDialogue);
             EditPrefab("Assets/Resources/UI/SaveSlotPanel.prefab", Skin);
@@ -250,14 +253,16 @@ namespace WWG.Editor
         private static void EditDialogue(GameObject root)
         {
             var panel = Find(root.transform, "Dialogue root/Dialogue panel") as RectTransform;
-            if (panel.GetComponent<Image>().sprite != frame)
+            var image = panel.GetComponent<Image>();
+            var paper = dialoguePaper != null ? dialoguePaper : frame;
+            // 只在还是旧皮肤时改矩形；已经换成黄皮纸的对话框保留人工调整过的位置与尺寸。
+            if (image.sprite == null || image.sprite == frame)
             {
                 panel.anchorMin = new Vector2(0, 0); panel.anchorMax = new Vector2(1, 0);
                 panel.pivot = new Vector2(.5f, 0); panel.anchoredPosition = Vector2.zero;
                 panel.sizeDelta = new Vector2(-44, 268);
             }
-            var image = panel.GetComponent<Image>();
-            image.sprite = frame; image.type = Image.Type.Simple; image.color = Color.white;
+            image.sprite = paper; image.type = Image.Type.Simple; image.color = Color.white;
             var portrait = Find(panel, "Speaker portrait").GetComponent<Image>();
             portrait.color = new Color(.06f, .055f, .05f, 1f);
             portrait.preserveAspect = true;

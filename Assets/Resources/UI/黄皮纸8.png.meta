@@ -1,16 +1,10 @@
 fileFormatVersion: 2
-guid: 2d6ccf09ad1b35744afcd94856dfaa44
+guid: 6ee21e1306345a34e95d471fed9c06ec
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 1519300830667199199
-    second: XuYuan_0
-  - first:
-      213: -1807143423858826534
-    second: XuYuan_1
-  - first:
-      213: 9013092560449879490
-    second: XuYuan_2
+      213: 8605584273594643848
+    second: "\u9EC4\u76AE\u7EB88_0"
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -106,13 +100,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: XuYuan_0
+      name: "\u9EC4\u76AE\u7EB88_0"
       rect:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 1162
-        height: 1309
+        width: 658
+        height: 1170
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -121,52 +115,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: fd2dfde4e04a51510800000000000000
-      internalID: 1519300830667199199
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: XuYuan_1
-      rect:
-        serializedVersion: 2
-        x: 1146
-        y: 919
-        width: 16
-        height: 11
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: ad226b271acbbe6e0800000000000000
-      internalID: -1807143423858826534
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: XuYuan_2
-      rect:
-        serializedVersion: 2
-        x: 12
-        y: 609
-        width: 15
-        height: 14
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 2cdb4592eefe41d70800000000000000
-      internalID: 9013092560449879490
+      spriteID: 885fb407d4d2d6770800000000000000
+      internalID: 8605584273594643848
       vertices: []
       indices: 
       edges: []
@@ -185,9 +135,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      XuYuan_0: 1519300830667199199
-      XuYuan_1: -1807143423858826534
-      XuYuan_2: 9013092560449879490
+      "\u9EC4\u76AE\u7EB88_0": 8605584273594643848
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
