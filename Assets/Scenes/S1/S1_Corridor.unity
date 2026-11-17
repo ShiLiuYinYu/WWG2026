@@ -168,7 +168,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 839c445411815de4e9570084e265198b, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::WWG.HotspotHoverOutline
   highlight: {fileID: 1783400730}
 --- !u!114 &2022570
@@ -181,12 +181,13 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 124a3a75fb32c644e94fd87ab801b087, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::S1Hotspot
   controller: {fileID: 1685689153}
   action: toRoom
   label: "\u8FD4\u56DE\u6D3B\u52A8\u5BA4"
   tapeTarget: {fileID: 0}
+  dragVisual: {fileID: 0}
 --- !u!114 &2022571
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -197,7 +198,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 0}
@@ -285,7 +286,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 148a36f5ff574aceba0af1a5f9f9d9f4, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 024fcc6a699a48dfaa832af959da8fe3, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -389,7 +390,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Text
   m_Material: {fileID: 0}
-  m_Color: {r: 0.56, g: 0.82, b: 0.86, a: 1}
+  m_Color: {r: 0.1, g: 0.3, b: 0.36, a: 1}
   m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -523,8 +524,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 50, y: -35}
-  m_SizeDelta: {x: 850, y: 55}
+  m_AnchoredPosition: {x: 140, y: -35}
+  m_SizeDelta: {x: 760, y: 55}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &200152826
 MonoBehaviour:
@@ -539,7 +540,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Text
   m_Material: {fileID: 0}
-  m_Color: {r: 0.56, g: 0.82, b: 0.86, a: 1}
+  m_Color: {r: 0.1, g: 0.3, b: 0.36, a: 1}
   m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -706,7 +707,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Text
   m_Material: {fileID: 0}
-  m_Color: {r: 0.87, g: 0.92, b: 0.93, a: 1}
+  m_Color: {r: 0.1, g: 0.3, b: 0.36, a: 1}
   m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -934,7 +935,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 148a36f5ff574aceba0af1a5f9f9d9f4, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 6ee21e1306345a34e95d471fed9c06ec, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -2075,8 +2076,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 50, y: -120}
-  m_SizeDelta: {x: 1120, y: 615}
+  m_AnchoredPosition: {x: 140, y: -120}
+  m_SizeDelta: {x: 1030, y: 615}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &574952253
 MonoBehaviour:
@@ -3091,7 +3092,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Text
   m_Material: {fileID: 0}
-  m_Color: {r: 0.56, g: 0.82, b: 0.86, a: 1}
+  m_Color: {r: 0.1, g: 0.3, b: 0.36, a: 1}
   m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -3555,6 +3556,7 @@ MonoBehaviour:
   action: toBridge
   label: "\u4E0B\u697C \xB7 4F \u8FDE\u5ECA \u2192"
   tapeTarget: {fileID: 0}
+  dragVisual: {fileID: 0}
 --- !u!114 &1189448112
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4652,7 +4654,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 148a36f5ff574aceba0af1a5f9f9d9f4, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 024fcc6a699a48dfaa832af959da8fe3, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -5033,7 +5035,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Text
   m_Material: {fileID: 0}
-  m_Color: {r: 0.87, g: 0.92, b: 0.93, a: 1}
+  m_Color: {r: 0.1, g: 0.3, b: 0.36, a: 1}
   m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -5843,12 +5845,25 @@ MonoBehaviour:
   boxHotspot: {fileID: 0}
   chair: {fileID: 0}
   chairRect: {fileID: 0}
+  chairHotspotRect: {fileID: 0}
   chairCabinet: {fileID: 0}
   chairTape: {fileID: 0}
   tapeTarget: {fileID: 0}
   badgeHotspot: {fileID: 0}
   curtainOverlay: {fileID: 0}
   lampGlow: {fileID: 0}
+  curtainOpenSprite: {fileID: 0}
+  curtainClosedSprite: {fileID: 0}
+  curtainHoverImage: {fileID: 0}
+  curtainOpenHoverMaterial: {fileID: 0}
+  curtainClosedHoverMaterial: {fileID: 0}
+  curtainHotspotRect: {fileID: 0}
+  closedCurtainPosition: {x: 875, y: -247}
+  closedCurtainSize: {x: 470, y: 374}
+  openCurtainHotspotPosition: {x: 875, y: -247}
+  openCurtainHotspotSize: {x: 170, y: 374}
+  lampOffSprite: {fileID: 0}
+  lampOnSprite: {fileID: 0}
   infoPanel: {fileID: 35076902}
   inventoryPanel: {fileID: 397568158}
   photoPanel: {fileID: 1285586390}
@@ -5997,7 +6012,7 @@ MonoBehaviour:
   m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 2100000, guid: cd7dc7eac978d4643a98955f94d50749, type: 2}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -6602,7 +6617,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Text
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 0.16, g: 0.18, b: 0.2, a: 1}
   m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -6752,6 +6767,7 @@ MonoBehaviour:
   action: toRoom
   label: "\u2190 \u8FD4\u56DE\u6D3B\u52A8\u5BA4"
   tapeTarget: {fileID: 0}
+  dragVisual: {fileID: 0}
 --- !u!114 &2008838626
 MonoBehaviour:
   m_ObjectHideFlags: 0
