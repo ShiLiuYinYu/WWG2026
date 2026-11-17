@@ -5,7 +5,7 @@ description: 在 WWG 项目中创建或修改 Unity 2D 场景、点击热点、U
 
 # WWG 场景与 UI 工作流
 
-当前 Title、S0、S1 和 S2 已按地点拆分；场景清单和运行流程见 `Document/Program/`。`SampleScene` 仍保留。先查看实际资产，再依 `Document/《熄灯之后：48H》前24H Demo剧本与关卡设计.md` 的对应章节制作。不要调用 WJ 项目的场景生成菜单或代码。
+当前 Title、S0、S1 和 S2 已按地点拆分；场景清单和运行流程见 `Document/Program/`。旧 `SampleScene` 已不存在。先查看实际资产，再依 `Document/《熄灯之后：48H》前24H Demo剧本与关卡设计.md` 的对应章节制作。不要调用 WJ 项目的场景生成菜单或代码。
 
 ## 开始前
 
@@ -41,7 +41,7 @@ description: 在 WWG 项目中创建或修改 Unity 2D 场景、点击热点、U
 | Demo 剧本和关卡规格 | `Document/《熄灯之后：48H》前24H Demo剧本与关卡设计.md` |
 | 原始世界观 | `Document/《熄灯之后：48H》——午夜GameJam怪谈.md` |
 | 机制、系统、UI 草图 | `Document/Image/` |
-| 当前 Unity 场景 | `Assets/Scenes/Title.unity`、`S0.unity`、`S0/S0_*.unity`、`S1.unity`、`S1/S1_*.unity`、`Locations/*.unity`；`SampleScene` 保留 |
+| 当前 Unity 场景 | `Assets/Scenes/Title.unity`、`S0.unity`、`S0/S0_*.unity`、`S1.unity`、`S1/S1_*.unity`、`Locations/*.unity`；旧 `SampleScene` 已移除 |
 | 共享游戏内 UI | `Assets/Prefabs/UI/GameplayOverlay.prefab`、`Assets/Scripts/UI/GameplayOverlay.cs` |
 | 当前 Build Settings | `ProjectSettings/EditorBuildSettings.asset` |
 | 程序规范与场景流程 | `Document/Program/` |
