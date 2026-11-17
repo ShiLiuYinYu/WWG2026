@@ -37,7 +37,7 @@ public sealed class S1Hotspot : MonoBehaviour, IPointerClickHandler, IPointerEnt
 
     public void OnPointerUp(PointerEventData eventData)
     {
-        if (action != "chair" || tapeTarget == null) return;
+        if (action != "chair" || tapeTarget == null || !controller.CanMoveChair) return;
         if (!RectTransformUtility.RectangleContainsScreenPoint(tapeTarget, eventData.position, null)) return;
         dropSucceeded = true;
         WWG.UISound.Ok();
@@ -64,13 +64,13 @@ public sealed class S1Hotspot : MonoBehaviour, IPointerClickHandler, IPointerEnt
 
     public void OnBeginDrag(PointerEventData eventData)
     {
-        if (action != "chair") return;
+        if (action != "chair" || !controller.CanMoveChair) return;
         dragStart = rect.anchoredPosition;
     }
 
     public void OnDrag(PointerEventData eventData)
     {
-        if (action != "chair") return;
+        if (action != "chair" || !controller.CanMoveChair) return;
         RectTransform parent = rect.parent as RectTransform;
         if (RectTransformUtility.ScreenPointToLocalPointInRectangle(parent, eventData.position, null, out Vector2 local))
         {
@@ -81,7 +81,7 @@ public sealed class S1Hotspot : MonoBehaviour, IPointerClickHandler, IPointerEnt
 
     public void OnEndDrag(PointerEventData eventData)
     {
-        if (action != "chair") return;
+        if (action != "chair" || !controller.CanMoveChair) return;
         if (!dropSucceeded)
         {
             rect.anchoredPosition = dragStart;

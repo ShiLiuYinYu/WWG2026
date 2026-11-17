@@ -2655,6 +2655,7 @@ GameObject:
   - component: {fileID: 686643036}
   - component: {fileID: 686643035}
   - component: {fileID: 686643034}
+  - component: {fileID: 686643037}
   m_Layer: 0
   m_Name: Badge beneath cushion
   m_TagString: Untagged
@@ -2736,6 +2737,19 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 686643032}
   m_CullTransparentMesh: 1
+--- !u!114 &686643037
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 686643032}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 839c445411815de4e9570084e265198b, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::WWG.HotspotHoverOutline
+  highlight: {fileID: 1048127869}
 --- !u!1 &695347232
 GameObject:
   m_ObjectHideFlags: 0

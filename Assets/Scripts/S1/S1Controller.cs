@@ -120,6 +120,7 @@ public sealed class S1Controller : MonoBehaviour, IDialogueContext
     public bool IsGameplayModalOpen => ModalOpen;
     public bool HasPhoto => hasPhoto;
     public bool HasBadge => hasBadge;
+    public bool CanMoveChair => screen == 0 && phase == 1 && !ModalOpen;
     public int San => san;
     public int Health => health;
 
@@ -297,7 +298,12 @@ public sealed class S1Controller : MonoBehaviour, IDialogueContext
                 PlayNode("S1_ClubRoom_Lamp");
                 break;
             case "chair":
-                if (phase != 1) return;
+                if (phase == 2 && !hasBadge)
+                {
+                    PlayNode("S1_ClubRoom_Badge");
+                    return;
+                }
+                if (!CanMoveChair) return;
                 chairPlaced = !chairPlaced;
                 MatchToggled();
                 PlayNode("S1_ClubRoom_Chair");
@@ -449,7 +455,11 @@ public sealed class S1Controller : MonoBehaviour, IDialogueContext
             lampRect.sizeDelta = lampSprite.rect.size;
         }
         if (chairRect != null) chairRect.anchoredPosition = (chairPlaced ? chairTape : chairCabinet).anchoredPosition;
-        if (chairHotspotRect != null) chairHotspotRect.anchoredPosition = chairRect.anchoredPosition;
+        if (chairHotspotRect != null)
+        {
+            chairHotspotRect.anchoredPosition = chairRect.anchoredPosition;
+            chairHotspotRect.gameObject.SetActive(screen == 0 && (phase == 1 || (phase == 2 && !hasBadge)));
+        }
         timeText.text = phase >= 4 ? "周六 00:10" : phase >= 2 ? "周六 00:00" : "周五 23:30";
         objectiveText.text = phase == 0 ? "捡起掉落的旧照片" : phase == 1 ? "对照旧照片还原活动室" :
             phase == 2 ? "查看第五把椅子的坐垫" : phase == 3 ? "前往 4F 玻璃连廊" : "抵达 4F 连廊入口";
