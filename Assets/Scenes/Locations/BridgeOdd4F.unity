@@ -6501,12 +6501,12 @@ RectTransform:
   - {fileID: 913877533}
   - {fileID: 623781971}
   - {fileID: 287277667}
+  - {fileID: 1343653635}
   - {fileID: 762492799}
   - {fileID: 959833597}
   - {fileID: 13185046}
   - {fileID: 14152406}
   - {fileID: 6460963}
-  - {fileID: 1343653635}
   m_Father: {fileID: 1481053176}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}

@@ -5730,12 +5730,12 @@ RectTransform:
   - {fileID: 508444088}
   - {fileID: 2081364005}
   - {fileID: 1225904158}
+  - {fileID: 1534633651}
   - {fileID: 35076903}
   - {fileID: 397568159}
   - {fileID: 1285586391}
   - {fileID: 342477303}
   - {fileID: 1265577582}
-  - {fileID: 1534633651}
   m_Father: {fileID: 1685689154}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}

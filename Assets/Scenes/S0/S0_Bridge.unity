@@ -3191,10 +3191,10 @@ RectTransform:
   - {fileID: 1569731632}
   - {fileID: 444483274}
   - {fileID: 534469709}
+  - {fileID: 1534633651}
   - {fileID: 495824128}
   - {fileID: 2115976549}
   - {fileID: 1370132824}
-  - {fileID: 1534633651}
   m_Father: {fileID: 932417014}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}

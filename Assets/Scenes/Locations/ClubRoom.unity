@@ -1336,12 +1336,12 @@ RectTransform:
   - {fileID: 1578558663}
   - {fileID: 2092074576}
   - {fileID: 567810455}
+  - {fileID: 1740421316}
   - {fileID: 180608817}
   - {fileID: 1639949804}
   - {fileID: 1076206869}
   - {fileID: 1602322649}
   - {fileID: 861604238}
-  - {fileID: 1740421316}
   m_Father: {fileID: 1191861447}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
