@@ -4,7 +4,7 @@ using UnityEngine.UI;
 
 namespace WWG
 {
-    public sealed class GameplayInventorySlot : MonoBehaviour, IPointerClickHandler, IPointerEnterHandler, IPointerExitHandler,
+    public sealed class GameplayInventorySlot : MonoBehaviour, IPointerDownHandler, IPointerClickHandler, IPointerEnterHandler, IPointerExitHandler,
         IBeginDragHandler, IDragHandler, IEndDragHandler
     {
         public GameplayOverlay owner;
@@ -25,13 +25,20 @@ namespace WWG
             transform.localScale = originalScale;
         }
 
-        public void OnPointerClick(PointerEventData eventData)
+        public void OnPointerDown(PointerEventData eventData)
         {
-            if (eventData.button == PointerEventData.InputButton.Left || eventData.button == PointerEventData.InputButton.Right)
+            if (eventData.button == PointerEventData.InputButton.Right)
             {
                 UISound.Ok();
-                owner.OpenItem(item);
+                if (owner != null) owner.OpenItem(item, true);
             }
+        }
+
+        public void OnPointerClick(PointerEventData eventData)
+        {
+            if (eventData.button != PointerEventData.InputButton.Left) return;
+            UISound.Ok();
+            if (owner != null) owner.OpenItem(item);
         }
 
         public void OnBeginDrag(PointerEventData eventData)
