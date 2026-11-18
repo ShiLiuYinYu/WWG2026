@@ -299,9 +299,9 @@ namespace WWG
             ShowItemTooltip(item);
         }
 
-        public void OpenItem(string item)
+        public void OpenItem(string item, bool allowSwitch = false)
         {
-            if (GameplayModalOpen || pausePanel.activeSelf) return;
+            if (GameplayModalOpen || pausePanel.activeSelf || (tooltipPinned && !allowSwitch)) return;
             ShowItemTooltip(item);
             tooltipPinned = true;
         }
