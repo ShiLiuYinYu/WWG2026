@@ -12,7 +12,7 @@ public static class S2Development
         if (EditorApplication.isPlayingOrWillChangePlaymode) throw new InvalidOperationException("请先退出 Play 模式。");
         if (UnityEngine.SceneManagement.SceneManager.GetActiveScene().isDirty)
             throw new InvalidOperationException("请先保存当前场景。");
-        const string scene = "Assets/Scenes/Locations/BridgeOdd4F.unity";
+        const string scene = "Assets/Scenes/S2.unity";
         if (AssetDatabase.LoadAssetAtPath<SceneAsset>(scene) == null)
             throw new InvalidOperationException("请先执行 WWG/Setup/Build S2 Location Scenes。");
         var sample = new GameState

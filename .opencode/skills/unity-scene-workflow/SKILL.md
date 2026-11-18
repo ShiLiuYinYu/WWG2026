@@ -14,10 +14,11 @@ description: 在 WWG 项目中创建或修改 Unity 2D 场景、点击热点、U
 3. 确认目标场景或预制体是否已经存在。已有资产先检查引用和绑定，再改动；新增资产应加入正确的场景流程与 Build Settings。
 4. S0/S1 每个固定地点是独立 `.unity`，切屏状态由章节控制器传递。旧 `Build S0/S1 Scene` 脚手架不会覆盖现有场景；`Split Location Scenes` 只供未拆分原始场景一次性迁移，不要在已拆分项目上运行。
 5. S0/S1 七个地点共用 `Assets/Prefabs/UI/GameplayOverlay.prefab` 的场景实例。布局改动优先修改预制体；`WWG/UI/Install Gameplay Overlay` 只在显式执行时补装缺失实例，不在域重载时改写场景。
-6. S2 的 `Locations/BridgeOdd4F`、`BridgeSpan4F`、`BridgeEven4F` 和 `ClubRoom` 已存在。只编辑目标地点；`WWG/Setup/Build S2 Location Scenes` 在任何目标场景已存在时拒绝执行。编辑器样本入口为 `WWG/Dev/Play S2`，不写玩家检查点。
+6. S2 的 `S2.unity`、`S2/S2_BridgeSpan4F.unity`、`S2/S2_BridgeEven4F.unity` 和 `S2/S2_ClubRoom.unity` 已存在；S3、S4 入口分别是 `S3.unity`、`S4.unity`。只编辑目标地点；`WWG/Setup/Build S2 Location Scenes` 在任何目标场景已存在时拒绝执行。编辑器样本入口为 `WWG/Dev/Play S2`，不写玩家检查点。
 7. S2 入口墙上的开关只切换照明。首次在连廊中段点击右侧玻璃并确认当前照明下的调查方式时，才写入 `RouteLight` 或 `RouteDark`；之后灯可再次开关，路线标记不改写。
 8. 标题页与 S0/S1/S2 暂停菜单共用 `Assets/Resources/UI/SaveSlotPanel.prefab` 的三槽位存读档界面；修改布局时编辑预制体。S0 时间推进和 S1→S2 交接不使用全屏黑色阶段提示。
 9. 对白文本在 `Assets/Yarn/Chapters/`，由常驻 `WwgDialogueHost` 和 `DialogueService` 播放；不要在场景里新建或恢复旧对话面板，也不要往章节控制器里加私有 `Line` 队列。S2–S4 仍保留各自的暂停、背包和任务记录 UI。S4 终章场景由已有 5F 活动室视图复制一次，`WWG/Setup/Build S4 Finale Room` 不得用于重建已维护场景。
+10. 架构重构已确定保留每阶段独立的地点 `.unity`。同一地点跨阶段的稳定静态结构可逐场景提取为基础 Prefab；阶段专属物件、热点与人工调整位置留在各自场景。现有场景与 GUID 不重建，修改基础 Prefab 前核对所有引用场景，不能把某阶段的 override Apply 到基础资产。差分目标尚未在场景资产中实施。
 
 ## 修改方式
 
@@ -42,7 +43,7 @@ description: 在 WWG 项目中创建或修改 Unity 2D 场景、点击热点、U
 | Demo 剧本和关卡规格 | `Document/《熄灯之后：48H》前24H Demo剧本与关卡设计.md` |
 | 原始世界观 | `Document/《熄灯之后：48H》——午夜GameJam怪谈.md` |
 | 机制、系统、UI 草图 | `Document/Image/` |
-| 当前 Unity 场景 | `Assets/Scenes/Title.unity`、`S0.unity`、`S0/S0_*.unity`、`S1.unity`、`S1/S1_*.unity`、`Locations/*.unity`；旧 `SampleScene` 已移除 |
+| 当前 Unity 场景 | `Assets/Scenes/Title.unity`、`S0.unity`、`S0/S0_*.unity`、`S1.unity`、`S1/S1_*.unity`、`S2.unity`、`S2/S2_*.unity`、`S3.unity`、`S4.unity`；旧 `SampleScene` 已移除 |
 | 共享游戏内 UI | `Assets/Prefabs/UI/GameplayOverlay.prefab`、`Assets/Scripts/UI/GameplayOverlay.cs` |
 | 当前 Build Settings | `ProjectSettings/EditorBuildSettings.asset` |
 | 程序规范与场景流程 | `Document/Program/` |

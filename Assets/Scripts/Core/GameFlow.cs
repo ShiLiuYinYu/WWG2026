@@ -12,9 +12,9 @@ namespace WWG
         public const string TitleScene = "Title";
         public const string FirstGameplayScene = "S0";
         public const string S1Scene = "S1";
-        public const string S2StartScene = "BridgeOdd4F";
-        public const string S3Scene = "ServerRoom3F";
-        public const string S4Scene = "FinaleClubRoom";
+        public const string S2StartScene = "S2";
+        public const string S3Scene = "S3";
+        public const string S4Scene = "S4";
 
         private static readonly string[] S0Locations = { "S0", "S0_Corridor", "S0_ClubRoom", "S0_Bridge" };
         private static readonly string[] S1Locations = { "S1", "S1_Corridor", "S1_BridgeEntrance" };
@@ -23,6 +23,12 @@ namespace WWG
         public static string S1Location(int index) => S1Locations[index];
         public static int S0LocationIndex(string name) => System.Array.IndexOf(S0Locations, name);
         public static int S1LocationIndex(string name) => System.Array.IndexOf(S1Locations, name);
+
+        public static string S2Location(string locationId)
+        {
+            string path = StoryIds.LocationScene(StoryIds.Chapter.BridgeRoute, locationId);
+            return path == null ? null : System.IO.Path.GetFileNameWithoutExtension(path);
+        }
 
         /// <summary>开始新游戏。返回 false 表示目标场景不在 Build Settings 里。</summary>
         public static bool StartNewGame()

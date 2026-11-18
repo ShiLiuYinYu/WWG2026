@@ -9,8 +9,8 @@ using UnityEngine.UI;
 /// <summary>One-time, non-destructive S3 HUD alignment to the hand-authored S2 UI.</summary>
 public static class S3UiAlignment
 {
-    private const string S2Path = "Assets/Scenes/Locations/BridgeOdd4F.unity";
-    private const string S3Path = "Assets/Scenes/Locations/ServerRoom3F.unity";
+    private const string S2Path = "Assets/Scenes/S2.unity";
+    private const string S3Path = "Assets/Scenes/S3.unity";
     private const string Marker = "S3 S2-aligned UI";
 
     [MenuItem("WWG/UI/Align S3 With S2")]

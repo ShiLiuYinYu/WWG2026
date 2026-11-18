@@ -23,7 +23,7 @@ public static class S4Development
         if (EditorApplication.isPlayingOrWillChangePlaymode) throw new InvalidOperationException("先退出 Play 模式。");
         if (UnityEngine.SceneManagement.SceneManager.GetActiveScene().isDirty)
             throw new InvalidOperationException("请先保存当前场景。");
-        const string scene = "Assets/Scenes/Locations/FinaleClubRoom.unity";
+        const string scene = "Assets/Scenes/S4.unity";
         if (AssetDatabase.LoadAssetAtPath<SceneAsset>(scene) == null)
             throw new InvalidOperationException("请先执行 WWG/Setup/Build S4 Finale Room。");
         var sample = new GameState

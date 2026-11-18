@@ -112,7 +112,8 @@ namespace WWG
                 state.chapterId == StoryIds.Chapter.ServerRecovery ? 3 : 2);
             PlayerPrefs.Save();
             string scene = state.chapterId == StoryIds.Chapter.Finale ? GameFlow.S4Scene :
-                state.locationId == StoryIds.Location.ClubRoom ? "ClubRoom" : state.locationId;
+                state.chapterId == StoryIds.Chapter.ServerRecovery ? GameFlow.S3Scene :
+                GameFlow.S2Location(state.locationId);
             return LoadScene(scene, out error);
         }
 

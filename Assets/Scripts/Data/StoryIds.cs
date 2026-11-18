@@ -80,8 +80,42 @@ namespace WWG
         public static bool IsVariant(string id) => id == Variant.Day || id == Variant.Night ||
             id == Variant.Emergency;
 
-        public static string LocationScene(string locationId) => IsLocation(locationId)
-            ? "Assets/Scenes/Locations/" + locationId + ".unity"
-            : null;
+        public static string LocationScene(string chapterId, string locationId)
+        {
+            if (chapterId == Chapter.Prologue)
+            {
+                switch (locationId)
+                {
+                    case Location.Exterior: return "Assets/Scenes/S0.unity";
+                    case Location.Corridor5F: return "Assets/Scenes/S0/S0_Corridor.unity";
+                    case Location.ClubRoom: return "Assets/Scenes/S0/S0_ClubRoom.unity";
+                    case Location.BridgeOdd4F: return "Assets/Scenes/S0/S0_Bridge.unity";
+                }
+            }
+            else if (chapterId == Chapter.NightPhoto)
+            {
+                switch (locationId)
+                {
+                    case Location.ClubRoom: return "Assets/Scenes/S1.unity";
+                    case Location.Corridor5F: return "Assets/Scenes/S1/S1_Corridor.unity";
+                    case Location.BridgeOdd4F: return "Assets/Scenes/S1/S1_BridgeEntrance.unity";
+                }
+            }
+            else if (chapterId == Chapter.BridgeRoute)
+            {
+                switch (locationId)
+                {
+                    case Location.BridgeOdd4F: return "Assets/Scenes/S2.unity";
+                    case Location.BridgeSpan4F: return "Assets/Scenes/S2/S2_BridgeSpan4F.unity";
+                    case Location.BridgeEven4F: return "Assets/Scenes/S2/S2_BridgeEven4F.unity";
+                    case Location.ClubRoom: return "Assets/Scenes/S2/S2_ClubRoom.unity";
+                }
+            }
+            else if (chapterId == Chapter.ServerRecovery && locationId == Location.ServerRoom3F)
+                return "Assets/Scenes/S3.unity";
+            else if (chapterId == Chapter.Finale && locationId == Location.ClubRoom)
+                return "Assets/Scenes/S4.unity";
+            return null;
+        }
     }
 }

@@ -12,7 +12,7 @@ public static class S3Development
         if (EditorApplication.isPlayingOrWillChangePlaymode) throw new InvalidOperationException("请先退出 Play 模式。");
         if (UnityEngine.SceneManagement.SceneManager.GetActiveScene().isDirty)
             throw new InvalidOperationException("请先保存当前场景。");
-        const string scene = "Assets/Scenes/Locations/ServerRoom3F.unity";
+        const string scene = "Assets/Scenes/S3.unity";
         if (AssetDatabase.LoadAssetAtPath<SceneAsset>(scene) == null)
             throw new InvalidOperationException("请先执行 WWG/Setup/Build S3 Server Room。");
         var sample = new GameState

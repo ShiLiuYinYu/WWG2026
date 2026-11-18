@@ -21,7 +21,6 @@ public sealed class S2Controller : MonoBehaviour, IDialogueContext
     public Image bridgeSwitchImage;
     public Sprite bridgeSwitchOffSprite, bridgeSwitchOnSprite;
 
-    private const string SafeScene = "ClubRoom";
     private static GameState pending;
     private static bool pendingDevelopment;
     private GameState state;
@@ -62,7 +61,7 @@ public sealed class S2Controller : MonoBehaviour, IDialogueContext
             PlayerPrefs.SetInt("WWG_LastCheckpointChapter", 2);
             PlayerPrefs.Save();
         }
-        if (!GameFlow.LoadLocation(toSafeRoom ? SafeScene : GameFlow.S2StartScene))
+        if (!GameFlow.LoadLocation(GameFlow.S2Location(pending.locationId)))
             throw new InvalidOperationException("S3 返回地点未加入 Build Settings");
     }
 
@@ -409,7 +408,7 @@ public sealed class S2Controller : MonoBehaviour, IDialogueContext
         Persist();
         pending = Clone(state);
         pendingDevelopment = development;
-        string scene = location == StoryIds.Location.ClubRoom ? SafeScene : location;
+        string scene = GameFlow.S2Location(location);
         if (!GameFlow.LoadLocation(scene)) { pending = null; Debug.LogError("[S2] 地点未加入 Build Settings：" + scene); }
     }
     private bool CanAct() => state != null && !ModalOpen;
