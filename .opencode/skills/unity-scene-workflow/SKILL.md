@@ -19,6 +19,7 @@ description: 在 WWG 项目中创建或修改 Unity 2D 场景、点击热点、U
 8. 标题页与 S0/S1/S2 暂停菜单共用 `Assets/Resources/UI/SaveSlotPanel.prefab` 的三槽位存读档界面；修改布局时编辑预制体。S0 时间推进和 S1→S2 交接不使用全屏黑色阶段提示。
 9. 对白文本在 `Assets/Yarn/Chapters/`，由常驻 `WwgDialogueHost` 和 `DialogueService` 播放；不要在场景里新建或恢复旧对话面板，也不要往章节控制器里加私有 `Line` 队列。S2–S4 仍保留各自的暂停、背包和任务记录 UI。S4 终章场景由已有 5F 活动室视图复制一次，`WWG/Setup/Build S4 Finale Room` 不得用于重建已维护场景。
 10. 架构重构已确定保留每阶段独立的地点 `.unity`。同一地点跨阶段的稳定静态结构可逐场景提取为基础 Prefab；阶段专属物件、热点与人工调整位置留在各自场景。现有场景与 GUID 不重建，修改基础 Prefab 前核对所有引用场景，不能把某阶段的 override Apply 到基础资产。差分目标尚未在场景资产中实施。
+11. 编辑器可直接打开 S2 任一地点或 S3/S4 场景按 Play，缺少交接时由 `ChapterPreviewStates` 注入不写玩家存档的内存样本。测试正式存档与章节交接时仍从 Title 或上章进入。
 
 ## 修改方式
 

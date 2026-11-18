@@ -78,6 +78,13 @@ public sealed class S3Controller : MonoBehaviour, IDialogueContext
             }
         }
 #endif
+#if UNITY_EDITOR
+        if (state == null)
+        {
+            state = ChapterPreviewStates.S3();
+            development = true;
+        }
+#endif
         if (state == null && GameStateStore.LoadCheckpoint(out GameState saved, out _) &&
             saved.chapterId == StoryIds.Chapter.ServerRecovery) state = saved;
         if (state == null || !state.HasItem(StoryIds.Item.MachineNote))

@@ -19,6 +19,7 @@
 - S0/S1 的七个地点场景已引用 `Assets/Prefabs/UI/GameplayOverlay.prefab`，包含暂停菜单、右下角背包按钮、5×5 背包格网和物品详情。标题页及各章暂停菜单共用 `Assets/Resources/UI/SaveSlotPanel.prefab` 的三槽位存读档界面，槽位仍承载各章节检查点，不是完整 Demo 存档。调整共享游戏内 UI 时改预制体，显式安装命令为 `WWG/UI/Install Gameplay Overlay`。
 - S2–S4 现有独立场景分别为 `Assets/Scenes/S2.unity`、`S2/S2_BridgeSpan4F.unity`、`S2/S2_BridgeEven4F.unity`、`S2/S2_ClubRoom.unity`、`S3.unity`、`S4.unity`，均保留迁移前 GUID；章节控制器仍各自运行。`GameStateStore` 覆盖 S2–S4，但 S0/S1 尚未统一为完整 Demo 存档。`WWG/Dev/Play S2`、`Play S3`、`Play S4` 使用不写玩家存档的编辑器状态样本。场景生成菜单只在全部目标场景不存在时使用，已有人工维护场景不得重建。
 - 重构目标改为**阶段场景差分**：S0–S4 的 `.unity` 已按阶段独立可编辑，公共静态空间将逐地点提取为基础 Prefab，阶段专属物件、热点、照明及位置 override 留在各自场景。`StoryIds.LocationScene(chapterId, locationId)` 已映射当前文件；基础 Prefab 差分和 `GameRuntime` 迁移尚未实施。不要按旧方案把各阶段物件聚合进一个地点场景，也不要删除现有阶段场景或改其 GUID。详见 `Document/Program/架构重构设计.md`。
+- 编辑器中直接从 S2 任一地点或 S3/S4 场景按 Play，会使用 `ChapterPreviewStates` 的内存默认配置；开发菜单沿用相同样本。该预览状态不写玩家检查点或槽位，正式交接仍优先。构建版仍需有效交接或存档。
 
 ## 制作约束
 

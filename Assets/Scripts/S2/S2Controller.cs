@@ -110,6 +110,14 @@ public sealed class S2Controller : MonoBehaviour, IDialogueContext
             }
         }
 #endif
+        // Opening any S2 scene and pressing Play is an isolated editor preview.
+#if UNITY_EDITOR
+        if (state == null)
+        {
+            state = ChapterPreviewStates.S2(SceneManager.GetActiveScene().name);
+            development = true;
+        }
+#endif
         if (state == null && GameStateStore.LoadCheckpoint(out GameState saved, out _) &&
             saved.chapterId == StoryIds.Chapter.BridgeRoute)
             state = saved;

@@ -2,6 +2,9 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using Yarn.Unity;
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
 namespace WWG
 {
@@ -38,12 +41,26 @@ namespace WWG
         {
             Instance = this;
             ApplySystemFont();
+#if UNITY_EDITOR
+            EditorApplication.playModeStateChanged += HandlePlayModeStateChanged;
+#endif
         }
 
         private void OnDestroy()
         {
+#if UNITY_EDITOR
+            EditorApplication.playModeStateChanged -= HandlePlayModeStateChanged;
+#endif
             if (Instance == this) Instance = null;
         }
+
+#if UNITY_EDITOR
+        private void HandlePlayModeStateChanged(PlayModeStateChange change)
+        {
+            if (change == PlayModeStateChange.ExitingPlayMode && IsRunning)
+                Stop();
+        }
+#endif
 
         public static DialogueService Ensure()
         {

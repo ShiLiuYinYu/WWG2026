@@ -15,23 +15,7 @@ public static class S3Development
         const string scene = "Assets/Scenes/S3.unity";
         if (AssetDatabase.LoadAssetAtPath<SceneAsset>(scene) == null)
             throw new InvalidOperationException("请先执行 WWG/Setup/Build S3 Server Room。");
-        var sample = new GameState
-        {
-            chapterId = StoryIds.Chapter.ServerRecovery,
-            stepId = "p3Start",
-            locationId = StoryIds.Location.ServerRoom3F,
-            locationVariant = StoryIds.Variant.Night,
-            timeId = "saturday.0100",
-            san = 75,
-            health = 3
-        };
-        sample.SetFlag(StoryIds.Flag.P1Complete);
-        sample.SetFlag(StoryIds.Flag.P2DrawerTaken);
-        sample.AddItem(StoryIds.Item.Photo);
-        sample.AddItem(StoryIds.Item.Badge);
-        sample.AddItem(StoryIds.Item.MachineNote);
-        sample.AddItem(StoryIds.Item.TeamSheet);
-        sample.ChooseRoute(StoryIds.Choice.RouteLight);
+        var sample = ChapterPreviewStates.S3();
         if (!sample.Validate(out string error)) throw new InvalidOperationException("S3Bootstrap 无效：" + error);
         SessionState.SetString("WWG_S3Bootstrap", JsonUtility.ToJson(sample));
         EditorSceneManager.OpenScene(scene);
