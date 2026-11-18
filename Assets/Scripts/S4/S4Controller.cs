@@ -101,6 +101,13 @@ public sealed class S4Controller : MonoBehaviour, IDialogueContext
             }
         }
 #endif
+#if UNITY_EDITOR
+        if (state == null)
+        {
+            state = ChapterPreviewStates.S4();
+            development = true;
+        }
+#endif
         if (state == null && GameStateStore.LoadCheckpoint(out GameState saved, out _) &&
             saved.chapterId == StoryIds.Chapter.Finale) state = saved;
         if (state == null || state.chapterId != StoryIds.Chapter.Finale ||

@@ -14,7 +14,7 @@ using WWG;
 /// <summary>Creates the S3 view once, then leaves all layout to scene editing.</summary>
 public static class S3SceneBuilder
 {
-    private const string ScenePath = "Assets/Scenes/Locations/ServerRoom3F.unity";
+    private const string ScenePath = "Assets/Scenes/S3.unity";
     private const string ArtPath = "Assets/Resources/S3/ServerRoom3F.png";
     private const string MonitorArtPath = "Assets/Resources/S3/ComputerScreen.png";
     private static readonly Color Ink = new Color(0.035f, 0.055f, 0.055f, 0.97f);
@@ -230,10 +230,10 @@ public static class S3SceneBuilder
 
     private static void InstallUsbSlots()
     {
-        string[] names = { "BridgeOdd4F", "BridgeSpan4F", "BridgeEven4F", "ClubRoom" };
-        foreach (string name in names)
+        string[] paths = { "Assets/Scenes/S2.unity", "Assets/Scenes/S2/S2_BridgeSpan4F.unity",
+            "Assets/Scenes/S2/S2_BridgeEven4F.unity", "Assets/Scenes/S2/S2_ClubRoom.unity" };
+        foreach (string path in paths)
         {
-            string path = "Assets/Scenes/Locations/" + name + ".unity";
             Scene scene = EditorSceneManager.OpenScene(path, OpenSceneMode.Single);
             S2InventoryGrid grid = UnityEngine.Object.FindFirstObjectByType<S2InventoryGrid>(FindObjectsInactive.Include);
             if (grid == null) throw new InvalidOperationException("S2 背包缺失：" + path);

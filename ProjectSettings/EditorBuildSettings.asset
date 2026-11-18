@@ -30,22 +30,22 @@ EditorBuildSettings:
     path: Assets/Scenes/S1/S1_BridgeEntrance.unity
     guid: 6fc10b9db8667ea428b576323a9c6116
   - enabled: 1
-    path: Assets/Scenes/Locations/BridgeOdd4F.unity
+    path: Assets/Scenes/S2.unity
     guid: 5944839b2dc48ea48b74f0810ab1179e
   - enabled: 1
-    path: Assets/Scenes/Locations/BridgeSpan4F.unity
+    path: Assets/Scenes/S2/S2_BridgeSpan4F.unity
     guid: 0910a611bddba5242bbf03ed936edc95
   - enabled: 1
-    path: Assets/Scenes/Locations/BridgeEven4F.unity
+    path: Assets/Scenes/S2/S2_BridgeEven4F.unity
     guid: 5cdb7d507cba9f047acf869707d8788c
   - enabled: 1
-    path: Assets/Scenes/Locations/ClubRoom.unity
+    path: Assets/Scenes/S2/S2_ClubRoom.unity
     guid: a345b47630184c74c9cc600ece810258
   - enabled: 1
-    path: Assets/Scenes/Locations/ServerRoom3F.unity
+    path: Assets/Scenes/S3.unity
     guid: a5884aca1f007994bad71eb104540d51
   - enabled: 1
-    path: Assets/Scenes/Locations/FinaleClubRoom.unity
+    path: Assets/Scenes/S4.unity
     guid: 1f62a3df695be8e42badc379478b5bdd
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 2bcd2660ca9b64942af0de543d8d7100, type: 3}

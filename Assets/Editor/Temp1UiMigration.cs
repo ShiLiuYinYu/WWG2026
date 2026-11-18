@@ -29,8 +29,9 @@ namespace WWG.Editor
             EditPrefab("Assets/Resources/UI/SaveSlotPanel.prefab", Skin);
             EditPrefab("Assets/Resources/UI/SettingsPanel.prefab", Skin);
             EditTitleScene();
-            foreach (string scene in new[] { "BridgeOdd4F", "BridgeSpan4F", "BridgeEven4F", "ClubRoom" })
-                EditS2Scene("Assets/Scenes/Locations/" + scene + ".unity");
+            foreach (string scene in new[] { "Assets/Scenes/S2.unity", "Assets/Scenes/S2/S2_BridgeSpan4F.unity",
+                     "Assets/Scenes/S2/S2_BridgeEven4F.unity", "Assets/Scenes/S2/S2_ClubRoom.unity" })
+                EditS2Scene(scene);
             foreach (string scene in new[] { "S0", "S0/S0_ClubRoom", "S0/S0_Corridor", "S0/S0_Bridge",
                                             "S1", "S1/S1_Corridor", "S1/S1_BridgeEntrance" })
                 EditChapterScene("Assets/Scenes/" + scene + ".unity");

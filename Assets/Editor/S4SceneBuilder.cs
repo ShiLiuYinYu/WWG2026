@@ -13,8 +13,8 @@ using WWG;
 /// <summary>Copies the authored 5F view once, preserving its room layers and shared UI layout.</summary>
 public static class S4SceneBuilder
 {
-    private const string Source = "Assets/Scenes/Locations/ClubRoom.unity";
-    private const string Destination = "Assets/Scenes/Locations/FinaleClubRoom.unity";
+    private const string Source = "Assets/Scenes/S2/S2_ClubRoom.unity";
+    private const string Destination = "Assets/Scenes/S4.unity";
     private static readonly Color Ink = new Color(0.035f, 0.055f, 0.055f, 0.96f);
     private static readonly Color Paper = new Color(0.96f, 0.91f, 0.78f);
     private static readonly Color Accent = new Color(0.95f, 0.77f, 0.37f);

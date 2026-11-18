@@ -14,8 +14,10 @@ using WWG;
 /// <summary>Explicit one-time authoring of the four S2 fixed views. Never overwrites hand-edited scenes.</summary>
 public static class S2SceneBuilder
 {
-    private const string Folder = "Assets/Scenes/Locations";
+    private const string Folder = "Assets/Scenes/S2";
     private static readonly string[] Names = { "BridgeOdd4F", "BridgeSpan4F", "BridgeEven4F", "ClubRoom" };
+    private static readonly string[] ScenePaths = { "Assets/Scenes/S2.unity", "Assets/Scenes/S2/S2_BridgeSpan4F.unity",
+        "Assets/Scenes/S2/S2_BridgeEven4F.unity", "Assets/Scenes/S2/S2_ClubRoom.unity" };
     private static readonly Color Ink = new Color(0.025f, 0.039f, 0.057f, 0.95f);
     private static readonly Color Paper = new Color(0.88f, 0.92f, 0.91f);
     private static readonly Color Accent = new Color(0.57f, 0.84f, 0.78f);
@@ -26,15 +28,15 @@ public static class S2SceneBuilder
     {
         if (EditorApplication.isPlayingOrWillChangePlaymode) throw new InvalidOperationException("先退出 Play 模式。");
         if (SceneManager.GetActiveScene().isDirty) throw new InvalidOperationException("请先保存当前场景。");
-        foreach (string name in Names)
-            if (File.Exists(Folder + "/" + name + ".unity"))
-                throw new InvalidOperationException("S2 地点已存在，停止以保护手动编辑：" + name);
+        for (int i = 0; i < ScenePaths.Length; i++)
+            if (File.Exists(ScenePaths[i]))
+                throw new InvalidOperationException("S2 地点已存在，停止以保护手动编辑：" + Names[i]);
         string previous = SceneManager.GetActiveScene().path;
         Directory.CreateDirectory(Folder);
         font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
         for (int i = 0; i < Names.Length; i++) BuildLocation(i);
         var scenes = new List<EditorBuildSettingsScene>(EditorBuildSettings.scenes);
-        foreach (string name in Names) scenes.Add(new EditorBuildSettingsScene(Folder + "/" + name + ".unity", true));
+        foreach (string path in ScenePaths) scenes.Add(new EditorBuildSettingsScene(path, true));
         EditorBuildSettings.scenes = scenes.ToArray();
         AssetDatabase.SaveAssets();
         if (!string.IsNullOrEmpty(previous)) EditorSceneManager.OpenScene(previous, OpenSceneMode.Single);
@@ -178,7 +180,7 @@ public static class S2SceneBuilder
         c.inventoryPanel.SetActive(false);
         c.pausePanel.SetActive(false);
 
-        EditorSceneManager.SaveScene(scene, Folder + "/" + name + ".unity");
+        EditorSceneManager.SaveScene(scene, ScenePaths[index]);
     }
 
     private static VitalsBars Vitals(Transform parent)
