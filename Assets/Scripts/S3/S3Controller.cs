@@ -233,7 +233,12 @@ public sealed class S3Controller : MonoBehaviour, IDialogueContext
     public void GoExit()
     {
         if (!CanAct) return;
-        ReturnToS2(state.HasFlag(StoryIds.Flag.P3Copied));
+        if (state.HasFlag(StoryIds.Flag.P3Copied))
+        {
+            Persist();
+            S4Controller.Begin(state, development);
+        }
+        else ReturnToS2(false);
     }
 
     private void ReturnToS2(bool toSafeRoom)

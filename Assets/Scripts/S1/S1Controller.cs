@@ -318,7 +318,11 @@ public sealed class S1Controller : MonoBehaviour, IDialogueContext
                 break;
             case "toCorridor":
                 if (phase < 3) PlayNode("S1_ClubRoom_NeedBadge");
-                else if (screen == 0) PlayNode("S1_ClubRoom_ToCorridor");
+                else if (screen == 0)
+                {
+                    if (HasSeenDialogue("S1_ClubRoom_ToCorridor")) SwitchScreen(1);
+                    else PlayNode("S1_ClubRoom_ToCorridor", true);
+                }
                 break;
             case "toRoom":
                 dangerSeconds = 0;

@@ -7,6 +7,7 @@ public sealed class S2InventoryGrid : MonoBehaviour
 {
     private S2Controller controller;
     private S3Controller s3Controller;
+    private S4Controller s4Controller;
     private GameObject tooltip;
     private Text nameLabel;
     private string selected;
@@ -18,6 +19,7 @@ public sealed class S2InventoryGrid : MonoBehaviour
     {
         controller = FindFirstObjectByType<S2Controller>();
         if (controller == null) s3Controller = FindFirstObjectByType<S3Controller>();
+        if (controller == null && s3Controller == null) s4Controller = FindFirstObjectByType<S4Controller>();
         foreach (Transform child in transform.parent)
             if (child.name == "Inventory" && child.GetComponent<Button>() != null)
                 bagButton = child.gameObject;
@@ -44,12 +46,14 @@ public sealed class S2InventoryGrid : MonoBehaviour
 
     private void Update()
     {
-        if (controller == null && s3Controller == null) return;
+        if (controller == null && s3Controller == null && s4Controller == null) return;
         if (controller != null && controller.CurrentState == null) return;
         if (s3Controller != null && s3Controller.CurrentState == null) return;
+        if (s4Controller != null && s4Controller.CurrentState == null) return;
         foreach (var slot in slots)
         {
-            bool owned = controller != null ? controller.HasItem(slot.item) : s3Controller.HasItem(slot.item);
+            bool owned = controller != null ? controller.HasItem(slot.item) :
+                s3Controller != null ? s3Controller.HasItem(slot.item) : s4Controller.HasItem(slot.item);
             if (slot.gameObject.activeSelf != owned) slot.gameObject.SetActive(owned);
         }
         // S2 items currently serve as evidence; none has a scene-use target yet.
@@ -78,7 +82,8 @@ public sealed class S2InventoryGrid : MonoBehaviour
     {
         if (selected == null) return;
         if (controller != null) { controller.CloseInventory(); controller.ShowInventoryUseHint(selected); }
-        else { s3Controller.CloseInventory(); s3Controller.ShowInventoryUseHint(selected); }
+        else if (s3Controller != null) { s3Controller.CloseInventory(); s3Controller.ShowInventoryUseHint(selected); }
+        else { s4Controller.CloseInventory(); s4Controller.ShowInventoryUseHint(selected); }
         selected = null;
         tooltipPinned = false;
     }
@@ -90,7 +95,8 @@ public sealed class S2InventoryGrid : MonoBehaviour
         selected = null;
         tooltipPinned = false;
         if (controller != null) { controller.CloseInventory(); controller.InspectInventoryItem(item); }
-        else { s3Controller.CloseInventory(); s3Controller.InspectInventoryItem(item); }
+        else if (s3Controller != null) { s3Controller.CloseInventory(); s3Controller.InspectInventoryItem(item); }
+        else { s4Controller.CloseInventory(); s4Controller.InspectInventoryItem(item); }
     }
 
     public static string ItemName(string item) => item == StoryIds.Item.Photo ? "去年的活动室照片" :

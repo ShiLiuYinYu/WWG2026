@@ -86,20 +86,20 @@ public static class S2SceneBuilder
         // Visible 2D click targets occupy distinct parts of each fixed view.
         if (index == 0)
         {
-            Label(canvas.transform, "Odd marker", "单数栋 4F  ·  连廊口", 640, 174, 640, 56, 40, Paper, TextAnchor.MiddleCenter);
+            Label(canvas.transform, "Odd marker", "单数栋 4F  ·  连廊口", 640, 174, 640, 56, 40, Paper, TextAnchor.MiddleCenter).gameObject.SetActive(false);
             Button(canvas.transform, "Guide hotspot", "双栋导览练习稿", 105, 330, 360, 88, c.InspectGuide);
             Button(canvas.transform, "Near poster hotspot", "近端海报", 450, 510, 270, 105, c.InspectNear);
             Button(canvas.transform, "Far poster hotspot", "远端海报 · 贴纸", 1050, 440, 360, 110, c.InspectFar);
             c.farRevealText = Label(canvas.transform, "Far number", "贴纸遮住了旧展位号", 1055, 555, 350, 58, 29, Accent, TextAnchor.MiddleCenter);
+            c.farRevealText.gameObject.SetActive(false);
             c.switchButton = Button(canvas.transform, "Emergency switch hotspot", "打开应急灯", 1450, 305, 360, 90, c.SwitchLight);
-            c.darkChoiceButton = Button(canvas.transform, "Observe dark hotspot", "暂不开灯，观察连廊", 1450, 408, 360, 90, c.ChooseDark);
             Button(canvas.transform, "To span", "走入玻璃连廊  →", 1320, 862, 500, 95, c.GoSpan);
             Button(canvas.transform, "To safe", "↑ 5F 活动室 · 安全屋", 70, 862, 475, 95, c.GoSafe);
             Button(canvas.transform, "To machine room", "↓ 单数栋 3F 机房", 645, 862, 430, 95, c.GoMachineRoom);
         }
         else if (index == 1)
         {
-            Label(canvas.transform, "Span marker", "玻璃连廊 · 中段", 690, 174, 540, 56, 40, Paper, TextAnchor.MiddleCenter);
+            Label(canvas.transform, "Span marker", "玻璃连廊 · 中段", 690, 174, 540, 56, 40, Paper, TextAnchor.MiddleCenter).gameObject.SetActive(false);
             c.glassButton = Button(canvas.transform, "Glass hotspot", "查看玻璃上的痕迹", 650, 360, 620, 280, c.InspectGlass);
             Button(canvas.transform, "Back odd", "← 单数栋 4F", 70, 862, 430, 95, c.GoOdd);
             Button(canvas.transform, "Forward even", "偶数栋 4F →", 1420, 862, 430, 95, c.GoEven);
@@ -107,28 +107,39 @@ public static class S2SceneBuilder
         }
         else if (index == 2)
         {
-            Label(canvas.transform, "Even marker", "偶数栋 4F  ·  连廊尽头", 625, 174, 670, 56, 40, Paper, TextAnchor.MiddleCenter);
+            Label(canvas.transform, "Even marker", "偶数栋 4F  ·  连廊尽头", 625, 174, 670, 56, 40, Paper, TextAnchor.MiddleCenter).gameObject.SetActive(false);
             Button(canvas.transform, "Near poster hotspot", "近端海报", 1150, 470, 280, 108, c.InspectNear);
             Button(canvas.transform, "Far poster hotspot", "远端海报 · 贴纸", 520, 450, 355, 108, c.InspectFar);
             c.farRevealText = Label(canvas.transform, "Far number", "贴纸遮住了旧展位号", 522, 560, 355, 58, 29, Accent, TextAnchor.MiddleCenter);
+            c.farRevealText.gameObject.SetActive(false);
             Button(canvas.transform, "Cabinet hotspot", "社团旧资料柜 · 四位锁", 140, 630, 475, 110, c.InspectCabinet);
             c.drawerButton = Button(canvas.transform, "Drawer hotspot", "打开抽屉 · 取出资料", 140, 750, 475, 85, c.TakeDrawer);
             Button(canvas.transform, "Back span", "← 返回玻璃连廊", 65, 862, 475, 95, c.GoSpan);
         }
         else
         {
-            Label(canvas.transform, "Safe room marker", "5F 活动室 · 设备仍在运行", 570, 175, 780, 62, 42, Paper, TextAnchor.MiddleCenter);
+            Label(canvas.transform, "Safe room marker", "5F 活动室 · 设备仍在运行", 570, 175, 780, 62, 42, Paper, TextAnchor.MiddleCenter).gameObject.SetActive(false);
             Button(canvas.transform, "Rest hotspot", "坐下休息 · 恢复 SAN / 生命", 625, 610, 670, 110, c.Rest);
             Button(canvas.transform, "Down to bridge", "↓ 返回单数栋 4F 连廊口", 590, 862, 740, 95, c.GoOdd);
         }
 
         c.feedbackText = Label(canvas.transform, "Feedback", "", 230, 735, 1460, 105, 29, Paper, TextAnchor.MiddleCenter);
         c.feedbackText.gameObject.AddComponent<Outline>().effectColor = Color.black;
+        c.feedbackText.gameObject.SetActive(false);
 
         c.infoPanel = Panel(canvas.transform, "Inspect", 365, 180, 1190, 720, Ink);
         c.infoTitle = Label(c.infoPanel.transform, "Title", "", 55, 45, 1080, 85, 40, Accent, TextAnchor.MiddleLeft);
         c.infoBody = Label(c.infoPanel.transform, "Body", "", 65, 165, 1060, 395, 36, Paper, TextAnchor.UpperLeft);
         Button(c.infoPanel.transform, "Close", "继续调查", 890, 615, 245, 68, c.CloseInfo);
+        if (index == 1)
+        {
+            c.routePanel = c.infoPanel;
+            c.routeDescriptionText = c.infoBody;
+            c.routeConfirmButton = Button(c.infoPanel.transform, "Confirm glass route", "确认调查",
+                590, 615, 275, 68, c.ConfirmGlassRoute);
+            c.routeConfirmText = c.routeConfirmButton.GetComponentInChildren<Text>();
+            c.routeConfirmButton.gameObject.SetActive(false);
+        }
 
         c.codePanel = Panel(canvas.transform, "Four digit cabinet", 500, 225, 920, 600, Ink);
         Label(c.codePanel.transform, "Title", "社团资料柜 · 四位密码", 60, 35, 800, 64, 40, Accent, TextAnchor.MiddleCenter);
