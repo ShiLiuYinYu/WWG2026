@@ -17,7 +17,7 @@ namespace WWG
         public void OnPointerEnter(PointerEventData eventData)
         {
             transform.localScale = originalScale * 1.12f;
-            if (owner != null) owner.OpenItem(item);
+            if (owner != null) owner.HoverItem(item);
         }
 
         public void OnPointerExit(PointerEventData eventData)

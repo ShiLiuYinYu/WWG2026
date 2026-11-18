@@ -57,11 +57,7 @@ public static class S1SceneBuilder
 
         controller.room = Page(canvas.transform, "5F Activity Room", "Assets/Resources/S1/ClubRoomNightClean.png");
         controller.corridor = Page(canvas.transform, "5F Corridor", "Assets/Resources/S1/CorridorNight.png");
-        Label(controller.corridor.transform, "Exit glow", "安全出口  ↓ 4F", 1250, 180, 480, 80, 38,
-            new Color(0.43f, 0.88f, 0.62f), TextAnchor.MiddleCenter);
         controller.bridge = Page(canvas.transform, "4F Bridge Entrance", "Assets/Resources/S1/BridgeNight.png");
-        Label(controller.bridge.transform, "Emergency lamp indicator", "●  连廊应急照明", 1390, 355, 390, 90, 33,
-            new Color(0.94f, 0.45f, 0.39f), TextAnchor.MiddleCenter);
 
         // Real scene changes stay on separate layers, so the old photo can reuse this camera view.
         controller.curtainOverlay = Panel(controller.room.transform, "Closed curtains", 1150, 145, 300, 445,

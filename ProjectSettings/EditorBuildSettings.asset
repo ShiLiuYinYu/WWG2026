@@ -44,6 +44,9 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/Locations/ServerRoom3F.unity
     guid: a5884aca1f007994bad71eb104540d51
+  - enabled: 1
+    path: Assets/Scenes/Locations/FinaleClubRoom.unity
+    guid: 1f62a3df695be8e42badc379478b5bdd
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 2bcd2660ca9b64942af0de543d8d7100, type: 3}
   m_UseUCBPForAssetBundles: 0

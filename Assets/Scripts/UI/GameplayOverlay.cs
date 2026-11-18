@@ -24,6 +24,7 @@ namespace WWG
         private GameObject photoSlot, badgeSlot;
         private string selectedItem;
         private string detailItem;
+        private bool tooltipPinned;
         private float messageUntil;
 
         private void Awake()
@@ -289,9 +290,23 @@ namespace WWG
                 (DialogueService.Instance != null && DialogueService.Instance.IsRunning)) return;
             inventoryPanel.SetActive(!inventoryPanel.activeSelf);
             tooltip.SetActive(false);
+            tooltipPinned = false;
+        }
+
+        public void HoverItem(string item)
+        {
+            if (tooltipPinned) return;
+            ShowItemTooltip(item);
         }
 
         public void OpenItem(string item)
+        {
+            if (GameplayModalOpen || pausePanel.activeSelf) return;
+            ShowItemTooltip(item);
+            tooltipPinned = true;
+        }
+
+        private void ShowItemTooltip(string item)
         {
             if (GameplayModalOpen || pausePanel.activeSelf) return;
             detailItem = item;
@@ -317,6 +332,7 @@ namespace WWG
         {
             selectedItem = detailItem;
             tooltip.SetActive(false);
+            tooltipPinned = false;
             inventoryPanel.SetActive(false);
             CloseDetail();
             ShowDragGhost(selectedItem);
@@ -326,6 +342,7 @@ namespace WWG
         {
             string item = detailItem;
             tooltip.SetActive(false);
+            tooltipPinned = false;
             inventoryPanel.SetActive(false);
             CloseDetail();
             if (s1 == null) { OpenDetail(item); return; }

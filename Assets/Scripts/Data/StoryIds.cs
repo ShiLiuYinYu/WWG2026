@@ -62,6 +62,12 @@ namespace WWG
             public const string P3Recovered = "flag.p3.recovered";
             public const string P3MemoHeard = "flag.p3.memoHeard";
             public const string P3Copied = "flag.p3.copied";
+            public const string S4BadgeArchived = "flag.s4.badgeArchived";
+            public const string S4Rested = "flag.s4.rested";
+            public const string S4YuanTalked = "flag.s4.yuanTalked";
+            public const string S4XuTalked = "flag.s4.xuTalked";
+            public const string S4TangTalked = "flag.s4.tangTalked";
+            public const string S4Finished = "flag.s4.finished";
         }
 
         public static bool IsChapter(string id) => id == Chapter.Prologue || id == Chapter.NightPhoto ||

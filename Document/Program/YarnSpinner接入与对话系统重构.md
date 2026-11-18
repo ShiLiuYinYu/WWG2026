@@ -1,6 +1,6 @@
 # YarnSpinner 接入与对话系统重构
 
-> 状态：**阶段 0–3 已实施，阶段 4 未实施；阶段 5 的旧对白面板清理与文档同步已完成**。`dev.yarnspinner.unity` 3.2.8 已写入 `Packages/manifest.json` 与 `Packages/packages-lock.json`；`Assets/Yarn/WWG.yarnproject`、`Assets/Scripts/Dialogue/` 共享服务与自定义 uGUI 呈现器、`Assets/Resources/Dialogue/WwgDialogueHost.prefab`、立绘配置、`WWG/Yarn/Validate Dialogue` 和 `WWG/Dev/Play Dialogue Test` 已建立。S0、S1、S2 的对白已分别迁移到 `Assets/Yarn/Chapters/Prologue/`、`NightPhoto/`、`BridgeRoute/`，三个控制器都实现 `IDialogueContext`，旧场景对白面板与私有对白队列已删除。S2 仍保留自己的暂停/背包/任务记录 UI 和 `GameState`；`GameRuntime`/`StoryDirector` 接管、`GameplayOverlay` 去章节分支和旧检查点清理属于阶段 4–5，尚未实施。
+> 状态：**重构阶段 0–3 已实施，阶段 4 未实施；阶段 5 的旧对白面板清理与文档同步已完成**。`dev.yarnspinner.unity` 3.2.8 已写入 `Packages/manifest.json` 与 `Packages/packages-lock.json`；`Assets/Yarn/WWG.yarnproject`、`Assets/Scripts/Dialogue/` 共享服务与自定义 uGUI 呈现器、`Assets/Resources/Dialogue/WwgDialogueHost.prefab`、立绘配置、`WWG/Yarn/Validate Dialogue` 和 `WWG/Dev/Play Dialogue Test` 已建立。S0–S4 的剧情对白位于 `Assets/Yarn/Chapters/`，五个控制器都实现 `IDialogueContext`。S2–S4 仍保留各自的暂停/背包/任务记录 UI 和 `GameState`；`GameRuntime`/`StoryDirector` 接管、`GameplayOverlay` 去章节分支和旧检查点清理属于重构阶段 4–5，尚未实施。
 >
 > 关联文档：[架构重构设计](./架构重构设计.md)、[架构规范](./架构规范.md)、[运行流程](./运行流程.md)、[目录结构组织](./目录结构组织.md)、[程序规范文档](./程序规范文档.md)。
 
@@ -366,7 +366,7 @@ tags: chapter_night_photo location_clubroom
 ```
 
 - Yarn 选项适合 S4 的结尾选择、确认框和纯文本分支。
-- 4F 入口的“开灯/留暗”仍由场景按钮触发：按钮先调用章节控制器的 `ChooseRoute`，再播放 `S2_Odd4F_RouteLight` / `S2_Odd4F_RouteDark` 节点，保持“开关旁边两个明确交互”的空间感。
+- 4F 入口的开关只切换灯光；首次点击连廊中段右侧玻璃并确认当前照明下的调查方式时，章节控制器才记录 `RouteLight` / `RouteDark`，随后播放 `S2_Odd4F_RouteLight` / `S2_Odd4F_RouteDark` 节点。
 - 选项文案必须明确记录选择，不能让“保持黑暗”变成玩家什么都不做的默认结果。
 
 ### 6.4 禁止事项
@@ -445,7 +445,7 @@ public string dialogueLineId;    // 预留；第一版不要求在行中间恢�
 
 1. 把 S2 入口通话、路线 A/B 对白、资料柜便签、抽屉后电话、提示文本拆到 `Chapters/BridgeRoute/*.yarn`。
 2. `S2Controller` 实现 `IDialogueContext`，直接读写 `GameState`；`ChooseRoute`/`ChooseView` 使用现有锁定方法。
-3. 4F 入口的两个场景按钮保持现状：按钮先决定路线并写 `GameState`，再播放对应 `S2_Odd4F_RouteLight` / `S2_Odd4F_RouteDark`。
+3. 4F 入口开关仅控制照明；中段玻璃的确认按钮写入 `GameState` 路线，再播放对应 `S2_Odd4F_RouteLight` / `S2_Odd4F_RouteDark`。
 4. `show_info` 的文档表包含资料柜便签、使用说明、残影文本；`residue` 标记控制标题前缀。
 5. 删除 S2 的 `DialogueLine`、队列、`Say/ContinueDialogue`；`Update` 的模态判断加入 `DialogueService.IsRunning`。
 6. `s2.intro`、`s2.cabinet` 等一次性节点改用 `PlayOnce`/`seen`；不再手写 `MarkDialogueSeen` 条件。
