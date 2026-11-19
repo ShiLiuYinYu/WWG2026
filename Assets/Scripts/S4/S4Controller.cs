@@ -62,9 +62,10 @@ public sealed class S4Controller : MonoBehaviour, IDialogueContext
         infoPanel.SetActive(false); recordPanel.SetActive(false); inventoryPanel.SetActive(false);
         pausePanel.SetActive(false); choicePanel.SetActive(false); confirmPanel.SetActive(false);
         oldProjectPanel.SetActive(false); endingPanel.SetActive(false); blackout.SetActive(false);
-        Bind("Inventory", OpenInventory);
-        Bind("Top bar/Pause", TogglePause);
-        Bind("Top bar/Record", OpenRecord);
+        SharedInteractionHud hud = GetComponentInChildren<SharedInteractionHud>(true);
+        BindButton(hud.inventoryButton, OpenInventory);
+        BindButton(hud.pauseButton, TogglePause);
+        BindButton(hud.recordButton, OpenRecord);
         Bind("Inspect/Close", CloseInfo);
         Bind("Task record/Close", CloseRecord);
         BindButton(inventoryPanel.transform.Find("Close")?.GetComponent<Button>(), CloseInventory);

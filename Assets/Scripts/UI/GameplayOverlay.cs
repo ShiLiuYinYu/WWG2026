@@ -16,7 +16,7 @@ namespace WWG
         private GameObject shade;
         private Slider volumeSlider, textSpeedSlider;
         private Text textSpeedLabel;
-        private Text timeLabel, objectiveLabel, messageLabel;
+        private Text timeLabel, messageLabel;
         private VitalsBars vitals;
         private Text detailName, detailBody, selectionLabel, volumeLabel;
         private Text tooltipName;
@@ -37,18 +37,17 @@ namespace WWG
             settingsPanel = pausePanel.transform.Find("Settings panel").gameObject;
             detailPanel = transform.Find("Item detail").gameObject;
             inventoryPanel = transform.Find("Inventory panel").gameObject;
-            inventoryButton = transform.Find("Inventory button").gameObject;
+            SharedInteractionHud hud = GetComponentInChildren<SharedInteractionHud>(true);
+            inventoryButton = hud.inventoryButton.gameObject;
             tooltip = inventoryPanel.transform.Find("Tooltip").gameObject;
             tooltipName = tooltip.transform.Find("Name").GetComponent<Text>();
             carriedItem = transform.Find("Inventory ghost") as RectTransform;
             carriedItem.gameObject.SetActive(false);
-            topBar = transform.Find("Top bar").gameObject;
+            topBar = hud.topBar;
             var shadeTr = transform.Find("Shade");
             if (shadeTr != null) shade = shadeTr.gameObject;
-            timeLabel = FindText("Top bar/Time");
-            objectiveLabel = FindText("Top bar/Objective");
-            var vitalsTr = transform.Find("Top bar/Vitals");
-            if (vitalsTr != null) vitals = vitalsTr.GetComponent<VitalsBars>();
+            timeLabel = hud.timeText;
+            vitals = hud.vitals;
             messageLabel = FindText("Toast/Message");
             detailName = FindText("Item detail/Name");
             detailBody = FindText("Item detail/Body");
@@ -56,9 +55,9 @@ namespace WWG
             volumeLabel = FindText("Pause panel/Settings panel/Volume value");
             photoSlot = transform.Find("Inventory panel/Grid/Photo slot").gameObject;
             badgeSlot = transform.Find("Inventory panel/Grid/Badge slot").gameObject;
-            Bind("Top bar/Pause button", TogglePause);
-            Bind("Top bar/Record button", OpenRecord);
-            Bind("Inventory button", ToggleInventory);
+            hud.pauseButton.onClick.AddListener(TogglePause);
+            hud.recordButton.onClick.AddListener(OpenRecord);
+            hud.inventoryButton.onClick.AddListener(ToggleInventory);
             Bind("Inventory panel/Close", ToggleInventory);
             Bind("Inventory panel/Tooltip/Use", UseTooltipItem);
             Bind("Inventory panel/Tooltip/Inspect", InspectTooltipItem);
@@ -114,9 +113,9 @@ namespace WWG
             AttachSound("Item detail/Use", TitleButtonFx.ClickSound.Ok);
             AttachSound("Item detail/Inspect", TitleButtonFx.ClickSound.Ok);
             AttachSound("Item detail/Close", TitleButtonFx.ClickSound.Cancel);
-            AttachSound("Top bar/Pause button", TitleButtonFx.ClickSound.Ok);
-            AttachSound("Top bar/Record button", TitleButtonFx.ClickSound.Ok);
-            AttachSound("Inventory button", TitleButtonFx.ClickSound.Ok);
+            AttachSound("SharedInteractionHud/Top bar/Pause", TitleButtonFx.ClickSound.Ok);
+            AttachSound("SharedInteractionHud/Top bar/Record", TitleButtonFx.ClickSound.Ok);
+            AttachSound("SharedInteractionHud/Inventory", TitleButtonFx.ClickSound.Ok);
             AttachSound("Inventory panel/Close", TitleButtonFx.ClickSound.Cancel);
         }
 
@@ -159,7 +158,6 @@ namespace WWG
             if (s0 != null)
             {
                 timeLabel.text = s0.timeText.text;
-                objectiveLabel.text = s0.objectiveText.text;
                 if (vitals != null)
                 {
                     vitals.gameObject.SetActive(true);
@@ -170,7 +168,6 @@ namespace WWG
             else if (s1 != null)
             {
                 timeLabel.text = s1.timeText.text;
-                objectiveLabel.text = s1.objectiveText.text;
                 if (vitals != null)
                 {
                     vitals.gameObject.SetActive(true);
