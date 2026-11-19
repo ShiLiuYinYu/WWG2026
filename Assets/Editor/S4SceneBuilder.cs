@@ -83,7 +83,7 @@ public static class S4SceneBuilder
 
             Text hover = Label(canvas, "S4 Hover hint", "", 510, 825, 900, 62, 30, Accent, TextAnchor.MiddleCenter);
             hover.gameObject.SetActive(false);
-            c.badgeButton = Hotspot(canvas, "S4 Badge box", 1575, 205, 280, 210, "社团纪念盒 · 归档林未工牌", hover);
+            c.badgeButton = Hotspot(canvas, "S4 Badge box", 1611, 224, 248, 173, "社团纪念盒 · 归档林未工牌", hover);
             c.restButton = Hotspot(canvas, "S4 Rest chair", 1345, 685, 390, 345, "活动室座位 · 休息", hover);
             c.yuanButton = Hotspot(canvas, "S4 Yuan", 330, 490, 270, 330, "与袁祁复盘", hover);
             c.xuButton = Hotspot(canvas, "S4 Xu", 700, 450, 265, 300, "与许圆复盘", hover);
@@ -202,7 +202,7 @@ public static class S4SceneBuilder
         Transform box = art.Find("S4 Memorial Box");
         if (box == null && boxSprite != null)
         {
-            GameObject boxObject = Rect(art, "S4 Memorial Box", 1595, 170, 280, 200);
+            GameObject boxObject = Rect(art, "S4 Memorial Box", 1611, 224, 248, 173);
             Image boxImage = boxObject.AddComponent<Image>();
             boxImage.sprite = boxSprite;
             boxImage.raycastTarget = false;

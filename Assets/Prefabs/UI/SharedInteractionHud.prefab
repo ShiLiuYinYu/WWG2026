@@ -65,6 +65,14 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 3358396097112779371}
     m_Modifications:
+    - target: {fileID: 1176910249414165755, guid: fcac4b014f796bd4ca1113ef72d4fcb0, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 280
+      objectReference: {fileID: 0}
+    - target: {fileID: 1176910249414165755, guid: fcac4b014f796bd4ca1113ef72d4fcb0, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: -79
+      objectReference: {fileID: 0}
     - target: {fileID: 1460365326070801036, guid: fcac4b014f796bd4ca1113ef72d4fcb0, type: 3}
       propertyPath: m_Pivot.x
       value: 0
@@ -148,6 +156,30 @@ PrefabInstance:
     - target: {fileID: 1606703810712924861, guid: fcac4b014f796bd4ca1113ef72d4fcb0, type: 3}
       propertyPath: m_Name
       value: CornerTopBar
+      objectReference: {fileID: 0}
+    - target: {fileID: 2171403624571780470, guid: fcac4b014f796bd4ca1113ef72d4fcb0, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 28
+      objectReference: {fileID: 0}
+    - target: {fileID: 2171403624571780470, guid: fcac4b014f796bd4ca1113ef72d4fcb0, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: -7
+      objectReference: {fileID: 0}
+    - target: {fileID: 2190699991659900178, guid: fcac4b014f796bd4ca1113ef72d4fcb0, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 30.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 2190699991659900178, guid: fcac4b014f796bd4ca1113ef72d4fcb0, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: -15
+      objectReference: {fileID: 0}
+    - target: {fileID: 8573763325333208639, guid: fcac4b014f796bd4ca1113ef72d4fcb0, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 22
+      objectReference: {fileID: 0}
+    - target: {fileID: 8573763325333208639, guid: fcac4b014f796bd4ca1113ef72d4fcb0, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: -19
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -235,11 +267,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7861422669127373463, guid: 88d23c55cf48cef48b901882b79d5454, type: 3}
       propertyPath: m_SizeDelta.x
-      value: 82
+      value: 132.5106
       objectReference: {fileID: 0}
     - target: {fileID: 7861422669127373463, guid: 88d23c55cf48cef48b901882b79d5454, type: 3}
       propertyPath: m_SizeDelta.y
-      value: 94
+      value: 150.5719
       objectReference: {fileID: 0}
     - target: {fileID: 7861422669127373463, guid: 88d23c55cf48cef48b901882b79d5454, type: 3}
       propertyPath: m_LocalPosition.x
