@@ -20,9 +20,12 @@ public sealed class S2InventoryGrid : MonoBehaviour
         controller = FindFirstObjectByType<S2Controller>();
         if (controller == null) s3Controller = FindFirstObjectByType<S3Controller>();
         if (controller == null && s3Controller == null) s4Controller = FindFirstObjectByType<S4Controller>();
-        foreach (Transform child in transform.parent)
-            if (child.name == "Inventory" && child.GetComponent<Button>() != null)
-                bagButton = child.gameObject;
+        SharedInteractionHud hud = transform.parent.GetComponentInChildren<SharedInteractionHud>(true);
+        if (hud != null) bagButton = hud.inventoryButton.gameObject;
+        else
+            foreach (Transform child in transform.parent)
+                if (child.name == "Inventory" && child.GetComponent<Button>() != null)
+                    bagButton = child.gameObject;
         tooltip = transform.Find("Tooltip").gameObject;
         nameLabel = tooltip.transform.Find("Name").GetComponent<Text>();
         tooltip.transform.Find("Use").GetComponent<Button>().onClick.AddListener(Use);
