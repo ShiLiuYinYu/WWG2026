@@ -33,7 +33,7 @@ public sealed class S0Hotspot : MonoBehaviour, IPointerClickHandler, IPointerEnt
             if (image != null) image.color = new Color(0.65f, 0.88f, 0.95f, 0.20f);
             controller.SetHover(label);
         }
-        else controller.SetHover("");
+        else controller.SetHover(IsNavigationArrow() ? label : "");
         WWG.UISound.Cursor();
     }
 
@@ -42,5 +42,12 @@ public sealed class S0Hotspot : MonoBehaviour, IPointerClickHandler, IPointerEnt
         if (outlineHover == null && image != null)
             image.color = new Color(0.65f, 0.88f, 0.95f, 0.005f);
         controller.SetHover("");
+    }
+
+    private bool IsNavigationArrow()
+    {
+        Image parentImage = transform.parent != null ? transform.parent.GetComponent<Image>() : null;
+        return parentImage != null && parentImage.sprite != null &&
+            parentImage.sprite.name.StartsWith("WhiteArrow");
     }
 }

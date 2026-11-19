@@ -51,7 +51,7 @@ public sealed class S1Hotspot : MonoBehaviour, IPointerClickHandler, IPointerEnt
             if (image != null && action != "chair") image.color = new Color(0.65f, 0.88f, 0.95f, 0.16f);
             controller.SetHover(label);
         }
-        else controller.SetHover("");
+        else controller.SetHover(IsNavigationArrow() ? label : "");
         WWG.UISound.Cursor();
     }
 
@@ -87,5 +87,12 @@ public sealed class S1Hotspot : MonoBehaviour, IPointerClickHandler, IPointerEnt
             rect.anchoredPosition = dragStart;
             if (dragVisual != null) dragVisual.anchoredPosition = dragStart;
         }
+    }
+
+    private bool IsNavigationArrow()
+    {
+        Image parentImage = transform.parent != null ? transform.parent.GetComponent<Image>() : null;
+        return parentImage != null && parentImage.sprite != null &&
+            parentImage.sprite.name.StartsWith("WhiteArrow");
     }
 }
