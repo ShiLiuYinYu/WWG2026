@@ -286,13 +286,11 @@ public sealed class S1Controller : MonoBehaviour, IDialogueContext
                 PlayNode("S1_ClubRoom_Box");
                 break;
             case "curtain":
-                if (phase != 1) return;
                 curtainClosed = !curtainClosed;
                 MatchToggled();
                 PlayNode("S1_ClubRoom_Curtain");
                 break;
             case "lamp":
-                if (phase != 1) return;
                 lampOn = !lampOn;
                 MatchToggled();
                 PlayNode("S1_ClubRoom_Lamp");
@@ -478,9 +476,7 @@ public sealed class S1Controller : MonoBehaviour, IDialogueContext
         hintTapeHighlight.SetActive(phase == 1 && hintStage >= 2);
         photoShadow.color = new Color(0.04f, 0.07f, 0.10f, phase >= 2 ? 0.72f : Matches * 0.11f);
         photoShadowHead.color = new Color(0.04f, 0.07f, 0.10f, phase >= 2 ? 0.72f : Matches * 0.11f);
-        photoCaption.text = phase >= 2 ? "第五把椅子上，多出一道模糊的人影。" :
-            hintStage >= 2 ? "许圆提醒：再看一眼桌灯和白色地胶框。" :
-            "去年的活动室 · 23:30    环境匹配 " + Matches + "/3";
+        photoCaption.text = "";
         memoText.text = "【社团自留资料】\n" + (hasPhoto ? "去年的活动室照片：背面记有 23:30。\n" : "旧照片尚未取得。\n") +
                         (hasBadge ? "林未的旧工牌：编号 05，背面指向 4F 玻璃两端。\n" : "旧工牌尚未取得。\n") +
                         "\n【现实调查】\n窗帘 " + (curtainClosed ? "已拉合" : "拉开") + "；桌灯 " + (lampOn ? "亮" : "灭") +

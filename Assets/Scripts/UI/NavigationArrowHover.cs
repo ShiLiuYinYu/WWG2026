@@ -25,7 +25,27 @@ namespace WWG
         {
             if (button != null && !button.IsInteractable()) return;
             if (outline != null) outline.enabled = true;
-            if (hintText != null) hintText.text = hint;
+            if (hintText != null)
+            {
+                hintText.text = hint;
+                PositionHint();
+            }
+        }
+
+        /// <summary>把提示文本贴到当前箭头正下方，避免固定在屏幕底部导致与箭头距离忽远忽近。</summary>
+        private void PositionHint()
+        {
+            RectTransform captionRect = hintText.rectTransform;
+            RectTransform parentRect = captionRect.parent as RectTransform;
+            RectTransform arrowRect = transform as RectTransform;
+            if (parentRect == null || arrowRect == null) return;
+
+            captionRect.anchorMin = captionRect.anchorMax = new Vector2(0.5f, 0.5f);
+            captionRect.pivot = new Vector2(0.5f, 1f);
+
+            Vector3 bottomWorld = arrowRect.TransformPoint(new Vector3(0f, arrowRect.rect.yMin, 0f));
+            Vector2 localBottom = parentRect.InverseTransformPoint(bottomWorld);
+            captionRect.anchoredPosition = new Vector2(localBottom.x, localBottom.y - 10f);
         }
 
         public void OnPointerExit(PointerEventData eventData) { Hide(); }

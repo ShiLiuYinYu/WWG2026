@@ -29,6 +29,6 @@ tags: chapter_prologue location_clubroom
 title: S0_ClubRoom_BoxFalls
 tags: chapter_prologue location_clubroom
 ---
-我: 一声闷响。储物柜顶的旧纸盒掉到了第五把椅子旁，滑出一张背面朝上的照片。 #line:s0_lightsout_03
 <<sfx box 0.9>>
+一声闷响。储物柜顶的旧纸盒掉到了第五把椅子旁，滑出一张背面朝上的照片。 #line:s0_lightsout_03
 ===
