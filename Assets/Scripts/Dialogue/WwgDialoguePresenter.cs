@@ -29,6 +29,9 @@ namespace WWG
 
         public string CurrentNode { get; private set; }
 
+        private Vector2 portraitBasePos;
+        private bool portraitBaseCached;
+
         private bool advanceRequested;
         private string fullBody = string.Empty;
         private float typeElapsed;
@@ -40,7 +43,12 @@ namespace WWG
         private void Awake()
         {
             if (dialogueRoot != null) dialogueRoot.SetActive(false);
-            if (portraitImage != null) portraitImage.enabled = false;
+            if (portraitImage != null)
+            {
+                portraitImage.enabled = false;
+                portraitBasePos = portraitImage.rectTransform.anchoredPosition;
+                portraitBaseCached = true;
+            }
         }
 
         private void Update()
@@ -156,6 +164,24 @@ namespace WWG
             {
                 portraitImage.sprite = portrait;
                 portraitImage.enabled = hasPortrait;
+                if (!portraitBaseCached)
+                {
+                    portraitBasePos = portraitImage.rectTransform.anchoredPosition;
+                    portraitBaseCached = true;
+                }
+                // PreserveAspect 会把 sprite 等比缩放后居中，不同切图高度不同 → 脚离框底的距离也不一样。
+                // 这里按真实绘制高度把立绘往下压，让每个人的脚都贴住框底，再叠加逐角色微调。
+                float pillarbox = 0f;
+                if (portrait != null && portrait.rect.height > 0f)
+                {
+                    var box = portraitImage.rectTransform.sizeDelta;
+                    float aspect = portrait.rect.width / portrait.rect.height;
+                    float drawnH = Mathf.Min(box.y, box.x / aspect);
+                    pillarbox = (box.y - drawnH) * 0.5f;
+                }
+                float offsetY = entry != null ? entry.portraitOffsetY : 0f;
+                portraitImage.rectTransform.anchoredPosition =
+                    new Vector2(portraitBasePos.x, portraitBasePos.y - pillarbox + offsetY);
             }
 
             float indent = hasPortrait

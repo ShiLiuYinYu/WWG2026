@@ -17,6 +17,7 @@ MonoBehaviour:
     portrait: {fileID: -6903408638832066278, guid: 601cf7e140bd9eb4d9da0f8aa570470f, type: 3}
     speakerColor: {r: 0.17, g: 0.13, b: 0.09, a: 1}
     textIndent: 0
+    portraitOffsetY: -80
   - speaker: "\u5510\u6F88"
     portrait: {fileID: -2821857489287343665, guid: 625697d3baaebac48b1030eca256e169, type: 3}
     speakerColor: {r: 0.17, g: 0.13, b: 0.09, a: 1}
