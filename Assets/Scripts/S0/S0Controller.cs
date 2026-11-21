@@ -193,6 +193,8 @@ public sealed class S0Controller : MonoBehaviour, IDialogueContext
         }
         else if (travel == null && screen == 0)
             PlayNode("S0_Exterior_Intro");
+        else
+            TryBeginTransition();
     }
 
     private void OnDestroy()
@@ -350,11 +352,6 @@ public sealed class S0Controller : MonoBehaviour, IDialogueContext
             case "switch":
                 PlayNode("S0_Bridge_Switch");
                 break;
-            case "leader":
-                if (phase != 2) break;
-                if (!AllMemories) PlayNode("S0_ClubRoom_LeaderReminder");
-                else BeginTransition();
-                break;
             case "photo":
                 if (phase == 4)
                 {
@@ -368,10 +365,10 @@ public sealed class S0Controller : MonoBehaviour, IDialogueContext
 
     private bool AllMemories => chairRead && signRead && timerRead && guideRead;
 
-    private void PlayNode(string nodeId, bool once = false)
+    private bool PlayNode(string nodeId, bool once = false)
     {
         DialogueService service = DialogueService.Ensure();
-        if (service != null) service.Play(nodeId, this, once);
+        return service != null && service.Play(nodeId, this, once);
     }
 
     private void HandleDialogueCompleted(string nodeId)
@@ -392,15 +389,20 @@ public sealed class S0Controller : MonoBehaviour, IDialogueContext
             case "S0_ClubRoom_LightsOut":
                 DropBox();
                 break;
+            case "S0_ClubRoom_Chair":
+            case "S0_ClubRoom_Box":
+            case "S0_System_Resume":
+                TryBeginTransition();
+                break;
         }
     }
 
-    private void BeginTransition()
+    private void TryBeginTransition()
     {
-        if (phase != 2) return;
+        if (phase != 2 || screen != 2 || !AllMemories || DialogueRunning) return;
+        if (!PlayNode("S0_ClubRoom_Transition")) return;
         phase = 3;
         UpdateHUD();
-        PlayNode("S0_ClubRoom_Transition");
     }
 
     private void TransitionSequence()
@@ -579,7 +581,7 @@ public sealed class S0Controller : MonoBehaviour, IDialogueContext
         timeText.text = phase == 4 ? "周五 23:30" : phase == 3 ? "周五 16:30 → 23:30" : phase == 2 ? "周五 16:10" : phase == 1 ? "周五 15:55" : "周五 15:40";
         if (phase == 4) objectiveText.text = boxFallen ? "储物柜的旧纸盒掉了下来……" : "走廊灯熄了，活动室仍亮着";
         else if (phase == 3) objectiveText.text = "与队友整理关卡草图";
-        else if (phase == 2) objectiveText.text = AllMemories ? "回 5F 活动室，向袁祁汇报" : "查看活动室、5F 走廊和 4F 连廊入口";
+        else if (phase == 2) objectiveText.text = AllMemories ? "回 5F 活动室" : "查看活动室、5F 走廊和 4F 连廊入口";
         else objectiveText.text = "前往单数栋 5F 游戏开发协会活动室";
         progressText.text = phase == 4 ? (boxFallen ? "S0 完成 · 旧照片待调查" : "23:30 · 公共照明熄灭") : phase == 3 ? "时间推进中" : phase < 2 ? "开题前" : "白天记忆点 " + ((chairRead ? 1 : 0) + (signRead && timerRead ? 1 : 0) + (guideRead ? 1 : 0)) + "/3";
     }
