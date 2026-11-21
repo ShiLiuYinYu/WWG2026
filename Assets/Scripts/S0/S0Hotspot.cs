@@ -37,8 +37,15 @@ public sealed class S0Hotspot : MonoBehaviour, IPointerClickHandler, IPointerEnt
 
     public void OnPointerExit(PointerEventData eventData)
     {
+        ResetHoverColor();
+        controller.SetHover("");
+    }
+
+    private void OnDisable() => ResetHoverColor();
+
+    private void ResetHoverColor()
+    {
         if (outlineHover == null && image != null)
             image.color = new Color(0.65f, 0.88f, 0.95f, 0.005f);
-        controller.SetHover("");
     }
 }

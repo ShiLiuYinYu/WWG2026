@@ -93,6 +93,7 @@ public sealed class S1Controller : MonoBehaviour, IDialogueContext
     private float dangerSeconds;
     private float zeroSanSeconds;
     private int hintStage;
+    private CanvasGroup[] hotspotGroups;
     private readonly HashSet<string> extraFlags = new HashSet<string>();
     private readonly HashSet<string> extraItems = new HashSet<string>();
     private readonly HashSet<string> dialogueSeen = new HashSet<string>();
@@ -110,7 +111,7 @@ public sealed class S1Controller : MonoBehaviour, IDialogueContext
     public bool IsGameplayModalOpen => ModalOpen;
     public bool HasPhoto => hasPhoto;
     public bool HasBadge => hasBadge;
-    public bool CanMoveChair => screen == 0 && phase == 1 && !ModalOpen;
+    public bool CanMoveChair => screen == 0 && phase == 1 && !ModalOpen && !GameplayOverlay.IsInventoryOpen;
     public int San => san;
     public int Health => health;
 
@@ -144,6 +145,16 @@ public sealed class S1Controller : MonoBehaviour, IDialogueContext
     }
 
     private int Matches => (curtainClosed ? 1 : 0) + (lampOn ? 1 : 0) + (chairPlaced ? 1 : 0);
+
+    private void Awake()
+    {
+        var layers = new[] { roomHotspots, corridorHotspots, bridgeHotspots };
+        hotspotGroups = new CanvasGroup[layers.Length];
+        for (int i = 0; i < layers.Length; i++)
+        {
+            if (layers[i] != null) hotspotGroups[i] = layers[i].AddComponent<CanvasGroup>();
+        }
+    }
 
     private void Start()
     {
@@ -268,7 +279,7 @@ public sealed class S1Controller : MonoBehaviour, IDialogueContext
 
     public void HandleHotspot(string action)
     {
-        if (ModalOpen) return;
+        if (ModalOpen || GameplayOverlay.IsInventoryOpen) return;
         switch (action)
         {
             case "box":
@@ -468,13 +479,27 @@ public sealed class S1Controller : MonoBehaviour, IDialogueContext
         UpdateInteractionVisibility();
     }
 
-    private void UpdateInteractionVisibility()
+    internal void UpdateInteractionVisibility()
     {
         bool visible = !ModalOpen;
+        bool inventoryOpen = GameplayOverlay.IsInventoryOpen;
         if (roomHotspots != null) roomHotspots.SetActive(visible && screen == 0);
         if (corridorHotspots != null) corridorHotspots.SetActive(visible && screen == 1);
         if (bridgeHotspots != null) bridgeHotspots.SetActive(visible && screen == 2);
-        if (!visible) SetHover("");
+        foreach (var group in hotspotGroups)
+        {
+            if (group != null) group.alpha = inventoryOpen ? 0f : 1f;
+        }
+        SetSceneHotspotRaycasts(!inventoryOpen);
+        if (!visible || inventoryOpen) SetHover("");
+    }
+
+    internal void SetSceneHotspotRaycasts(bool enabled)
+    {
+        foreach (var group in hotspotGroups)
+        {
+            if (group != null) group.blocksRaycasts = enabled;
+        }
     }
 
     private void SwitchScreen(int index, string arrivalNode = null)

@@ -28,6 +28,8 @@ namespace WWG
         private string detailItem;
         private float messageUntil;
 
+        internal static bool IsInventoryOpen => current != null && current.inventoryPanel.activeInHierarchy;
+
         private bool InventoryBlocked => GameplayModalOpen || SaveSlotPanel.IsOpen || pausePanel.activeSelf;
         internal bool CanInteractWithInventorySlots => inventoryContents.activeInHierarchy && !InventoryBlocked;
         private bool CanInteractWithItemActions => tooltip.activeInHierarchy && !InventoryBlocked;
@@ -171,7 +173,6 @@ namespace WWG
                 timeLabel.text = s0.timeText.text;
                 if (vitals != null)
                 {
-                    vitals.gameObject.SetActive(true);
                     vitals.SetSan(s0.San, 100);
                     vitals.SetHealth(s0.Health, 3);
                 }
@@ -181,7 +182,6 @@ namespace WWG
                 timeLabel.text = s1.timeText.text;
                 if (vitals != null)
                 {
-                    vitals.gameObject.SetActive(true);
                     vitals.SetSan(s1.San, 100);
                     vitals.SetHealth(s1.Health, 3);
                 }
@@ -295,7 +295,15 @@ namespace WWG
         public void ToggleInventory()
         {
             if (inventoryPanel.activeSelf) CloseInventory();
-            else if (!InventoryBlocked && !detailPanel.activeSelf) inventoryPanel.SetActive(true);
+            else if (!InventoryBlocked && !detailPanel.activeSelf) SetInventoryOpen(true);
+        }
+
+        private void SetInventoryOpen(bool open)
+        {
+            inventoryPanel.SetActive(open);
+            if (vitals != null) vitals.gameObject.SetActive(!open);
+            if (s0 != null) s0.UpdateInteractionVisibility();
+            if (s1 != null) s1.UpdateInteractionVisibility();
         }
 
         public bool OpenItem(string item)
@@ -335,7 +343,7 @@ namespace WWG
         private void CloseInventory()
         {
             tooltip.SetActive(false);
-            inventoryPanel.SetActive(false);
+            if (inventoryPanel.activeSelf) SetInventoryOpen(false);
             detailItem = null;
             SetInventoryContentsVisible(true);
         }
@@ -378,7 +386,8 @@ namespace WWG
 
         public static bool TryUseSelected(string hotspot)
         {
-            if (current == null || current.selectedItem == null || current.s1 == null || current.InventoryBlocked) return false;
+            if (current == null || current.selectedItem == null || current.s1 == null || current.InventoryBlocked ||
+                IsInventoryOpen) return false;
             var item = current.selectedItem;
             current.selectedItem = null;
             current.ClearCarriedItem();
@@ -388,13 +397,23 @@ namespace WWG
 
         public void DragItemTo(string item, PointerEventData eventData)
         {
-            if (!CanInteractWithInventorySlots) return;
+            if (s1 == null || !CanInteractWithInventorySlots) return;
             var hits = new List<RaycastResult>();
-            EventSystem.current.RaycastAll(eventData, hits);
+            // Keep scene controls invisible while checking the drop target.
+            s1.SetSceneHotspotRaycasts(true);
+            try
+            {
+                EventSystem.current.RaycastAll(eventData, hits);
+            }
+            finally
+            {
+                s1.SetSceneHotspotRaycasts(false);
+            }
             foreach (var hit in hits)
             {
                 var hotspot = hit.gameObject.GetComponentInParent<S1Hotspot>();
                 if (hotspot == null) continue;
+                CloseInventory();
                 selectedItem = item;
                 TryUseSelected(hotspot.action);
                 return;

@@ -5,6 +5,8 @@ using WWG;
 /// <summary>The authored 5x5 S2 bag UI; it never creates cells at runtime.</summary>
 public sealed class S2InventoryGrid : MonoBehaviour
 {
+    [SerializeField] private GameObject[] sceneInteractions = System.Array.Empty<GameObject>();
+
     private S2Controller controller;
     private S3Controller s3Controller;
     private S4Controller s4Controller;
@@ -14,6 +16,8 @@ public sealed class S2InventoryGrid : MonoBehaviour
     private Text nameLabel;
     private string selected;
     private GameObject bagButton;
+    private VitalsBars vitals;
+    private CanvasGroup[] sceneInteractionGroups;
     private S2InventorySlot[] slots;
 
     private bool InventoryBlocked => controller != null ? controller.IsInventoryBlocked :
@@ -28,11 +32,22 @@ public sealed class S2InventoryGrid : MonoBehaviour
         if (controller == null) s3Controller = FindFirstObjectByType<S3Controller>();
         if (controller == null && s3Controller == null) s4Controller = FindFirstObjectByType<S4Controller>();
         SharedInteractionHud hud = transform.parent.GetComponentInChildren<SharedInteractionHud>(true);
-        if (hud != null) bagButton = hud.inventoryButton.gameObject;
+        if (hud != null)
+        {
+            bagButton = hud.inventoryButton.gameObject;
+            vitals = hud.vitals;
+        }
         else
             foreach (Transform child in transform.parent)
                 if (child.name == "Inventory" && child.GetComponent<Button>() != null)
                     bagButton = child.gameObject;
+        sceneInteractionGroups = new CanvasGroup[sceneInteractions.Length];
+        for (int i = 0; i < sceneInteractions.Length; i++)
+        {
+            if (sceneInteractions[i] != null)
+                sceneInteractionGroups[i] = sceneInteractions[i].AddComponent<CanvasGroup>();
+        }
+
         inventoryContents = transform.Find("Bag contents").gameObject;
         inventoryBackground = GetComponent<Image>();
         tooltip = transform.Find("Tooltip").gameObject;
@@ -47,13 +62,26 @@ public sealed class S2InventoryGrid : MonoBehaviour
 
     private void OnEnable()
     {
-        if (bagButton != null) bagButton.SetActive(false);
+        SetSceneControlsVisible(false);
         if (!InventoryBlocked) RefreshSlots();
     }
     private void OnDisable()
     {
         ResetItemActions();
-        if (bagButton != null) bagButton.SetActive(true);
+        SetSceneControlsVisible(true);
+    }
+
+    private void SetSceneControlsVisible(bool visible)
+    {
+        if (bagButton != null) bagButton.SetActive(visible);
+        if (vitals != null) vitals.gameObject.SetActive(visible);
+        foreach (var group in sceneInteractionGroups)
+        {
+            if (group == null) continue;
+            group.alpha = visible ? 1f : 0f;
+            group.interactable = visible;
+            group.blocksRaycasts = visible;
+        }
     }
 
     private void Update()
