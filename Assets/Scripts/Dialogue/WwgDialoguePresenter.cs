@@ -29,8 +29,7 @@ namespace WWG
 
         public string CurrentNode { get; private set; }
 
-        private Vector2 portraitBasePos;
-        private bool portraitBaseCached;
+        private float portraitScale;
 
         private bool advanceRequested;
         private string fullBody = string.Empty;
@@ -43,12 +42,22 @@ namespace WWG
         private void Awake()
         {
             if (dialogueRoot != null) dialogueRoot.SetActive(false);
-            if (portraitImage != null)
+            if (portraitImage == null) return;
+            portraitImage.enabled = false;
+
+            // 所有立绘共用缩放比例，保留素材中的相对身高。
+            Vector2 largestPortrait = Vector2.one;
+            if (cast != null && cast.entries != null)
             {
-                portraitImage.enabled = false;
-                portraitBasePos = portraitImage.rectTransform.anchoredPosition;
-                portraitBaseCached = true;
+                foreach (DialogueCast.Entry entry in cast.entries)
+                {
+                    if (entry?.portrait == null) continue;
+                    largestPortrait = Vector2.Max(largestPortrait, entry.portrait.rect.size);
+                }
             }
+
+            Vector2 box = portraitImage.rectTransform.rect.size;
+            portraitScale = Mathf.Min(box.x / largestPortrait.x, box.y / largestPortrait.y);
         }
 
         private void Update()
@@ -164,24 +173,8 @@ namespace WWG
             {
                 portraitImage.sprite = portrait;
                 portraitImage.enabled = hasPortrait;
-                if (!portraitBaseCached)
-                {
-                    portraitBasePos = portraitImage.rectTransform.anchoredPosition;
-                    portraitBaseCached = true;
-                }
-                // PreserveAspect 会把 sprite 等比缩放后居中，不同切图高度不同 → 脚离框底的距离也不一样。
-                // 这里按真实绘制高度把立绘往下压，让每个人的脚都贴住框底，再叠加逐角色微调。
-                float pillarbox = 0f;
-                if (portrait != null && portrait.rect.height > 0f)
-                {
-                    var box = portraitImage.rectTransform.sizeDelta;
-                    float aspect = portrait.rect.width / portrait.rect.height;
-                    float drawnH = Mathf.Min(box.y, box.x / aspect);
-                    pillarbox = (box.y - drawnH) * 0.5f;
-                }
-                float offsetY = entry != null ? entry.portraitOffsetY : 0f;
-                portraitImage.rectTransform.anchoredPosition =
-                    new Vector2(portraitBasePos.x, portraitBasePos.y - pillarbox + offsetY);
+                if (hasPortrait)
+                    portraitImage.rectTransform.sizeDelta = portrait.rect.size * portraitScale;
             }
 
             float indent = hasPortrait
