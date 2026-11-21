@@ -573,7 +573,7 @@ MonoBehaviour:
   - {fileID: 1209675645}
   - {fileID: 2126245847}
   - {fileID: 1766393418}
-  - {fileID: 1773847993}
+  - {fileID: 0}
   - {fileID: 1327987344}
   - {fileID: 913877532}
   - {fileID: 623781970}
@@ -1100,6 +1100,10 @@ PrefabInstance:
     - target: {fileID: 137420390572102304, guid: 4744e79d16ba0c246acb20fc56ad1f3f, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
       value: S2Controller, Assembly-CSharp
+      objectReference: {fileID: 0}
+    - target: {fileID: 480525463131441477, guid: 4744e79d16ba0c246acb20fc56ad1f3f, type: 3}
+      propertyPath: m_RaycastTarget
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 2304660862924401724, guid: 4744e79d16ba0c246acb20fc56ad1f3f, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.size
@@ -7353,7 +7357,6 @@ RectTransform:
   - {fileID: 1507724001}
   - {fileID: 692195553}
   - {fileID: 687834703}
-  - {fileID: 169786981}
   - {fileID: 547863435}
   - {fileID: 1807731408}
   - {fileID: 1483306640}
@@ -7363,10 +7366,10 @@ RectTransform:
   - {fileID: 1573962029}
   - {fileID: 2126245851}
   - {fileID: 1766393419}
-  - {fileID: 1773847997}
   - {fileID: 1327987345}
   - {fileID: 913877533}
   - {fileID: 623781971}
+  - {fileID: 169786981}
   - {fileID: 287277667}
   - {fileID: 762492799}
   - {fileID: 959833597}
@@ -9028,16 +9031,11 @@ MonoBehaviour:
   inventoryPanel: {fileID: 14152405}
   pausePanel: {fileID: 6460962}
   glow: {fileID: 692195552}
-  routePanel: {fileID: 0}
   photoView: {fileID: 170432100}
   infoTitle: {fileID: 1243248673}
   infoBody: {fileID: 37687100}
-  routeDescriptionText: {fileID: 0}
-  routeConfirmText: {fileID: 0}
-  routeConfirmButton: {fileID: 0}
   drawerButton: {fileID: 0}
   switchButton: {fileID: 1766393421}
-  darkChoiceButton: {fileID: 0}
   glassButton: {fileID: 0}
   bridgeSwitchImage: {fileID: 998539156}
   bridgeSwitchOffSprite: {fileID: 21300000, guid: a3e53667ac01188439f50550c91a2dcd, type: 3}
@@ -10197,138 +10195,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1766393418}
   m_CullTransparentMesh: 1
---- !u!1 &1773847993
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1773847997}
-  - component: {fileID: 1773847996}
-  - component: {fileID: 1773847995}
-  - component: {fileID: 1773847994}
-  m_Layer: 0
-  m_Name: Observe dark hotspot
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 0
---- !u!114 &1773847994
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1773847993}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Button
-  m_Navigation:
-    m_Mode: 3
-    m_WrapAround: 0
-    m_SelectOnUp: {fileID: 0}
-    m_SelectOnDown: {fileID: 0}
-    m_SelectOnLeft: {fileID: 0}
-    m_SelectOnRight: {fileID: 0}
-  m_Transition: 1
-  m_Colors:
-    m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
-    m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
-    m_PressedColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 1}
-    m_SelectedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
-    m_DisabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.5019608}
-    m_ColorMultiplier: 1
-    m_FadeDuration: 0.1
-  m_SpriteState:
-    m_HighlightedSprite: {fileID: 0}
-    m_PressedSprite: {fileID: 0}
-    m_SelectedSprite: {fileID: 0}
-    m_DisabledSprite: {fileID: 0}
-  m_AnimationTriggers:
-    m_NormalTrigger: Normal
-    m_HighlightedTrigger: Highlighted
-    m_PressedTrigger: Pressed
-    m_SelectedTrigger: Selected
-    m_DisabledTrigger: Disabled
-  m_Interactable: 1
-  m_TargetGraphic: {fileID: 1773847995}
-  m_OnClick:
-    m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 1481053175}
-        m_TargetAssemblyTypeName: S2Controller, Assembly-CSharp
-        m_MethodName: ChooseDark
-        m_Mode: 0
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: 
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
---- !u!114 &1773847995
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1773847993}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
-  m_Material: {fileID: 0}
-  m_Color: {r: 0.075, g: 0.14, b: 0.18, a: 0.91}
-  m_RaycastTarget: 1
-  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
-  m_Maskable: 1
-  m_OnCullStateChanged:
-    m_PersistentCalls:
-      m_Calls: []
-  m_Sprite: {fileID: 0}
-  m_Type: 0
-  m_PreserveAspect: 0
-  m_FillCenter: 1
-  m_FillMethod: 4
-  m_FillAmount: 1
-  m_FillClockwise: 1
-  m_FillOrigin: 0
-  m_UseSpriteMesh: 0
-  m_PixelsPerUnitMultiplier: 1
---- !u!222 &1773847996
-CanvasRenderer:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1773847993}
-  m_CullTransparentMesh: 1
---- !u!224 &1773847997
-RectTransform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1773847993}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 1152946619}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 1460, y: -585}
-  m_SizeDelta: {x: 340, y: 70}
-  m_Pivot: {x: 0, y: 1}
 --- !u!1 &1784569364
 GameObject:
   m_ObjectHideFlags: 0

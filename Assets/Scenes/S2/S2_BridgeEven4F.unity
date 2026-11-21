@@ -1227,7 +1227,6 @@ RectTransform:
   - {fileID: 1639949804}
   - {fileID: 901182188}
   - {fileID: 672139637}
-  - {fileID: 1688952789}
   - {fileID: 861604238}
   - {fileID: 31726561}
   - {fileID: 657756358}
@@ -1237,6 +1236,7 @@ RectTransform:
   - {fileID: 1043097941}
   - {fileID: 703500439}
   - {fileID: 355145566}
+  - {fileID: 1688952789}
   - {fileID: 1497666203}
   - {fileID: 587404632}
   - {fileID: 1578020637}
@@ -9660,6 +9660,10 @@ PrefabInstance:
     - target: {fileID: 137420390572102304, guid: 4744e79d16ba0c246acb20fc56ad1f3f, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
       value: S2Controller, Assembly-CSharp
+      objectReference: {fileID: 0}
+    - target: {fileID: 480525463131441477, guid: 4744e79d16ba0c246acb20fc56ad1f3f, type: 3}
+      propertyPath: m_RaycastTarget
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 2304660862924401724, guid: 4744e79d16ba0c246acb20fc56ad1f3f, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.size
