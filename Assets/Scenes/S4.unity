@@ -9698,6 +9698,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d6ef15846275faf489e23258f2a1b629, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::S2InventoryGrid
+  sceneInteractions:
+  - {fileID: 817461016}
+  - {fileID: 1319397379}
+  - {fileID: 651953962}
+  - {fileID: 785405370}
+  - {fileID: 726316330}
+  - {fileID: 1750862601}
+  - {fileID: 218932121}
 --- !u!1 &1647562545
 GameObject:
   m_ObjectHideFlags: 0

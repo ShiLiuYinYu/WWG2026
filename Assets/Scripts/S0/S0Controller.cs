@@ -283,10 +283,9 @@ public sealed class S0Controller : MonoBehaviour, IDialogueContext
         }
     }
 
-    private void UpdateInteractionVisibility()
+    internal void UpdateInteractionVisibility()
     {
-        bool visible = !DialogueRunning && !infoPanel.activeSelf && !memoPanel.activeSelf &&
-                       !completionPanel.activeSelf && !transitionBusy;
+        bool visible = !IsGameplayModalOpen && !GameplayOverlay.IsInventoryOpen;
         if (interactionLayers != null)
             foreach (GameObject layer in interactionLayers)
                 if (layer != null) layer.SetActive(visible);
