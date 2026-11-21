@@ -1,15 +1,14 @@
-﻿title: S1_ClubRoom_Intro
+title: S1_ClubRoom_Box
 tags: chapter_night_photo location_clubroom
 ---
 唐澈: 吓我一跳……储物柜顶上那盒子怎么自己震下来了？ #line:s1_intro_01
 袁祁: 正好在你脚边，帮忙捡一下，看看有没有摔坏社团的东西。 #line:s1_intro_02
-===
-
-title: S1_ClubRoom_Box
-tags: chapter_night_photo location_clubroom
----
 <<give_item "photo">>
-我: 盒子里都是过期的社团招新传单，最上面夹着一张洗出来的照片。背面写着：23:30 / 旧项目场景参考图。<br><br>许圆：这是去年的活动室。照片里窗帘拉着，长桌边的旧桌灯亮着，第五把椅子摆在窗边白色地胶框里。<br>许圆：要不照着它把灯光和位置还原一下？我拍张对比图。<br>袁祁：你帮许圆把这三处对一下吧，我把分支表存个档。 #line:s1_box_01
+我: 盒子里都是过期的社团招新传单，最上面夹着一张洗出来的照片。 #line:s1_box_01
+我: 照片背面写着：23:30 / 旧项目场景参考图。 #line:s1_box_02
+许圆: 这是去年的活动室。照片里窗帘拉着，长桌边的旧桌灯亮着，第五把椅子摆在窗边白色地胶框里。 #line:s1_box_03
+许圆: 要不照着它把灯光和位置还原一下？我拍张对比图。 #line:s1_box_04
+袁祁: 你帮许圆把这三处对一下吧，我把分支表存个档。 #line:s1_box_05
 <<show_photo>>
 ===
 

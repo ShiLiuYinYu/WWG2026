@@ -7,9 +7,14 @@ description: 在 WWG 项目中创建或修改 Unity 2D 场景、点击热点、U
 
 当前 Title、S0、S1 和 S2 已按地点拆分；场景清单和运行流程见 `Document/Program/`。旧 `SampleScene` 已不存在。先查看实际资产，再依 `Document/《熄灯之后：48H》前24H Demo剧本与关卡设计.md` 的对应章节制作。不要调用 WJ 项目的场景生成菜单或代码。
 
+## 工具选择
+
+- 检查编辑器状态、编辑场景和预制体、刷新编译、读取 Console、切换 Play 模式和截图时，优先使用 Unity MCP。脚本、对白和文档可直接在仓库中编辑。
+- Unity MCP 无法连接 **WWG** 或无法完成当前步骤时，用 Computer Use 补足该步骤，例如在 Game 视图操作热点，或查看 MCP 截图遗漏的界面。改用桌面操作前，先确认目标窗口属于 **WWG**。其余可由 MCP 执行的步骤继续用 MCP。
+
 ## 开始前
 
-1. 确认 Unity MCP 连接的是 **WWG** 编辑器实例；若同时连接多个实例，明确指定 WWG。检查当前场景、Build Settings 和相关资产。
+1. 开始编辑器操作前，确认 Unity MCP 连接的是 **WWG** 编辑器实例；若同时连接多个实例，明确指定 WWG。检查当前场景、Build Settings 和相关资产。
 2. 查看任务涉及的 Demo 文档章节；场景流程见 §1、§3、§6，谜题见 §4，SAN/存档见 §5。原始设定见 `Document/《熄灯之后：48H》——午夜GameJam怪谈.md`。
 3. 确认目标场景或预制体是否已经存在。已有资产先检查引用和绑定，再改动；新增资产应加入正确的场景流程与 Build Settings。
 4. S0/S1 每个固定地点是独立 `.unity`，切屏状态由章节控制器传递。旧 `Build S0/S1 Scene` 脚手架不会覆盖现有场景；`Split Location Scenes` 只供未拆分原始场景一次性迁移，不要在已拆分项目上运行。
@@ -32,9 +37,9 @@ description: 在 WWG 项目中创建或修改 Unity 2D 场景、点击热点、U
 
 ## 验证
 
-1. 脚本或资产改动后调用 `refresh_unity(compile="request", scope="all", wait_for_ready=true)`，再用 `read_console(types=["error","warning"], format="detailed")` 检查新错误。先解决编译错误，再验证交互。改对白后执行 `WWG/Yarn/Validate Dialogue`。
-2. 场景/UI 改动需进 Play 模式检查目标界面，点击实际热点、按钮和切屏入口；用 `manage_camera(action="screenshot", include_image=true)` 查看画面，结束后退出 Play 模式。
-3. UI 使用 Screen Space Overlay 时，截图不要指定某个 Camera，以免漏掉 UI。若编辑器未连接，记录未验证的部分和连接前提。
+1. 脚本或资产改动后，优先用 Unity MCP 的 `refresh_unity(compile="request", scope="all", wait_for_ready=true)` 请求编译，再用 `read_console(types=["error","warning"], format="detailed")` 检查新错误。先解决编译错误，再验证交互。改对白后执行 `WWG/Yarn/Validate Dialogue`。
+2. 场景/UI 改动需进 Play 模式检查目标界面，点击实际热点、按钮和切屏入口。优先用 `manage_camera(action="screenshot", include_image=true)` 查看画面，结束后退出 Play 模式。
+3. UI 使用 Screen Space Overlay 时，截图不要指定某个 Camera，以免漏掉 UI。按工具选择规则补充验证，记录仍无法验证的部分和原因。
 4. 涉及 P1/P2/P3、分支或存档时，验证两条 4F 路线均可继续、两种旧工程查看选择均可到达结尾；SAN/生命耗尽和读档不能丢失关键物与选择标记。只验证本次改动涉及的路径。
 
 ## 文件速查
