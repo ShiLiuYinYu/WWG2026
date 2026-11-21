@@ -209,7 +209,6 @@ public sealed class S1Controller : MonoBehaviour, IDialogueContext
         {
             screen = Mathf.Max(0, GameFlow.S1LocationIndex(SceneManager.GetActiveScene().name));
             UpdateView();
-            if (screen == 0) PlayNode("S1_ClubRoom_Intro");
         }
     }
 
