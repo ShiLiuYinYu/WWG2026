@@ -60,7 +60,7 @@ public static class S3UiAlignment
             Rewire(bagButton.transform, controller.OpenInventory);
             Rewire(inspect.transform.Find("Close"), controller.CloseInfo);
             Rewire(memo.transform.Find("Close"), controller.CloseRecord);
-            Rewire(bag.transform.Find("Close"), controller.CloseInventory);
+            Rewire(bag.transform.Find("Bag contents/Close") ?? bag.transform.Find("Close"), controller.CloseInventory);
             Rewire(pause.transform.Find("Resume"), controller.TogglePause);
             Rewire(pause.transform.Find("Save"), controller.SaveManual);
             Rewire(pause.transform.Find("Load"), controller.LoadManual);

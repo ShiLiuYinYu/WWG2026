@@ -14,6 +14,7 @@ public sealed class S2Controller : MonoBehaviour, IDialogueContext
     public Text farRevealText, codeFeedbackText;
     public Text[] digitTexts;
     public GameObject infoPanel, codePanel, recordPanel, inventoryPanel, pausePanel, glow, routePanel;
+    public ClubPhotoView photoView;
     public Text infoTitle, infoBody;
     public Text routeDescriptionText, routeConfirmText;
     public Button routeConfirmButton;
@@ -153,9 +154,10 @@ public sealed class S2Controller : MonoBehaviour, IDialogueContext
         subscribed = false;
     }
 
-    private bool ModalOpen => DialogueRunning || infoPanel.activeSelf || codePanel.activeSelf ||
-        recordPanel.activeSelf || inventoryPanel.activeSelf || pausePanel.activeSelf ||
-        (routePanel != null && routePanel.activeSelf);
+    internal bool IsInventoryBlocked => DialogueRunning || SaveSlotPanel.IsOpen || infoPanel.activeSelf ||
+        codePanel.activeSelf || recordPanel.activeSelf || pausePanel.activeSelf ||
+        (routePanel != null && routePanel.activeSelf) || (photoView != null && photoView.IsOpen);
+    private bool ModalOpen => IsInventoryBlocked || inventoryPanel.activeSelf;
 
     private void Update()
     {
@@ -479,16 +481,23 @@ public sealed class S2Controller : MonoBehaviour, IDialogueContext
     public void InspectInventoryItem(string item)
     {
         if (state == null || !state.HasItem(item)) return;
+        if (item == StoryIds.Item.Photo && photoView != null)
+        {
+            photoView.Open(state.HasFlag(StoryIds.Flag.P1Complete) ? ClubPhotoView.RevealedShadowOpacity : 0f);
+            return;
+        }
+        bool isBadge = item == StoryIds.Item.Badge;
         string body = item == StoryIds.Item.Photo ? "【社团自留资料】\n去年活动室的照片。背面标注 23:30。" :
-            item == StoryIds.Item.Badge ? "【社团自留资料】\n林未的旧工牌，编号 05。背面写着“玻璃两边，各存一半”。" :
+            isBadge ? string.Empty :
             item == StoryIds.Item.MachineNote ? "【社团自留资料】\n机房借用便签：林未，周五 23:30，单数栋 3F 机房靠窗第 3 台。" :
             item == StoryIds.Item.TeamSheet ? "【社团自留资料】\n去年的分工表残页。第五格被撕去，残存编号 05。" : string.Empty;
         if (item == StoryIds.Item.OldProjectUsb) body = "【旧工程拷贝】\nAfterLightsOut_Backup 已存入 U 盘；其中有打不开的 周六_16:00.scene。";
-        ShowInfo(S2InventoryGrid.ItemName(item), body, false);
+        ShowInfo(isBadge ? string.Empty : S2InventoryGrid.ItemName(item), body, false, showBadge: isBadge);
     }
     public void TogglePause()
     {
         if (DialogueRunning || state == null) return;
+        if (photoView != null) photoView.Close();
         pausePanel.SetActive(!pausePanel.activeSelf);
     }
     public void SaveManual()
@@ -528,13 +537,16 @@ public sealed class S2Controller : MonoBehaviour, IDialogueContext
     public void CloseInfo()
     {
         infoPanel.SetActive(false);
+        infoPanel.transform.Find("Badge artwork")?.gameObject.SetActive(false);
         if (routeConfirmButton != null) routeConfirmButton.gameObject.SetActive(false);
         UpdateView();
     }
-    private void ShowInfo(string title, string body, bool residue)
+    private void ShowInfo(string title, string body, bool residue, bool showBadge = false)
     {
+        if (photoView != null) photoView.Close();
         infoTitle.text = (residue ? "【残影】" : "") + title;
         infoBody.text = body;
+        infoPanel.transform.Find("Badge artwork")?.gameObject.SetActive(showBadge);
         if (routeConfirmButton != null) routeConfirmButton.gameObject.SetActive(false);
         infoPanel.SetActive(true);
     }
@@ -560,9 +572,7 @@ public sealed class S2Controller : MonoBehaviour, IDialogueContext
             yield break;
         }
         if (DialogueService.Instance != null) DialogueService.Instance.HideOverlay();
-        infoTitle.text = document.residue ? "【残影】" + document.title : document.title;
-        infoBody.text = document.body;
-        infoPanel.SetActive(true);
+        ShowInfo(document.title, document.body, document.residue);
         while (infoPanel.activeSelf) yield return null;
     }
 

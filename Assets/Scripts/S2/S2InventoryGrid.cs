@@ -8,12 +8,19 @@ public sealed class S2InventoryGrid : MonoBehaviour
     private S2Controller controller;
     private S3Controller s3Controller;
     private S4Controller s4Controller;
+    private GameObject inventoryContents;
+    private Image inventoryBackground;
     private GameObject tooltip;
     private Text nameLabel;
     private string selected;
-    private bool tooltipPinned;
     private GameObject bagButton;
     private S2InventorySlot[] slots;
+
+    private bool InventoryBlocked => controller != null ? controller.IsInventoryBlocked :
+        s3Controller != null ? s3Controller.IsInventoryBlocked : s4Controller == null || s4Controller.IsInventoryBlocked;
+    private bool CanInteract => isActiveAndEnabled && !InventoryBlocked;
+    internal bool CanInteractWithSlots => inventoryContents.activeInHierarchy && CanInteract;
+    private bool CanInteractWithItemActions => tooltip.activeInHierarchy && CanInteract;
 
     private void Awake()
     {
@@ -26,10 +33,13 @@ public sealed class S2InventoryGrid : MonoBehaviour
             foreach (Transform child in transform.parent)
                 if (child.name == "Inventory" && child.GetComponent<Button>() != null)
                     bagButton = child.gameObject;
+        inventoryContents = transform.Find("Bag contents").gameObject;
+        inventoryBackground = GetComponent<Image>();
         tooltip = transform.Find("Tooltip").gameObject;
         nameLabel = tooltip.transform.Find("Name").GetComponent<Text>();
         tooltip.transform.Find("Use").GetComponent<Button>().onClick.AddListener(Use);
         tooltip.transform.Find("Inspect").GetComponent<Button>().onClick.AddListener(Inspect);
+        tooltip.transform.Find("Close").GetComponent<Button>().onClick.AddListener(CloseItemActions);
         slots = GetComponentsInChildren<S2InventorySlot>(true);
         foreach (var slot in slots) slot.owner = this;
         tooltip.SetActive(false);
@@ -37,69 +47,80 @@ public sealed class S2InventoryGrid : MonoBehaviour
 
     private void OnEnable()
     {
-        if (tooltip != null) tooltip.SetActive(false);
-        selected = null;
-        tooltipPinned = false;
         if (bagButton != null) bagButton.SetActive(false);
+        if (!InventoryBlocked) RefreshSlots();
     }
     private void OnDisable()
     {
+        ResetItemActions();
         if (bagButton != null) bagButton.SetActive(true);
     }
 
     private void Update()
     {
-        if (controller == null && s3Controller == null && s4Controller == null) return;
-        if (controller != null && controller.CurrentState == null) return;
-        if (s3Controller != null && s3Controller.CurrentState == null) return;
-        if (s4Controller != null && s4Controller.CurrentState == null) return;
+        if (InventoryBlocked)
+        {
+            gameObject.SetActive(false);
+            return;
+        }
+        RefreshSlots();
+    }
+
+    private void RefreshSlots()
+    {
         foreach (var slot in slots)
         {
             bool owned = controller != null ? controller.HasItem(slot.item) :
                 s3Controller != null ? s3Controller.HasItem(slot.item) : s4Controller.HasItem(slot.item);
-            if (slot.gameObject.activeSelf != owned) slot.gameObject.SetActive(owned);
+            slot.SetOccupied(owned);
         }
-        // S2 items currently serve as evidence; none has a scene-use target yet.
-    }
-
-    public void Hover(string item)
-    {
-        if (tooltipPinned) return;
-        ShowTooltip(item);
     }
 
     public void Select(string item)
     {
-        ShowTooltip(item);
-        tooltipPinned = true;
-    }
-
-    private void ShowTooltip(string item)
-    {
+        if (!CanInteractWithSlots) return;
         selected = item;
         nameLabel.text = ItemName(item);
+        SetInventoryContentsVisible(false);
         tooltip.SetActive(true);
     }
 
     private void Use()
     {
-        if (selected == null) return;
-        if (controller != null) { controller.CloseInventory(); controller.ShowInventoryUseHint(selected); }
-        else if (s3Controller != null) { s3Controller.CloseInventory(); s3Controller.ShowInventoryUseHint(selected); }
-        else { s4Controller.CloseInventory(); s4Controller.ShowInventoryUseHint(selected); }
-        selected = null;
-        tooltipPinned = false;
+        if (!CanInteractWithItemActions || selected == null) return;
+        string item = selected;
+        gameObject.SetActive(false);
+        if (controller != null) controller.ShowInventoryUseHint(item);
+        else if (s3Controller != null) s3Controller.ShowInventoryUseHint(item);
+        else s4Controller.ShowInventoryUseHint(item);
     }
 
     private void Inspect()
     {
-        if (selected == null) return;
+        if (!CanInteractWithItemActions || selected == null) return;
         string item = selected;
+        gameObject.SetActive(false);
+        if (controller != null) controller.InspectInventoryItem(item);
+        else if (s3Controller != null) s3Controller.InspectInventoryItem(item);
+        else s4Controller.InspectInventoryItem(item);
+    }
+
+    private void SetInventoryContentsVisible(bool visible)
+    {
+        inventoryBackground.enabled = visible;
+        inventoryContents.SetActive(visible);
+    }
+
+    private void CloseItemActions()
+    {
+        if (CanInteractWithItemActions) ResetItemActions();
+    }
+
+    private void ResetItemActions()
+    {
+        tooltip.SetActive(false);
         selected = null;
-        tooltipPinned = false;
-        if (controller != null) { controller.CloseInventory(); controller.InspectInventoryItem(item); }
-        else if (s3Controller != null) { s3Controller.CloseInventory(); s3Controller.InspectInventoryItem(item); }
-        else { s4Controller.CloseInventory(); s4Controller.InspectInventoryItem(item); }
+        SetInventoryContentsVisible(true);
     }
 
     public static string ItemName(string item) => item == StoryIds.Item.Photo ? "去年的活动室照片" :

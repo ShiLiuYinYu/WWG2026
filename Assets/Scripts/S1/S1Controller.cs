@@ -58,14 +58,8 @@ public sealed class S1Controller : MonoBehaviour, IDialogueContext
     public Sprite lampOnSprite;
     public GameObject infoPanel;
     public GameObject inventoryPanel;
-    public GameObject photoPanel;
+    public ClubPhotoView photoView;
     public GameObject memoPanel;
-    public Image photoShadow;
-    public Text photoShadowHead;
-    public Image photoCurtain;
-    public Image photoLamp;
-    public GameObject hintLampHighlight;
-    public GameObject hintTapeHighlight;
     public Text infoTitle;
     public Text infoBody;
     public Text hoverText;
@@ -74,11 +68,7 @@ public sealed class S1Controller : MonoBehaviour, IDialogueContext
     public Text progressText;
     public Text statusText;
     public Text inventoryText;
-    public Text photoCaption;
-    public Text photoBackText;
     public Text memoText;
-    public GameObject photoFace;
-    public GameObject photoBack;
     public Text completionText;
     public GameObject completionPanel;
 
@@ -94,7 +84,6 @@ public sealed class S1Controller : MonoBehaviour, IDialogueContext
     private bool chairPlaced;
     private bool shockApplied;
     private bool glassRead;
-    private bool photoShowingBack;
     private Vector2 boxFloorPosition;
     private Vector2 boxFloorSize;
     private Vector3 boxFloorScale;
@@ -117,7 +106,7 @@ public sealed class S1Controller : MonoBehaviour, IDialogueContext
         DialogueService.Instance != null && DialogueService.Instance.IsRunning;
 
     private bool ModalOpen => DialogueRunning || infoPanel.activeSelf || inventoryPanel.activeSelf ||
-                              photoPanel.activeSelf || memoPanel.activeSelf || completionPanel.activeSelf;
+                              photoView.IsOpen || memoPanel.activeSelf || completionPanel.activeSelf;
     public bool IsGameplayModalOpen => ModalOpen;
     public bool HasPhoto => hasPhoto;
     public bool HasBadge => hasBadge;
@@ -147,18 +136,10 @@ public sealed class S1Controller : MonoBehaviour, IDialogueContext
     public void UseInventoryItem(string item, string hotspot)
     {
         if (ModalOpen) return;
-        if (item == "photo" && hasPhoto)
-        {
-            if (screen == 0 && (hotspot == "curtain" || hotspot == "lamp" || hotspot == "chair"))
-            {
-                OpenPhoto();
-                return;
-            }
-            ShowInfoPanel("去年的活动室照片", DialogueDocuments.GetBody("s1.photoInfo"));
-        }
+        if (item == "photo" && hasPhoto) OpenPhoto();
         else if (item == "badge" && hasBadge)
         {
-            ShowInfoPanel("林未的旧工牌", DialogueDocuments.GetBody("s1.badgeInfo"));
+            InspectBadge();
         }
     }
 
@@ -188,7 +169,8 @@ public sealed class S1Controller : MonoBehaviour, IDialogueContext
 
         infoPanel.SetActive(false);
         inventoryPanel.SetActive(false);
-        photoPanel.SetActive(false);
+        photoView.gameObject.SetActive(false);
+        photoView.Closed += UpdateInteractionVisibility;
         memoPanel.SetActive(false);
         completionPanel.SetActive(false);
 
@@ -222,6 +204,7 @@ public sealed class S1Controller : MonoBehaviour, IDialogueContext
 
     private void OnDestroy()
     {
+        if (photoView != null) photoView.Closed -= UpdateInteractionVisibility;
         if (subscribed && DialogueService.Instance != null)
             DialogueService.Instance.DialogueCompleted -= HandleDialogueCompleted;
         subscribed = false;
@@ -476,14 +459,7 @@ public sealed class S1Controller : MonoBehaviour, IDialogueContext
         statusText.text = "SAN " + san + "/100    生命 " + health + "/3";
         inventoryText.text = "任务物品\n\n" + (hasPhoto ? "✓ 去年的活动室照片\n" : "○ 照片待取得\n") +
                              (hasBadge ? "✓ 林未的旧工牌" : "○ 工牌待取得");
-        // The old photograph is the target arrangement, independent of the room's current state.
-        photoCurtain.enabled = false;
-        photoLamp.enabled = false;
-        hintLampHighlight.SetActive(phase == 1 && hintStage >= 2);
-        hintTapeHighlight.SetActive(phase == 1 && hintStage >= 2);
-        photoShadow.color = new Color(0.04f, 0.07f, 0.10f, phase >= 2 ? 0.72f : Matches * 0.11f);
-        photoShadowHead.color = new Color(0.04f, 0.07f, 0.10f, phase >= 2 ? 0.72f : Matches * 0.11f);
-        photoCaption.text = "";
+        photoView.SetClues(PhotoShadowOpacity, ShowPhotoHints);
         memoText.text = "【社团自留资料】\n" + (hasPhoto ? "去年的活动室照片：背面记有 23:30。\n" : "旧照片尚未取得。\n") +
                         (hasBadge ? "林未的旧工牌：编号 05，背面指向 4F 玻璃两端。\n" : "旧工牌尚未取得。\n") +
                         "\n【现实调查】\n窗帘 " + (curtainClosed ? "已拉合" : "拉开") + "；桌灯 " + (lampOn ? "亮" : "灭") +
@@ -595,7 +571,7 @@ public sealed class S1Controller : MonoBehaviour, IDialogueContext
     {
         infoPanel.SetActive(false);
         inventoryPanel.SetActive(false);
-        photoPanel.SetActive(false);
+        photoView.gameObject.SetActive(false);
         memoPanel.SetActive(false);
         completionPanel.SetActive(false);
         LoadCheckpoint();
@@ -603,7 +579,7 @@ public sealed class S1Controller : MonoBehaviour, IDialogueContext
 
     public void ToggleInventory()
     {
-        if (DialogueRunning || infoPanel.activeSelf || photoPanel.activeSelf || memoPanel.activeSelf) return;
+        if (DialogueRunning || infoPanel.activeSelf || photoView.IsOpen || memoPanel.activeSelf) return;
         inventoryPanel.SetActive(!inventoryPanel.activeSelf);
         UpdateInteractionVisibility();
     }
@@ -621,55 +597,40 @@ public sealed class S1Controller : MonoBehaviour, IDialogueContext
         if (DialogueRunning) return;
         inventoryPanel.SetActive(false);
         if (!hasBadge) { ShowInfoPanel("背包", "工牌还没有取得。"); return; }
-        ShowInfoPanel("社团旧资料 · 林未的工牌", DialogueDocuments.GetBody("s1.badgeDetail"));
+        ShowInfoPanel(string.Empty, string.Empty, showBadge: true);
     }
+
+    private float PhotoShadowOpacity => phase >= 2 ? ClubPhotoView.RevealedShadowOpacity : Matches * 0.11f;
+    private bool ShowPhotoHints => phase == 1 && hintStage >= 2;
 
     private void OpenPhoto()
     {
         if (DialogueService.Instance != null) DialogueService.Instance.HideOverlay();
-        photoShowingBack = false;
-        photoFace.SetActive(true);
-        photoBack.SetActive(false);
-        photoPanel.SetActive(true);
-        UpdateView();
+        photoView.Open(PhotoShadowOpacity, ShowPhotoHints);
+        UpdateInteractionVisibility();
     }
 
     public IEnumerator ShowPhoto()
     {
         if (!hasPhoto) yield break;
         OpenPhoto();
-        while (photoPanel.activeSelf) yield return null;
-    }
-
-    public void FlipPhoto()
-    {
-        photoShowingBack = !photoShowingBack;
-        photoFace.SetActive(!photoShowingBack);
-        photoBack.SetActive(photoShowingBack);
-        photoBackText.text = "23:30\n旧项目场景参考图\n\n社团自留照片 · 去年";
-        if (S0Audio.Instance != null) S0Audio.Instance.PlaySfx(S0Audio.SfxPage, 0.85f);
-    }
-
-    public void ClosePhoto()
-    {
-        if (S0Audio.Instance != null) S0Audio.Instance.PlaySfx(S0Audio.SfxPage, 0.55f);
-        photoPanel.SetActive(false);
-        UpdateInteractionVisibility();
+        while (photoView.IsOpen) yield return null;
     }
 
     public void ToggleMemo()
     {
-        if (DialogueRunning || infoPanel.activeSelf || photoPanel.activeSelf || inventoryPanel.activeSelf) return;
+        if (DialogueRunning || infoPanel.activeSelf || photoView.IsOpen || inventoryPanel.activeSelf) return;
         memoPanel.SetActive(!memoPanel.activeSelf);
         UpdateInteractionVisibility();
     }
 
     public void CloseCompletion() { completionPanel.SetActive(false); UpdateInteractionVisibility(); }
 
-    private void ShowInfoPanel(string title, string body)
+    private void ShowInfoPanel(string title, string body, bool showBadge = false)
     {
         infoTitle.text = title;
         infoBody.text = body;
+        infoPanel.transform.Find("Badge artwork")?.gameObject.SetActive(showBadge);
         infoPanel.SetActive(true);
         UpdateInteractionVisibility();
     }
@@ -688,10 +649,7 @@ public sealed class S1Controller : MonoBehaviour, IDialogueContext
             yield break;
         }
         if (DialogueService.Instance != null) DialogueService.Instance.HideOverlay();
-        infoTitle.text = document.residue ? "【残影】" + document.title : document.title;
-        infoBody.text = document.body;
-        infoPanel.SetActive(true);
-        UpdateInteractionVisibility();
+        ShowInfoPanel(document.residue ? "【残影】" + document.title : document.title, document.body);
         while (infoPanel.activeSelf) yield return null;
     }
 
