@@ -28,6 +28,7 @@ namespace WWG
         public event Action DialogueFinished;
 
         public string CurrentNode { get; private set; }
+        internal bool ShowPortraits { get; set; } = true;
 
         private float portraitScale;
 
@@ -167,7 +168,7 @@ namespace WWG
             }
             else typing = false;
 
-            Sprite portrait = entry != null ? entry.portrait : null;
+            Sprite portrait = ShowPortraits ? entry?.portrait : null;
             bool hasPortrait = portrait != null;
             if (portraitImage != null)
             {

@@ -96,7 +96,7 @@ namespace WWG
             return Instance;
         }
 
-        public bool Play(string nodeId, IDialogueContext context, bool once = false)
+        public bool Play(string nodeId, IDialogueContext context, bool once = false, bool showPortraits = true)
         {
             Initialize();
             if (!initialized)
@@ -135,6 +135,7 @@ namespace WWG
             completedNodes.Clear();
             stopping = false;
             running = true;
+            if (presenter != null) presenter.ShowPortraits = showPortraits;
             context.RefreshHud();
             if (documentPanel != null) documentPanel.Hide();
             if (runner.VariableStorage != null) runner.VariableStorage.Clear();

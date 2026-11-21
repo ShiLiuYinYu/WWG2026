@@ -9,9 +9,9 @@ public sealed class S4Controller : MonoBehaviour, IDialogueContext
 {
     public Image roomImage;
     public Sprite dayRoomSprite;
-    public GameObject dayWindow, dayRoomUpper, blackout, oldProjectPanel, endingPanel, choicePanel, confirmPanel;
+    public GameObject dayWindow, dayRoomUpper, blackout, endingPanel, choicePanel;
     public Text locationText, timeText, objectiveText, recordText, inventoryText, infoTitle, infoBody;
-    public Text choiceTitle, confirmText, projectStatus, endingText;
+    public Text endingText;
     public GameObject infoPanel, recordPanel, inventoryPanel, pausePanel;
     public ClubPhotoView photoView;
     public Button badgeButton, restButton, yuanButton, xuButton, tangButton, computerButton;
@@ -21,12 +21,10 @@ public sealed class S4Controller : MonoBehaviour, IDialogueContext
     private static bool pendingDevelopment;
     private GameState state;
     private bool development, subscribed;
-    private string pendingChoice;
-
     private static bool DialogueRunning => DialogueService.Instance != null && DialogueService.Instance.IsRunning;
     internal bool IsInventoryBlocked => DialogueRunning || SaveSlotPanel.IsOpen || infoPanel.activeSelf ||
         recordPanel.activeSelf || pausePanel.activeSelf || choicePanel.activeSelf ||
-        confirmPanel.activeSelf || endingPanel.activeSelf || (photoView != null && photoView.IsOpen);
+        blackout.activeSelf || endingPanel.activeSelf || (photoView != null && photoView.IsOpen);
     private bool ModalOpen => IsInventoryBlocked || inventoryPanel.activeSelf;
 
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
@@ -62,8 +60,8 @@ public sealed class S4Controller : MonoBehaviour, IDialogueContext
             foreach (Text text in GetComponentsInChildren<Text>(true)) text.font = font;
 
         infoPanel.SetActive(false); recordPanel.SetActive(false); inventoryPanel.SetActive(false);
-        pausePanel.SetActive(false); choicePanel.SetActive(false); confirmPanel.SetActive(false);
-        oldProjectPanel.SetActive(false); endingPanel.SetActive(false); blackout.SetActive(false);
+        pausePanel.SetActive(false); choicePanel.SetActive(false);
+        endingPanel.SetActive(false); blackout.SetActive(false);
         SharedInteractionHud hud = GetComponentInChildren<SharedInteractionHud>(true);
         BindButton(hud.inventoryButton, OpenInventory);
         BindButton(hud.pauseButton, TogglePause);
@@ -84,8 +82,6 @@ public sealed class S4Controller : MonoBehaviour, IDialogueContext
         Bind("S4 Choice/Together", () => SelectChoice(StoryIds.Choice.ViewTogether));
         Bind("S4 Choice/Alone", () => SelectChoice(StoryIds.Choice.ViewAlone));
         Bind("S4 Choice/Close", () => choicePanel.SetActive(false));
-        Bind("S4 Confirm/Confirm", ConfirmChoice);
-        Bind("S4 Confirm/Back", () => { confirmPanel.SetActive(false); choicePanel.SetActive(true); });
         Bind("S4 Ending/Title", ReturnTitle);
 
         state = pending;
@@ -249,41 +245,27 @@ public sealed class S4Controller : MonoBehaviour, IDialogueContext
     }
     private void SelectChoice(string choice)
     {
-        if (state == null || DialogueRunning || !string.IsNullOrEmpty(state.viewChoice)) return;
-        pendingChoice = choice;
-        choicePanel.SetActive(false);
-        confirmText.text = choice == StoryIds.Choice.ViewTogether
-            ? "四个人一起打开旧工程。队友也会看到文件里的异常。\n\n确认后不可反悔。"
-            : "你先独自打开旧工程。队友会在之后才走近屏幕；独自直面未知将损失 10 SAN。\n\n确认后不可反悔。";
-        confirmPanel.SetActive(true);
-    }
-    private void ConfirmChoice()
-    {
-        if (state == null || DialogueRunning || string.IsNullOrEmpty(pendingChoice) ||
+        if (state == null || DialogueRunning || !choicePanel.activeInHierarchy ||
             !string.IsNullOrEmpty(state.viewChoice)) return;
-        confirmPanel.SetActive(false);
-        if (!development) Persist(); // last quiet checkpoint before the irreversible choice
-        state.ChooseView(pendingChoice);
+        choicePanel.SetActive(false);
+        Persist(); // Last checkpoint before committing the irreversible choice.
+        state.ChooseView(choice);
         state.stepId = "ending";
-        if (pendingChoice == StoryIds.Choice.ViewAlone) ApplyShock("s4_alone", -10);
-        pendingChoice = null;
+        if (choice == StoryIds.Choice.ViewAlone) ApplyShock("s4_alone", -10);
         Persist();
         ResumeEnding();
     }
     private void ResumeEnding()
     {
         if (state == null || string.IsNullOrEmpty(state.viewChoice)) return;
-        oldProjectPanel.SetActive(true);
-        projectStatus.text = state.viewChoice == StoryIds.Choice.ViewTogether
-            ? "<color=#df4444>【状态：缺席】</color>" :
-                "<color=#df4444>【状态：缺席】</color> → <color=#68d58a>【状态：在线】</color>\n" +
-                "<color=#df4444>【05_林未：缺席】</color>";
-        PlayNode(state.viewChoice == StoryIds.Choice.ViewTogether ? "S4_EndTogether" : "S4_EndAlone");
+        string node = state.viewChoice == StoryIds.Choice.ViewTogether ? "S4_EndTogether" : "S4_EndAlone";
+        blackout.SetActive(true);
+        DialogueService.Ensure()?.Play(node, this, showPortraits: false);
     }
     private void ShowEnding()
     {
-        oldProjectPanel.SetActive(false);
         endingText.text = "距离 48H 结束还剩\n\n24:00:00\n\n前 24H Demo 完结";
+        blackout.SetActive(true);
         endingPanel.SetActive(true);
     }
 
@@ -330,7 +312,7 @@ public sealed class S4Controller : MonoBehaviour, IDialogueContext
     public void ReturnTitle() { DialogueService.Shutdown(); GameFlow.LoadLocation(GameFlow.TitleScene); }
     public SaveSlotSnapshot CaptureSaveSlot()
     {
-        if (state == null || development || DialogueRunning || confirmPanel.activeSelf) return null;
+        if (state == null || development || DialogueRunning) return null;
         return new SaveSlotSnapshot { chapter = "S4", payload = JsonUtility.ToJson(state),
             gameTime = timeText.text, locationLabel = "S4 · " + timeText.text + " · 5F 活动室" };
     }
