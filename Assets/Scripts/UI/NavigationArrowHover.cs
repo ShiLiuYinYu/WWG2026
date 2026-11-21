@@ -12,10 +12,12 @@ namespace WWG
         [SerializeField] private string hint;
 
         private Button button;
+        private Image arrow;
 
         private void Awake()
         {
             button = GetComponent<Button>();
+            arrow = GetComponent<Image>();
             Hide();
         }
 
@@ -28,24 +30,8 @@ namespace WWG
             if (hintText != null)
             {
                 hintText.text = hint;
-                PositionHint();
+                if (arrow != null) NavigationHintLayout.Place(hintText, arrow);
             }
-        }
-
-        /// <summary>把提示文本贴到当前箭头正下方，避免固定在屏幕底部导致与箭头距离忽远忽近。</summary>
-        private void PositionHint()
-        {
-            RectTransform captionRect = hintText.rectTransform;
-            RectTransform parentRect = captionRect.parent as RectTransform;
-            RectTransform arrowRect = transform as RectTransform;
-            if (parentRect == null || arrowRect == null) return;
-
-            captionRect.anchorMin = captionRect.anchorMax = new Vector2(0.5f, 0.5f);
-            captionRect.pivot = new Vector2(0.5f, 1f);
-
-            Vector3 bottomWorld = arrowRect.TransformPoint(new Vector3(0f, arrowRect.rect.yMin, 0f));
-            Vector2 localBottom = parentRect.InverseTransformPoint(bottomWorld);
-            captionRect.anchoredPosition = new Vector2(localBottom.x, localBottom.y - 10f);
         }
 
         public void OnPointerExit(PointerEventData eventData) { Hide(); }

@@ -45,6 +45,7 @@ public sealed class S0Controller : MonoBehaviour, IDialogueContext
     private Sprite dayLowerSprite;
     private Sprite dayCurtainSprite;
     private Sprite dayLampSprite;
+    private Vector2 defaultHoverPosition;
 
     private int phase; // 0 arrival, 1 opening, 2 daytime investigation, 3 transition, 4 S0 complete
     private int screen; // 0 exterior, 1 corridor, 2 club room, 3 bridge
@@ -142,6 +143,7 @@ public sealed class S0Controller : MonoBehaviour, IDialogueContext
 
     private void Start()
     {
+        defaultHoverPosition = hoverText.rectTransform.anchoredPosition;
         Application.runInBackground = true;
         S0Audio.Ensure(transform);
         // A system CJK font is used at runtime; the editor asset stays portable.
@@ -293,7 +295,12 @@ public sealed class S0Controller : MonoBehaviour, IDialogueContext
         if (!visible) SetHover("");
     }
 
-    public void SetHover(string label) { hoverText.text = label; }
+    public void SetHover(string label, Image arrow = null)
+    {
+        hoverText.text = label;
+        if (arrow != null) NavigationHintLayout.Place(hoverText, arrow);
+        else hoverText.rectTransform.anchoredPosition = defaultHoverPosition;
+    }
 
     public void HandleHotspot(string action)
     {
