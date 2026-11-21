@@ -25,7 +25,7 @@ namespace WWG
             if (sceneName == "S2_BridgeEven4F")
             {
                 state.ChooseRoute(StoryIds.Choice.RouteLight);
-                state.SetFlag(StoryIds.Flag.P2GlassRead);
+                state.SetFlag(StoryIds.Flag.P2EmergencyLightOn);
             }
             else if (sceneName == "S2_ClubRoom")
             {

@@ -1,33 +1,33 @@
 title: S2_Odd4F_Intro
 tags: chapter_bridge_route location_bridgeodd4f
 ---
-我: 我到四楼连廊口了。这层灯全灭了，比五楼看着还黑。 #line:s2_intro_01
-袁祁（电话）: 信号还行，听得挺清楚。我们从五楼窗户能瞅见四楼连廊，你现在是在开关旁边吧？ #line:s2_intro_02
-许圆（电话）: 我下午看的时候，开关就在连廊右手边墙上，你要是看不清路就先打开吧。 #line:s2_intro_03
-我: 等会儿，连廊玻璃上好像映着点东西，跟刚才五楼门玻璃上那行字有点像。我想想。 #line:s2_intro_04
+我: 到四楼了。我走平时去偶数栋那条路，先看中段右边那块玻璃。 #line:s2_intro_01
+袁祁（电话）: 听得见。你过连廊就跟我说一声，我一直在线。 #line:s2_intro_02
+许圆（电话）: 开灯就能仔细看墙上的海报，玻璃上会有反光。你要看玻璃里的影子，可以先别开灯。 #line:s2_intro_03
+我: 得先挑一种查法。到中段看玻璃时，我就按眼下的光线查下去。 #line:s2_intro_04
 ===
 
 title: S2_Odd4F_RouteLight
 tags: chapter_bridge_route location_bridgeodd4f route_light
 ---
-许圆（电话）: 我从五楼看见四楼连廊亮着。还是开着灯稳妥点，大晚上的别摸黑走。 #line:s2_route_light_01
-我: 玻璃上只有一道浅痕，再凑近就是灯的倒影了。我去看看墙上的海报和那边的柜子。 #line:s2_route_light_02
+许圆（电话）: 应急灯亮了。我记得两张远端海报各盖了一层新贴纸，灯下应该能找到翘边。 #line:s2_route_light_01
+我: 灯把玻璃里的影子盖住了。我先跑两端，揭开远端贴纸，把四张海报的展位号都记下来。 #line:s2_route_light_02
 ===
 
 title: S2_Odd4F_RouteDark
 tags: chapter_bridge_route location_bridgeodd4f route_dark
 ---
-我: 等一下，玻璃上好像蒙着一层雾。拿手机照照……上面真留了东西。 #line:s2_route_dark_01
-唐澈（电话）: 行吧，那你慢点走啊，实在太黑就退回来把灯打开。 #line:s2_route_dark_02
+我: 玻璃里映着两张远端海报……它们明明贴在拐角后面。看久一点，应该能辨出被遮住的字。 #line:s2_route_dark_01
+系统: 再点一次中段玻璃，可凝视倒影，最多消耗 40 点 SAN。两张近端海报仍要到连廊两端核对。 #line:s2_route_dark_02
 ===
 
 title: S2_Odd4F_Hint_Far
 tags: chapter_bridge_route location_bridgeodd4f hint
 ---
-<<if has_flag("flag.p2.emergencyLightOn")>>
-许圆: 远端海报的新贴纸，或许能揭开。 #line:s2_hint_far_light_01
+<<if route() == "RouteLight">>
+许圆（电话）: 把应急灯开着，顺着两张远端海报贴纸的翘边揭开。 #line:s2_hint_far_light_01
 <<else>>
-我: 新贴纸下面像还有一层旧字。试着凝视。 #line:s2_hint_far_dark_01
+我: 灯灭时再去中段看一次玻璃倒影。近端的两张我去墙边核对。 #line:s2_hint_far_dark_01
 <<endif>>
 ===
 

@@ -7,7 +7,7 @@ tags: chapter_night_photo location_clubroom
 我: 盒子里都是过期的社团招新传单，最上面夹着一张洗出来的照片。 #line:s1_box_01
 我: 照片背面写着：23:30 / 旧项目场景参考图。 #line:s1_box_02
 许圆: 这是去年的活动室。照片里窗帘拉着，长桌边的旧桌灯亮着，第五把椅子摆在窗边白色地胶框里。 #line:s1_box_03
-许圆: 要不照着它把灯光和位置还原一下？我拍张对比图。 #line:s1_box_04
+许圆: 我画的夜景一暗就看不清热点。这张图的桌灯正好照在椅子上。照它摆一下，我拍张对比图看看。 #line:s1_box_04
 袁祁: 你帮许圆把这三处对一下吧，我把分支表存个档。 #line:s1_box_05
 <<show_photo>>
 ===
@@ -82,7 +82,7 @@ tags: chapter_night_photo location_clubroom
 <<show_photo>>
 我: 这张照片……第五把椅子上刚才明明是空的。现在怎么有个人影？ #line:s1_p1_01
 许圆: 什么人影？让我看看？ #line:s1_p1_02
-唐澈: 这不是照片上的污渍吗？ #line:s1_p1_03
+唐澈: 我这边只看见一块发灰的印子。咱先看屋里有没有能对得上的东西。 #line:s1_p1_03
 袁祁: 先看现实里那把椅子，坐垫底下是不是夹着什么？ #line:s1_p1_04
 ===
 
@@ -92,9 +92,9 @@ tags: chapter_night_photo location_clubroom
 <<give_item "badge">>
 我: 坐垫夹缝里塞着去年的参赛工牌。正面是林未，编号 05。 #line:s1_badge_01
 我: 背面写着：玻璃两边，各存一半。4F。 #line:s1_badge_02
-许圆: 林未？她好像是去年在这间活动室参赛的人。 #line:s1_badge_03
-唐澈: 四楼带玻璃的地方，就是你下午去过的跨栋连廊。 #line:s1_badge_04
-袁祁: 先坐着缓两分钟。照片刚才在我看来还是空的。 #line:s1_badge_05
+许圆: 林未？我刚入会时看过去年那组的合照，署名里没她。可编号 05 的工牌就在我们手上。 #line:s1_badge_03
+唐澈: 「各存一半」像是留给队友的取件暗号。我翻一下协会的旧群文件，看能不能对上这个名字。 #line:s1_badge_04
+袁祁: 先把工牌和背面的字拍下来。要是找得到她队友，至少有东西可以问。 #line:s1_badge_05
 ===
 
 title: S1_ClubRoom_GlassBeforeBadge
@@ -119,10 +119,10 @@ tags: chapter_night_photo location_clubroom
 title: S1_ClubRoom_ToCorridor
 tags: chapter_night_photo location_clubroom
 ---
-我: 工牌背面写了 4F，我想去四楼连廊看看。 #line:s1_to_corridor_01
-袁祁: 走廊灯全灭了。手机保持通话，觉得不舒服就回来歇会儿。 #line:s1_to_corridor_02
-许圆: 四楼入口有应急灯开关，看不清就先打开。 #line:s1_to_corridor_03
-唐澈: 找到东西拍个照就回来。 #line:s1_to_corridor_04
+我: 下午拍过连廊两头的海报。「各存一半」也许跟它们有关。我想先查清工牌是谁留下的，照片里的影子也许就能对上了。 #line:s1_to_corridor_01
+袁祁: 就查两端，手机保持通话。我留在活动室守门，出状况我下去接你。 #line:s1_to_corridor_02
+许圆: 从活动室窗边能看见连廊。我替你盯着，灯在单数栋入口右手边。 #line:s1_to_corridor_03
+唐澈: 我接着翻旧档。你拍到便签就念给我听，我帮你查当时的记录。 #line:s1_to_corridor_04
 ===
 
 title: S1_ClubRoom_Rest

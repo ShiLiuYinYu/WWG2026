@@ -313,8 +313,7 @@ public sealed class S0Controller : MonoBehaviour, IDialogueContext
                 PlayNode("S0_Exterior_Bridge");
                 break;
             case "enter":
-                if (!boardRead) PlayNode("S0_Exterior_NeedBoard");
-                else ShowScreen(1, "S0_Corridor_Arrive");
+                ShowScreen(1, "S0_Corridor_Arrive");
                 break;
             case "toRoom":
                 ShowScreen(2);

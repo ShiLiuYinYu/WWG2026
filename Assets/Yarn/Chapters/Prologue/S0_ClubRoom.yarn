@@ -2,17 +2,17 @@
 tags: chapter_prologue location_clubroom
 ---
 <<bgm_stop voice 1.5>>
-袁祁: 可算来了！快把包放下，马上还有五分钟直播开题了。 #line:s0_clubroom_intro_01
-唐澈: 插线板给你留了靠边那个口，你工位就在那儿。 #line:s0_clubroom_intro_02
-许圆: 我把数位板接好了。你直接插电脑上就能用了。 #line:s0_clubroom_intro_03
+袁祁: 可算来了。隔壁两队在创客教室，做音游那队在宿舍连麦。我登记了这间活动室，咱四个今晚用。 #line:s0_clubroom_intro_01
+唐澈: 协会那台测试机和插线板都在这儿，搬出去还得重配环境。你坐平时做关卡的那个位子。 #line:s0_clubroom_intro_02
+许圆: 数位板也接好了。我今晚想把夜景试出来，晚点你帮我对一下关卡里的光线。 #line:s0_clubroom_intro_03
 袁祁: 靠窗那把空椅子我顺手推到储物柜边上了，省得挡路。 #line:s0_clubroom_intro_04
-许圆: 我们当初报名的时候是四个人吧？怎么多出来一把椅子？ #line:s0_clubroom_intro_05
-唐澈: 可能是之前参加活动的人搬过来的，就放那儿吧。 #line:s0_clubroom_intro_06
+许圆: 靠窗那把？平时开例会也没人坐，上面还贴着去年的编号呢。 #line:s0_clubroom_intro_05
+袁祁: 先搁柜子边。晚上给你空出地儿拍参考，开题快开始了。 #line:s0_clubroom_intro_06
 直播主持 · 16：00: 各位参赛队伍下午好！本届 48H GameJam 的创作主题是——『选择』。周日下午 16:00 前做出可玩的作品，之后大家一起展示。 #line:s0_clubroom_intro_07
-唐澈: ……一个词的题怎么办啊？策划救一下，咱怎么做？ #line:s0_clubroom_intro_08
-袁祁: 得让玩家的选择真正影响游戏流程。你们觉得呢？ #line:s0_clubroom_intro_09
-许圆: 我们只有四十八个小时。要不拿这栋实验楼当原型？白天做两层，熄灯后做两层。 #line:s0_clubroom_intro_10
-我: 那就先去楼里转一圈，拍点走廊和连廊当参考图。 #line:s0_clubroom_intro_11
+唐澈: 我先搭点击和切屏。策划，你给我两段能测出差别的流程，明天四点前我们自己跑一遍。 #line:s0_clubroom_intro_08
+袁祁: 场景预算先卡三张。两种走法都能做到，再往里加东西。 #line:s0_clubroom_intro_09
+许圆: 就用咱们这栋楼吧。活动室、楼梯口、连廊，拍回来我就能起稿。 #line:s0_clubroom_intro_10
+我: 我常走那几段路，知道哪几个角度好切屏。我去拍转角、应急灯和连廊，你们先搭框架。 #line:s0_clubroom_intro_11
 袁祁: 行，你去踩点。我们仨先把工程仓库和基础框架搭起来。拍完回来找我。 #line:s0_clubroom_intro_12
 ===
 
@@ -29,7 +29,7 @@ title: S0_ClubRoom_Sign
 tags: chapter_prologue location_corridor5f
 ---
 <<set_flag "flag.s0.sign">>
-我: 单数栋 5F，数智设计学院。安全出口指示灯常亮，往下是去 4F 和 3F 的楼梯。 #line:s0_clubroom_sign_01
+我: 从活动室到楼梯就十来步。把这块常亮的出口牌拍进去，熄灯后玩家也能认出往四楼下的楼梯。 #line:s0_clubroom_sign_01
 ===
 
 title: S0_ClubRoom_Box

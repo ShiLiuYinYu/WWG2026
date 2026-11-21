@@ -67,6 +67,9 @@ namespace WWG
             public const string S4YuanTalked = "flag.s4.yuanTalked";
             public const string S4XuTalked = "flag.s4.xuTalked";
             public const string S4TangTalked = "flag.s4.tangTalked";
+            public const string S4YuanWitness = "flag.s4.yuanWitness";
+            public const string S4XuWitness = "flag.s4.xuWitness";
+            public const string S4UsbMounted = "flag.s4.usbMounted";
             public const string S4Finished = "flag.s4.finished";
         }
 
