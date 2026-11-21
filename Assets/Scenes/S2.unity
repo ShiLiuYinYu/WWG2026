@@ -9040,6 +9040,9 @@ MonoBehaviour:
   bridgeSwitchImage: {fileID: 998539156}
   bridgeSwitchOffSprite: {fileID: 21300000, guid: a3e53667ac01188439f50550c91a2dcd, type: 3}
   bridgeSwitchOnSprite: {fileID: 21300000, guid: 8e7d83cef4e366648920c9e7bc4b5b95, type: 3}
+  locationArtwork: {fileID: 1507724002}
+  bridgeNightOffSprite: {fileID: 21300000, guid: 0aa2c873bdf70b74baf71bd6e7a0eb63, type: 3}
+  bridgeNightOnSprite: {fileID: 21300000, guid: 47bfdf18a7bda5842b6f1733c183d58a, type: 3}
 --- !u!4 &1481053176
 Transform:
   m_ObjectHideFlags: 0
