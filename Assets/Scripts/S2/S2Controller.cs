@@ -19,6 +19,8 @@ public sealed class S2Controller : MonoBehaviour, IDialogueContext
     public Button drawerButton, switchButton, glassButton;
     public Image bridgeSwitchImage;
     public Sprite bridgeSwitchOffSprite, bridgeSwitchOnSprite;
+    public Image locationArtwork;
+    public Sprite bridgeNightOffSprite, bridgeNightOnSprite;
 
     private static GameState pending;
     private static bool pendingDevelopment;
@@ -628,6 +630,9 @@ public sealed class S2Controller : MonoBehaviour, IDialogueContext
         vitals.SetSan(state.san, state.sanMax);
         vitals.SetHealth(state.health, 3);
         if (glow != null) glow.SetActive(light && location != StoryIds.Location.ClubRoom);
+        // 连廊远景随应急灯切换：灯亮换成开灯版，灯灭用夜晚熄灯版
+        if (locationArtwork != null && bridgeNightOffSprite != null && bridgeNightOnSprite != null)
+            locationArtwork.sprite = light ? bridgeNightOnSprite : bridgeNightOffSprite;
         if (bridgeSwitchImage != null)
             bridgeSwitchImage.sprite = light ? bridgeSwitchOnSprite : bridgeSwitchOffSprite;
         if (farRevealText != null)

@@ -168,7 +168,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Button
   m_Navigation:
     m_Mode: 3
@@ -212,7 +212,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -850,7 +850,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 5f7201a12d95ffc409449d95f23cf332, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Text
   m_Material: {fileID: 0}
   m_Color: {r: 0.95, g: 0.88, b: 0.72, a: 1}
@@ -1191,7 +1191,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b547e2019dce3ea458b99d533c883e67, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::WWG.ClubPhotoView
 --- !u!1 &180608816
 GameObject:
@@ -6757,20 +6757,18 @@ MonoBehaviour:
   inventoryPanel: {fileID: 1033169171}
   pausePanel: {fileID: 700094795}
   glow: {fileID: 901182187}
-  routePanel: {fileID: 0}
   photoView: {fileID: 170432100}
   infoTitle: {fileID: 863903116}
   infoBody: {fileID: 1463754428}
-  routeDescriptionText: {fileID: 0}
-  routeConfirmText: {fileID: 0}
-  routeConfirmButton: {fileID: 0}
   drawerButton: {fileID: 703500436}
   switchButton: {fileID: 0}
-  darkChoiceButton: {fileID: 0}
   glassButton: {fileID: 0}
   bridgeSwitchImage: {fileID: 0}
   bridgeSwitchOffSprite: {fileID: 0}
   bridgeSwitchOnSprite: {fileID: 0}
+  locationArtwork: {fileID: 1639949805}
+  bridgeNightOffSprite: {fileID: 21300000, guid: 0aa2c873bdf70b74baf71bd6e7a0eb63, type: 3}
+  bridgeNightOnSprite: {fileID: 21300000, guid: 47bfdf18a7bda5842b6f1733c183d58a, type: 3}
 --- !u!4 &1191861447
 Transform:
   m_ObjectHideFlags: 0
