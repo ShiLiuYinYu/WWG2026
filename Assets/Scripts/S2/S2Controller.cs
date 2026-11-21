@@ -13,12 +13,10 @@ public sealed class S2Controller : MonoBehaviour, IDialogueContext
     public VitalsBars vitals;
     public Text farRevealText, codeFeedbackText;
     public Text[] digitTexts;
-    public GameObject infoPanel, codePanel, recordPanel, inventoryPanel, pausePanel, glow, routePanel;
+    public GameObject infoPanel, codePanel, recordPanel, inventoryPanel, pausePanel, glow;
     public ClubPhotoView photoView;
     public Text infoTitle, infoBody;
-    public Text routeDescriptionText, routeConfirmText;
-    public Button routeConfirmButton;
-    public Button drawerButton, switchButton, darkChoiceButton, glassButton;
+    public Button drawerButton, switchButton, glassButton;
     public Image bridgeSwitchImage;
     public Sprite bridgeSwitchOffSprite, bridgeSwitchOnSprite;
 
@@ -94,7 +92,6 @@ public sealed class S2Controller : MonoBehaviour, IDialogueContext
 
         infoPanel.SetActive(false); codePanel.SetActive(false);
         recordPanel.SetActive(false); inventoryPanel.SetActive(false); pausePanel.SetActive(false);
-        if (routePanel != null) routePanel.SetActive(false);
         state = pending;
         development = pendingDevelopment;
         pending = null;
@@ -156,7 +153,7 @@ public sealed class S2Controller : MonoBehaviour, IDialogueContext
 
     internal bool IsInventoryBlocked => DialogueRunning || SaveSlotPanel.IsOpen || infoPanel.activeSelf ||
         codePanel.activeSelf || recordPanel.activeSelf || pausePanel.activeSelf ||
-        (routePanel != null && routePanel.activeSelf) || (photoView != null && photoView.IsOpen);
+        (photoView != null && photoView.IsOpen);
     private bool ModalOpen => IsInventoryBlocked || inventoryPanel.activeSelf;
 
     private void Update()
@@ -214,25 +211,6 @@ public sealed class S2Controller : MonoBehaviour, IDialogueContext
         }
     }
 
-    public void ChooseDark()
-    {
-        if (CanAct() && state.locationId == StoryIds.Location.BridgeSpan4F)
-            SelectRoute(StoryIds.Choice.RouteDark);
-    }
-    private void SelectRoute(string choice)
-    {
-        if (state == null || !CanAct() || state.locationId != StoryIds.Location.BridgeSpan4F ||
-            !state.ChooseRoute(choice)) return;
-        bool light = choice == StoryIds.Choice.RouteLight;
-        state.locationVariant = light ? StoryIds.Variant.Emergency : StoryIds.Variant.Night;
-        feedbackText.text = light
-            ? "应急灯亮了。旧残影被玻璃反光冲淡，海报贴纸可以揭开。"
-            : "先留在黑暗中。可以凝视远端海报，之后仍可返回开灯。";
-        UpdateView();
-        SaveCheckpoint(true);
-        PlayNode(light ? "S2_Odd4F_RouteLight" : "S2_Odd4F_RouteDark");
-    }
-
     public void SwitchLight()
     {
         if (state == null || !CanAct()) return;
@@ -240,26 +218,9 @@ public sealed class S2Controller : MonoBehaviour, IDialogueContext
         if (light) state.ClearFlag(StoryIds.Flag.P2EmergencyLightOn);
         else state.SetFlag(StoryIds.Flag.P2EmergencyLightOn);
         state.locationVariant = light ? StoryIds.Variant.Night : StoryIds.Variant.Emergency;
-        feedbackText.text = light ? "应急照明已关闭。最初的路线选择保留。" :
-            "应急照明已打开。最初的路线选择保留。";
+        feedbackText.text = light ? "应急照明已关闭。" : "应急照明已打开。";
         UpdateView();
         Persist();
-    }
-
-    public void ConfirmGlassRoute()
-    {
-        if (state == null || routePanel == null || !routePanel.activeSelf ||
-            state.locationId != StoryIds.Location.BridgeSpan4F) return;
-        routePanel.SetActive(false);
-        if (routeConfirmButton != null) routeConfirmButton.gameObject.SetActive(false);
-        SelectRoute(state.HasFlag(StoryIds.Flag.P2EmergencyLightOn)
-            ? StoryIds.Choice.RouteLight : StoryIds.Choice.RouteDark);
-    }
-
-    public void CancelGlassRoute()
-    {
-        if (routePanel != null) routePanel.SetActive(false);
-        if (routeConfirmButton != null) routeConfirmButton.gameObject.SetActive(false);
     }
 
     public void InspectGuide() => ShowInfo("社团自留资料 · 双栋导览练习稿",
@@ -280,7 +241,7 @@ public sealed class S2Controller : MonoBehaviour, IDialogueContext
         if (!CanAct()) return;
         if (string.IsNullOrEmpty(state.routeChoice))
         {
-            ShowInfo("远端海报", "先查看连廊中段右侧的玻璃，再决定如何调查。", false);
+            ShowInfo("远端海报", "贴纸盖得严严实实。先去看看连廊中段右侧玻璃上的痕迹。", false);
             return;
         }
         bool odd = state.locationId == StoryIds.Location.BridgeOdd4F;
@@ -306,23 +267,24 @@ public sealed class S2Controller : MonoBehaviour, IDialogueContext
 
     public void InspectGlass()
     {
-        if (!CanAct()) return;
+        if (!CanAct() || state.locationId != StoryIds.Location.BridgeSpan4F) return;
         if (string.IsNullOrEmpty(state.routeChoice))
         {
-            if (routePanel == null) return;
             bool lightOn = state.HasFlag(StoryIds.Flag.P2EmergencyLightOn);
-            routeDescriptionText.text = lightOn
-                ? "应急灯下，玻璃反光盖住旧字，但远端海报可以揭开。确认以亮灯方式调查？"
-                : "玻璃上有隐约旧字。继续留暗可以凝视海报，但会持续消耗 SAN。确认在黑暗中调查？";
-            infoTitle.text = "连廊玻璃 · 调查方式";
-            routeConfirmText.text = lightOn ? "确认亮灯调查" : "确认留暗调查";
-            if (routeConfirmButton != null) routeConfirmButton.gameObject.SetActive(true);
-            routePanel.SetActive(true);
-            return;
+            ChooseRoute(lightOn ? StoryIds.Choice.RouteLight : StoryIds.Choice.RouteDark);
+            if (PlayNode(lightOn ? "S2_Odd4F_RouteLight" : "S2_Odd4F_RouteDark")) return;
         }
+        ShowGlassTrace();
+    }
+
+    private bool CanReadGlassMessage => state.routeChoice == StoryIds.Choice.RouteDark &&
+        !state.HasFlag(StoryIds.Flag.P2EmergencyLightOn) && state.san <= 60;
+
+    private void ShowGlassTrace()
+    {
         if (state.HasFlag(StoryIds.Flag.P2EmergencyLightOn))
             ShowInfo("连廊玻璃", "应急灯的反光太亮，只能看到浅浅的划痕。", false);
-        else if (state.routeChoice == StoryIds.Choice.RouteDark && state.san <= 60)
+        else if (CanReadGlassMessage)
         {
             state.SetFlag(StoryIds.Flag.P2GlassRead);
             Persist();
@@ -408,7 +370,7 @@ public sealed class S2Controller : MonoBehaviour, IDialogueContext
         if (!CanAct()) return;
         if (string.IsNullOrEmpty(state.routeChoice) && location == StoryIds.Location.BridgeEven4F)
         {
-            ShowInfo("连廊玻璃", "先查看中段右侧的玻璃，确认调查方式。", false);
+            ShowInfo("连廊玻璃", "右侧玻璃上好像有一道痕迹。走近看看。", false);
             return;
         }
         state.locationId = location;
@@ -456,8 +418,7 @@ public sealed class S2Controller : MonoBehaviour, IDialogueContext
             (state.HasItem(StoryIds.Item.MachineNote) ? "机房借用便签：单数栋 3F，靠窗第 3 台。\n" : "") +
             (state.HasItem(StoryIds.Item.TeamSheet) ? "分工表残页：第五格被撕去，余编号 05。\n" : "") +
             (state.HasItem(StoryIds.Item.OldProjectUsb) ? "旧工程 U 盘：已拷贝 AfterLightsOut_Backup。\n" : "") +
-            "\n【现实调查】\n" + order + "\n路线：" + state.routeChoice +
-            "；应急灯：" + (state.HasFlag(StoryIds.Flag.P2EmergencyLightOn) ? "亮" : "灭") +
+            "\n【现实调查】\n" + order + "\n应急灯：" + (state.HasFlag(StoryIds.Flag.P2EmergencyLightOn) ? "亮" : "灭") +
             (state.HasFlag(StoryIds.Flag.P2GlassRead) ? "\n\n【残影】\n玻璃旧字：别只看照片，看看他们留下了什么。" : "") +
             (state.HasFlag(StoryIds.Flag.P3MemoHeard) ? "\n\n【林未的录音备忘全文】\n" + DialogueDocuments.GetBody("s3.memo") : "");
     }
@@ -510,9 +471,7 @@ public sealed class S2Controller : MonoBehaviour, IDialogueContext
     {
         if (development) return;
         if (!Persist()) return;
-        feedbackText.text = !automatic ? "S2 检查点已保存。" :
-            state.HasFlag(StoryIds.Flag.P2DrawerTaken) ? "P2 完成，已自动保存检查点。" :
-            "路线已记录，检查点已保存。";
+        feedbackText.text = automatic ? "P2 完成，已自动保存检查点。" : "S2 检查点已保存。";
     }
     private bool Persist()
     {
@@ -538,7 +497,6 @@ public sealed class S2Controller : MonoBehaviour, IDialogueContext
     {
         infoPanel.SetActive(false);
         infoPanel.transform.Find("Badge artwork")?.gameObject.SetActive(false);
-        if (routeConfirmButton != null) routeConfirmButton.gameObject.SetActive(false);
         UpdateView();
     }
     private void ShowInfo(string title, string body, bool residue, bool showBadge = false)
@@ -547,19 +505,19 @@ public sealed class S2Controller : MonoBehaviour, IDialogueContext
         infoTitle.text = (residue ? "【残影】" : "") + title;
         infoBody.text = body;
         infoPanel.transform.Find("Badge artwork")?.gameObject.SetActive(showBadge);
-        if (routeConfirmButton != null) routeConfirmButton.gameObject.SetActive(false);
         infoPanel.SetActive(true);
     }
 
-    private void PlayNode(string nodeId, bool once = false)
+    private bool PlayNode(string nodeId, bool once = false)
     {
         DialogueService service = DialogueService.Ensure();
-        if (service != null) service.Play(nodeId, this, once);
+        return service != null && service.Play(nodeId, this, once);
     }
 
     private void HandleDialogueCompleted(string nodeId)
     {
         if (nodeId == "S2_Even4F_Cabinet") OpenCabinetCode();
+        if (nodeId == "S2_Odd4F_RouteDark" && CanReadGlassMessage) ShowGlassTrace();
         Persist();
         UpdateView();
     }
@@ -620,8 +578,10 @@ public sealed class S2Controller : MonoBehaviour, IDialogueContext
 
     public void ChooseRoute(string choice)
     {
-        if (state == null) return;
-        SelectRoute(choice);
+        if (!CanAct() || state.locationId != StoryIds.Location.BridgeSpan4F ||
+            !string.IsNullOrEmpty(state.routeChoice) || !state.ChooseRoute(choice)) return;
+        UpdateView();
+        Persist();
     }
 
     public void ChooseView(string choice)
@@ -685,7 +645,6 @@ public sealed class S2Controller : MonoBehaviour, IDialogueContext
             Text caption = switchButton.GetComponentInChildren<Text>();
             if (caption != null) caption.text = light ? "关闭应急灯" : "打开应急灯";
         }
-        if (darkChoiceButton != null) darkChoiceButton.gameObject.SetActive(false);
         if (glassButton != null) glassButton.gameObject.SetActive(location == StoryIds.Location.BridgeSpan4F);
     }
 }

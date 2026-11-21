@@ -133,15 +133,6 @@ public static class S2SceneBuilder
         c.infoTitle = Label(c.infoPanel.transform, "Title", "", 55, 45, 1080, 85, 40, Accent, TextAnchor.MiddleLeft);
         c.infoBody = Label(c.infoPanel.transform, "Body", "", 65, 165, 1060, 395, 36, Paper, TextAnchor.UpperLeft);
         Button(c.infoPanel.transform, "Close", "继续调查", 890, 615, 245, 68, c.CloseInfo);
-        if (index == 1)
-        {
-            c.routePanel = c.infoPanel;
-            c.routeDescriptionText = c.infoBody;
-            c.routeConfirmButton = Button(c.infoPanel.transform, "Confirm glass route", "确认调查",
-                590, 615, 275, 68, c.ConfirmGlassRoute);
-            c.routeConfirmText = c.routeConfirmButton.GetComponentInChildren<Text>();
-            c.routeConfirmButton.gameObject.SetActive(false);
-        }
 
         c.codePanel = Panel(canvas.transform, "Four digit cabinet", 500, 225, 920, 600, Ink);
         Label(c.codePanel.transform, "Title", "社团资料柜 · 四位密码", 60, 35, 800, 64, 40, Accent, TextAnchor.MiddleCenter);
