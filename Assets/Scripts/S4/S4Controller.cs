@@ -13,6 +13,7 @@ public sealed class S4Controller : MonoBehaviour, IDialogueContext
     public Text locationText, timeText, objectiveText, recordText, inventoryText, infoTitle, infoBody;
     public Text choiceTitle, confirmText, projectStatus, endingText;
     public GameObject infoPanel, recordPanel, inventoryPanel, pausePanel;
+    public ClubPhotoView photoView;
     public Button badgeButton, restButton, yuanButton, xuButton, tangButton, computerButton;
     public VitalsBars vitals;
 
@@ -23,9 +24,10 @@ public sealed class S4Controller : MonoBehaviour, IDialogueContext
     private string pendingChoice;
 
     private static bool DialogueRunning => DialogueService.Instance != null && DialogueService.Instance.IsRunning;
-    private bool ModalOpen => DialogueRunning || infoPanel.activeSelf || recordPanel.activeSelf ||
-        inventoryPanel.activeSelf || pausePanel.activeSelf || choicePanel.activeSelf ||
-        confirmPanel.activeSelf || endingPanel.activeSelf;
+    internal bool IsInventoryBlocked => DialogueRunning || SaveSlotPanel.IsOpen || infoPanel.activeSelf ||
+        recordPanel.activeSelf || pausePanel.activeSelf || choicePanel.activeSelf ||
+        confirmPanel.activeSelf || endingPanel.activeSelf || (photoView != null && photoView.IsOpen);
+    private bool ModalOpen => IsInventoryBlocked || inventoryPanel.activeSelf;
 
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
     private static void ResetPending() { pending = null; pendingDevelopment = false; }
@@ -68,7 +70,7 @@ public sealed class S4Controller : MonoBehaviour, IDialogueContext
         BindButton(hud.recordButton, OpenRecord);
         Bind("Inspect/Close", CloseInfo);
         Bind("Task record/Close", CloseRecord);
-        BindButton(inventoryPanel.transform.Find("Close")?.GetComponent<Button>(), CloseInventory);
+        BindButton(inventoryPanel.transform.Find("Bag contents/Close")?.GetComponent<Button>(), CloseInventory);
         Bind("Pause/Resume", TogglePause);
         Bind("Pause/Save", SaveManual);
         Bind("Pause/Load", LoadManual);
@@ -304,15 +306,25 @@ public sealed class S4Controller : MonoBehaviour, IDialogueContext
     public void InspectInventoryItem(string item)
     {
         if (state == null || !state.HasItem(item)) return;
+        if (item == StoryIds.Item.Photo && photoView != null)
+        {
+            photoView.Open(state.HasFlag(StoryIds.Flag.P1Complete) ? ClubPhotoView.RevealedShadowOpacity : 0f);
+            return;
+        }
+        bool isBadge = item == StoryIds.Item.Badge;
         string body = item == StoryIds.Item.Photo ? "去年活动室的照片，背面标记 23:30。" :
-            item == StoryIds.Item.Badge ? "林未的旧工牌，编号 05。" +
-                (state.HasFlag(StoryIds.Flag.S4BadgeArchived) ? "已归档在社团纪念盒，记录仍可查看。" : "") :
+            isBadge ? string.Empty :
             item == StoryIds.Item.MachineNote ? "借用记录：单数栋 3F 机房靠窗第 3 台，周五 23:30。" :
             item == StoryIds.Item.TeamSheet ? "分工表残页，第五格被撕去，余编号 05。" :
             "旧工程 AfterLightsOut_Backup；周六_16:00.scene 于今天 16:00 解锁。";
-        ShowInfo(S2InventoryGrid.ItemName(item), body, false);
+        ShowInfo(isBadge ? string.Empty : S2InventoryGrid.ItemName(item), body, false, showBadge: isBadge);
     }
-    public void TogglePause() { if (state != null && !DialogueRunning && !endingPanel.activeSelf) pausePanel.SetActive(!pausePanel.activeSelf); }
+    public void TogglePause()
+    {
+        if (state == null || DialogueRunning || endingPanel.activeSelf) return;
+        if (photoView != null) photoView.Close();
+        pausePanel.SetActive(!pausePanel.activeSelf);
+    }
     public void SaveManual() { if (state == null || DialogueRunning) return; pausePanel.SetActive(false); SaveSlotPanel.OpenSave(CaptureSaveSlot); }
     public void LoadManual() { if (DialogueRunning) return; pausePanel.SetActive(false); SaveSlotPanel.OpenLoad(CaptureSaveSlot); }
     public void ReturnTitle() { DialogueService.Shutdown(); GameFlow.LoadLocation(GameFlow.TitleScene); }
@@ -353,10 +365,12 @@ public sealed class S4Controller : MonoBehaviour, IDialogueContext
         vitals.SetSan(state.san, state.sanMax);
         vitals.SetHealth(state.health, 3);
     }
-    private void ShowInfo(string title, string body, bool residue)
+    private void ShowInfo(string title, string body, bool residue, bool showBadge = false)
     {
+        if (photoView != null) photoView.Close();
         infoTitle.text = (residue ? "【残影】" : "") + title;
         infoBody.text = body;
+        infoPanel.transform.Find("Badge artwork")?.gameObject.SetActive(showBadge);
         infoPanel.SetActive(true);
     }
     public void CloseInfo() => infoPanel.SetActive(false);

@@ -25,6 +25,7 @@ namespace WWG.Editor
             button = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Resources/S0/选项按钮.png");
             dialoguePaper = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Resources/UI/黄皮纸4_横.png");
             EditPrefab("Assets/Prefabs/UI/GameplayOverlay.prefab", EditOverlay);
+            EditPrefab("Assets/Prefabs/UI/ClubPhotoView.prefab", Skin);
             EditPrefab("Assets/Resources/Dialogue/WwgDialogueHost.prefab", EditDialogue);
             EditPrefab("Assets/Resources/UI/SaveSlotPanel.prefab", Skin);
             EditPrefab("Assets/Resources/UI/SettingsPanel.prefab", Skin);
@@ -150,13 +151,16 @@ namespace WWG.Editor
         private static void EditOverlay(GameObject root)
         {
             var t = root.transform;
-            if (Find(t, "Inventory panel") != null)
+            var existingPanel = Find(t, "Inventory panel");
+            if (existingPanel != null)
             {
+                EnsureInventoryViews(existingPanel);
                 Skin(root);
                 EnsureGhost(t);
-                Find(t, "Top bar/Record button/Label").GetComponent<Text>().text = "备忘录";
-                Find(t, "Inventory panel/Title").GetComponent<Text>().color = new Color(.95f, .88f, .72f);
-                Find(t, "Inventory panel/Selection").GetComponent<Text>().color = new Color(.95f, .88f, .72f);
+                var recordLabel = Find(t, "Top bar/Record button/Label")?.GetComponent<Text>();
+                if (recordLabel != null) recordLabel.text = "备忘录";
+                Find(existingPanel, "Bag contents/Title").GetComponent<Text>().color = new Color(.95f, .88f, .72f);
+                Find(existingPanel, "Bag contents/Selection").GetComponent<Text>().color = new Color(.95f, .88f, .72f);
                 var back = Find(t, "Item detail/Close/Label")?.GetComponent<Text>();
                 if (back != null) back.text = "返回";
                 return;
@@ -181,8 +185,9 @@ namespace WWG.Editor
             var bag = Button(t, "Inventory button", "背包", new Vector2(1, 0), new Vector2(1, 0),
                 new Vector2(1, 0), new Vector2(-28, 26), new Vector2(158, 70));
             bag.transform.SetSiblingIndex(oldDock.GetSiblingIndex());
-            var panel = Panel(t, "Inventory panel", new Vector2(1, 0), new Vector2(1, 0),
-                new Vector2(1, 0), new Vector2(-28, 108), new Vector2(650, 670)).transform;
+            var center = new Vector2(.5f, .5f);
+            var panel = Panel(t, "Inventory panel", center, center,
+                center, Vector2.zero, new Vector2(650, 670)).transform;
             panel.SetSiblingIndex(bag.transform.GetSiblingIndex() + 1);
             Label(panel, "Title", "背包", new Vector2(32, -22), new Vector2(500, 48), 32);
             var grid = Place(panel, "Grid", new Vector2(0, 1), new Vector2(0, 1),
@@ -221,14 +226,15 @@ namespace WWG.Editor
             Label(panel, "Selection", "暂无物品", new Vector2(33, -609), new Vector2(490, 36), 19);
             Button(panel, "Close", "返回", new Vector2(1, 1), new Vector2(1, 1),
                 new Vector2(1, 1), new Vector2(-22, -20), new Vector2(100, 52));
-            var tip = Panel(panel, "Tooltip", new Vector2(0, 1), new Vector2(0, 1),
-                new Vector2(1, 1), new Vector2(-16, -96), new Vector2(270, 195)).transform;
+            var tip = Panel(panel, "Tooltip", center, center,
+                center, Vector2.zero, new Vector2(270, 195)).transform;
             Label(tip, "Name", "物品", new Vector2(16, -15), new Vector2(238, 54), 21);
             Button(tip, "Use", "使用", new Vector2(0, 1), new Vector2(0, 1),
                 new Vector2(0, 1), new Vector2(16, -90), new Vector2(110, 58));
             Button(tip, "Inspect", "查看", new Vector2(0, 1), new Vector2(0, 1),
                 new Vector2(0, 1), new Vector2(142, -90), new Vector2(110, 58));
             tip.gameObject.SetActive(false);
+            EnsureInventoryViews(panel);
             UnityEngine.Object.DestroyImmediate(oldDock.gameObject);
             Skin(root);
             var shade = Find(t, "Shade").GetComponent<Image>();
@@ -236,6 +242,56 @@ namespace WWG.Editor
             Find(t, "Item detail/Use").gameObject.SetActive(false);
             Find(t, "Item detail/Inspect").gameObject.SetActive(false);
             EnsureGhost(t);
+        }
+
+        internal static bool EnsureInventoryViews(Transform panel)
+        {
+            var tooltip = panel.Find("Tooltip");
+            if (tooltip == null) throw new InvalidOperationException("背包物品操作框缺失：" + panel.name);
+
+            bool changed = false;
+            if (panel.Find("Bag contents") == null)
+            {
+                var contents = (RectTransform)new GameObject("Bag contents", typeof(RectTransform)).transform;
+                contents.gameObject.layer = panel.gameObject.layer;
+                contents.SetParent(panel, false);
+                contents.anchorMin = Vector2.zero;
+                contents.anchorMax = Vector2.one;
+                contents.pivot = ((RectTransform)panel).pivot;
+                contents.offsetMin = contents.offsetMax = Vector2.zero;
+                for (int i = 0; i < panel.childCount;)
+                {
+                    var child = panel.GetChild(i);
+                    if (child == tooltip || child == contents) i++;
+                    else child.SetParent(contents, false);
+                }
+                contents.SetAsFirstSibling();
+                changed = true;
+            }
+
+            if (tooltip.Find("Close") == null)
+            {
+                var template = tooltip.Find("Use").GetComponent<Button>();
+                var close = UnityEngine.Object.Instantiate(template, tooltip, false);
+                close.name = "Close";
+                close.onClick = new Button.ButtonClickedEvent();
+                var rect = (RectTransform)close.transform;
+                rect.anchorMin = rect.anchorMax = rect.pivot = Vector2.one;
+                rect.anchoredPosition = new Vector2(-10, -9);
+                rect.sizeDelta = new Vector2(52, 42);
+                var label = close.GetComponentInChildren<Text>(true);
+                label.text = "×";
+                label.alignment = TextAnchor.MiddleCenter;
+                label.fontSize = 28;
+                label.rectTransform.anchorMin = Vector2.zero;
+                label.rectTransform.anchorMax = Vector2.one;
+                label.rectTransform.offsetMin = label.rectTransform.offsetMax = Vector2.zero;
+
+                var name = (RectTransform)tooltip.Find("Name");
+                name.sizeDelta = new Vector2(Mathf.Min(name.sizeDelta.x, 182), name.sizeDelta.y);
+                changed = true;
+            }
+            return changed;
         }
 
         private static void EnsureGhost(Transform root)
@@ -305,10 +361,12 @@ namespace WWG.Editor
                 var duplicateLocation = Find(canvas, "Location");
                 if (duplicateLocation != null) duplicateLocation.gameObject.SetActive(false);
                 foreach (Transform child in canvas)
-                    if (child.name == "Inventory" && child.GetComponent<Button>() == null && child.Find("Grid") != null)
+                    if (child.name == "Inventory" && child.GetComponent<Button>() == null &&
+                        (child.Find("Bag contents/Grid") != null || child.Find("Grid") != null))
                     {
+                        EnsureInventoryViews(child);
                         string[] existingIds = { StoryIds.Item.Photo, StoryIds.Item.Badge, StoryIds.Item.MachineNote, StoryIds.Item.TeamSheet };
-                        var existingGrid = child.Find("Grid");
+                        var existingGrid = child.Find("Bag contents/Grid");
                         for (int i = 0; i < existingIds.Length; i++)
                         {
                             var cell = existingGrid.Find("Cell " + i.ToString("00"));
@@ -389,9 +447,9 @@ namespace WWG.Editor
                         if (child.name == "Inventory" && child.GetComponent<Button>() == null) panel = child;
                 if (panel == null) throw new InvalidOperationException("Missing inventory panel: " + path);
                 var panelRect = (RectTransform)panel;
-                panelRect.anchorMin = panelRect.anchorMax = new Vector2(1, 0);
-                panelRect.pivot = new Vector2(1, 0);
-                panelRect.anchoredPosition = new Vector2(-28, 110);
+                var center = new Vector2(.5f, .5f);
+                panelRect.anchorMin = panelRect.anchorMax = panelRect.pivot = center;
+                panelRect.anchoredPosition = Vector2.zero;
                 panelRect.sizeDelta = new Vector2(650, 670);
                 var items = panel.Find("Items");
                 if (items != null) items.gameObject.SetActive(false);
@@ -420,14 +478,15 @@ namespace WWG.Editor
                     close.anchoredPosition = new Vector2(-18, -18);
                     close.sizeDelta = new Vector2(110, 55);
                 }
-                var tip = Panel(panel, "Tooltip", new Vector2(0, 1), new Vector2(0, 1),
-                    new Vector2(1, 1), new Vector2(-16, -96), new Vector2(270, 195)).transform;
+                var tip = Panel(panel, "Tooltip", center, center,
+                    center, Vector2.zero, new Vector2(270, 195)).transform;
                 Label(tip, "Name", "物品", new Vector2(16, -15), new Vector2(238, 54), 21);
                 Button(tip, "Use", "使用", new Vector2(0, 1), new Vector2(0, 1),
                     new Vector2(0, 1), new Vector2(16, -90), new Vector2(110, 58));
                 Button(tip, "Inspect", "查看", new Vector2(0, 1), new Vector2(0, 1),
                     new Vector2(0, 1), new Vector2(142, -90), new Vector2(110, 58));
                 tip.gameObject.SetActive(false);
+                EnsureInventoryViews(panel);
                 if (panel.GetComponent<S2InventoryGrid>() == null) panel.gameObject.AddComponent<S2InventoryGrid>();
                 Skin(panel.gameObject);
                 var memo = Find(canvas, "Task record");
@@ -509,7 +568,6 @@ namespace WWG.Editor
                     {
                         Skin(s1.memoPanel);
                         Skin(s1.infoPanel);
-                        Skin(s1.photoPanel);
                         Skin(s1.completionPanel);
                         MakeScrollable(s1.memoPanel.transform, s1.memoText.name);
                     }

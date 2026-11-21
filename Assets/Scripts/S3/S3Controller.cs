@@ -11,6 +11,7 @@ public sealed class S3Controller : MonoBehaviour, IDialogueContext
     public Text infoTitle, infoBody, archiveFeedback;
     public Text[] fieldLabels;
     public GameObject infoPanel, archivePanel, recordPanel, inventoryPanel, pausePanel;
+    public ClubPhotoView photoView;
     public Button memoButton, copyButton;
     public VitalsBars vitals;
 
@@ -50,8 +51,9 @@ public sealed class S3Controller : MonoBehaviour, IDialogueContext
 
     public GameState CurrentState => state;
     private static bool DialogueRunning => DialogueService.Instance != null && DialogueService.Instance.IsRunning;
-    private bool BlockingModal => DialogueRunning || infoPanel.activeSelf || recordPanel.activeSelf ||
-        inventoryPanel.activeSelf || pausePanel.activeSelf;
+    internal bool IsInventoryBlocked => DialogueRunning || SaveSlotPanel.IsOpen || infoPanel.activeSelf ||
+        recordPanel.activeSelf || pausePanel.activeSelf || (photoView != null && photoView.IsOpen);
+    private bool BlockingModal => IsInventoryBlocked || inventoryPanel.activeSelf;
     private bool CanAct => state != null && !BlockingModal && !archivePanel.activeSelf;
 
     private void Start()
@@ -269,7 +271,7 @@ public sealed class S3Controller : MonoBehaviour, IDialogueContext
     public void CloseRecord() => recordPanel.SetActive(false);
     public void OpenInventory()
     {
-        if (state == null || DialogueRunning || infoPanel.activeSelf || recordPanel.activeSelf) return;
+        if (state == null || IsInventoryBlocked) return;
         foreach (S2InventorySlot slot in inventoryPanel.GetComponentsInChildren<S2InventorySlot>(true))
         {
             Text label = slot.GetComponentInChildren<Text>(true);
@@ -288,16 +290,23 @@ public sealed class S3Controller : MonoBehaviour, IDialogueContext
     public void InspectInventoryItem(string item)
     {
         if (state == null || !state.HasItem(item)) return;
+        if (item == StoryIds.Item.Photo && photoView != null)
+        {
+            photoView.Open(state.HasFlag(StoryIds.Flag.P1Complete) ? ClubPhotoView.RevealedShadowOpacity : 0f);
+            return;
+        }
+        bool isBadge = item == StoryIds.Item.Badge;
         string body = item == StoryIds.Item.Photo ? "【社团自留资料】\n去年的活动室照片，背面标注 23:30。" :
-            item == StoryIds.Item.Badge ? "【社团自留资料】\n林未的旧工牌。正面姓名林未，编号 05；背面写着“玻璃两边，各存一半”。" :
+            isBadge ? string.Empty :
             item == StoryIds.Item.MachineNote ? "【社团自留资料】\n机房借用便签：林未，周五 23:30，单数栋 3F 机房靠窗第 3 台。" :
             item == StoryIds.Item.TeamSheet ? "【社团自留资料】\n去年的分工表残页，第五格被撕去，只剩编号 05。" :
             item == StoryIds.Item.OldProjectUsb ? "【旧工程拷贝】\nAfterLightsOut_Backup 已存入 U 盘，包含周六_16:00.scene。" : string.Empty;
-        ShowInfo(S2InventoryGrid.ItemName(item), body);
+        ShowInfo(isBadge ? string.Empty : S2InventoryGrid.ItemName(item), body, showBadge: isBadge);
     }
     public void TogglePause()
     {
         if (state == null || DialogueRunning) return;
+        if (photoView != null) photoView.Close();
         pausePanel.SetActive(!pausePanel.activeSelf);
     }
     public void SaveManual()
@@ -320,10 +329,12 @@ public sealed class S3Controller : MonoBehaviour, IDialogueContext
             gameTime = timeText.text, locationLabel = "S3 · " + timeText.text + " · 单数栋 3F 机房" };
     }
     public void CloseInfo() => infoPanel.SetActive(false);
-    private void ShowInfo(string title, string body)
+    private void ShowInfo(string title, string body, bool showBadge = false)
     {
+        if (photoView != null) photoView.Close();
         infoTitle.text = title;
         infoBody.text = body;
+        infoPanel.transform.Find("Badge artwork")?.gameObject.SetActive(showBadge);
         infoPanel.SetActive(true);
     }
     private void UpdateView()

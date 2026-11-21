@@ -13,6 +13,8 @@ namespace WWG
         private S0Controller s0;
         private S1Controller s1;
         private GameObject pausePanel, settingsPanel, detailPanel, inventoryPanel, inventoryButton, tooltip, topBar;
+        private GameObject inventoryContents;
+        private Image inventoryBackground;
         private GameObject shade;
         private Slider volumeSlider, textSpeedSlider;
         private Text textSpeedLabel;
@@ -21,11 +23,14 @@ namespace WWG
         private Text detailName, detailBody, selectionLabel, volumeLabel;
         private Text tooltipName;
         private RectTransform carriedItem;
-        private GameObject photoSlot, badgeSlot;
+        private GameplayInventorySlot photoSlot, badgeSlot;
         private string selectedItem;
         private string detailItem;
-        private bool tooltipPinned;
         private float messageUntil;
+
+        private bool InventoryBlocked => GameplayModalOpen || SaveSlotPanel.IsOpen || pausePanel.activeSelf;
+        internal bool CanInteractWithInventorySlots => inventoryContents.activeInHierarchy && !InventoryBlocked;
+        private bool CanInteractWithItemActions => tooltip.activeInHierarchy && !InventoryBlocked;
 
         private void Awake()
         {
@@ -37,6 +42,8 @@ namespace WWG
             settingsPanel = pausePanel.transform.Find("Settings panel").gameObject;
             detailPanel = transform.Find("Item detail").gameObject;
             inventoryPanel = transform.Find("Inventory panel").gameObject;
+            inventoryContents = inventoryPanel.transform.Find("Bag contents").gameObject;
+            inventoryBackground = inventoryPanel.GetComponent<Image>();
             SharedInteractionHud hud = GetComponentInChildren<SharedInteractionHud>(true);
             inventoryButton = hud.inventoryButton.gameObject;
             tooltip = inventoryPanel.transform.Find("Tooltip").gameObject;
@@ -51,16 +58,17 @@ namespace WWG
             messageLabel = FindText("Toast/Message");
             detailName = FindText("Item detail/Name");
             detailBody = FindText("Item detail/Body");
-            selectionLabel = FindText("Inventory panel/Selection");
+            selectionLabel = FindText("Inventory panel/Bag contents/Selection");
             volumeLabel = FindText("Pause panel/Settings panel/Volume value");
-            photoSlot = transform.Find("Inventory panel/Grid/Photo slot").gameObject;
-            badgeSlot = transform.Find("Inventory panel/Grid/Badge slot").gameObject;
+            photoSlot = inventoryContents.transform.Find("Grid/Photo slot").GetComponent<GameplayInventorySlot>();
+            badgeSlot = inventoryContents.transform.Find("Grid/Badge slot").GetComponent<GameplayInventorySlot>();
             hud.pauseButton.onClick.AddListener(TogglePause);
             hud.recordButton.onClick.AddListener(OpenRecord);
             hud.inventoryButton.onClick.AddListener(ToggleInventory);
-            Bind("Inventory panel/Close", ToggleInventory);
+            Bind("Inventory panel/Bag contents/Close", ToggleInventory);
             Bind("Inventory panel/Tooltip/Use", UseTooltipItem);
             Bind("Inventory panel/Tooltip/Inspect", InspectTooltipItem);
+            Bind("Inventory panel/Tooltip/Close", CloseItemActions);
             Bind("Pause panel/Resume", ClosePause);
             Bind("Pause panel/Save", Save);
             Bind("Pause panel/Load", Load);
@@ -116,7 +124,8 @@ namespace WWG
             AttachSound("SharedInteractionHud/Top bar/Pause", TitleButtonFx.ClickSound.Ok);
             AttachSound("SharedInteractionHud/Top bar/Record", TitleButtonFx.ClickSound.Ok);
             AttachSound("SharedInteractionHud/Inventory", TitleButtonFx.ClickSound.Ok);
-            AttachSound("Inventory panel/Close", TitleButtonFx.ClickSound.Cancel);
+            AttachSound("Inventory panel/Bag contents/Close", TitleButtonFx.ClickSound.Cancel);
+            AttachSound("Inventory panel/Tooltip/Close", TitleButtonFx.ClickSound.Cancel);
         }
 
         private void AttachSound(string path, TitleButtonFx.ClickSound sound)
@@ -143,12 +152,14 @@ namespace WWG
 
         private void Update()
         {
+            if (inventoryPanel.activeSelf && InventoryBlocked) CloseInventory();
             if (SaveSlotPanel.IsOpen) return;
             bool dialogueRunning = DialogueService.Instance != null && DialogueService.Instance.IsRunning;
             if (!dialogueRunning && Keyboard.current != null && Keyboard.current.escapeKey.wasPressedThisFrame)
             {
                 if (settingsPanel.activeSelf) CloseSettings();
                 else if (detailPanel.activeSelf) CloseDetail();
+                else if (tooltip.activeSelf) CloseItemActions();
                 else if (inventoryPanel.activeSelf) ToggleInventory();
                 else if (selectedItem != null) { selectedItem = null; ClearCarriedItem(); }
                 else TogglePause();
@@ -175,11 +186,11 @@ namespace WWG
                     vitals.SetHealth(s1.Health, 3);
                 }
             }
-            photoSlot.SetActive(s1 != null && s1.HasPhoto);
-            badgeSlot.SetActive(s1 != null && s1.HasBadge);
-            selectionLabel.text = selectedItem == null ? (s1 == null || (!s1.HasPhoto && !s1.HasBadge) ? "暂无物品" : "悬停物品后选择使用或查看") :
+            photoSlot.SetOccupied(s1 != null && s1.HasPhoto);
+            badgeSlot.SetOccupied(s1 != null && s1.HasBadge);
+            selectionLabel.text = selectedItem == null ? (s1 == null || (!s1.HasPhoto && !s1.HasBadge) ? "暂无物品" : "点击物品后选择使用或查看") :
                 "已选择 " + (selectedItem == "photo" ? "旧照片" : "旧工牌") + " · 点击场景热点使用";
-            inventoryButton.SetActive(!dialogueRunning && !pausePanel.activeSelf && !GameplayModalOpen && !inventoryPanel.activeSelf);
+            inventoryButton.SetActive(!InventoryBlocked && !detailPanel.activeSelf && !inventoryPanel.activeSelf);
             if (topBar != null) topBar.SetActive(!dialogueRunning && !inventoryPanel.activeSelf);
             if (shade != null)
             {
@@ -204,8 +215,8 @@ namespace WWG
             else
             {
                 CloseGameplayModals();
-                detailPanel.SetActive(false);
-                inventoryPanel.SetActive(false);
+                CloseDetail();
+                CloseInventory();
                 pausePanel.SetActive(true);
                 Time.timeScale = 0f;
             }
@@ -223,7 +234,7 @@ namespace WWG
             {
                 if (s1.infoPanel != null && s1.infoPanel.activeSelf) s1.CloseInfo();
                 if (s1.memoPanel != null && s1.memoPanel.activeSelf) s1.ToggleMemo();
-                if (s1.photoPanel != null && s1.photoPanel.activeSelf) s1.ClosePhoto();
+                if (s1.photoView != null) s1.photoView.Close();
             }
         }
 
@@ -283,32 +294,18 @@ namespace WWG
 
         public void ToggleInventory()
         {
-            if (pausePanel.activeSelf || GameplayModalOpen ||
-                (DialogueService.Instance != null && DialogueService.Instance.IsRunning)) return;
-            inventoryPanel.SetActive(!inventoryPanel.activeSelf);
-            tooltip.SetActive(false);
-            tooltipPinned = false;
+            if (inventoryPanel.activeSelf) CloseInventory();
+            else if (!InventoryBlocked && !detailPanel.activeSelf) inventoryPanel.SetActive(true);
         }
 
-        public void HoverItem(string item)
+        public bool OpenItem(string item)
         {
-            if (tooltipPinned) return;
-            ShowItemTooltip(item);
-        }
-
-        public void OpenItem(string item, bool allowSwitch = false)
-        {
-            if (GameplayModalOpen || pausePanel.activeSelf || (tooltipPinned && !allowSwitch)) return;
-            ShowItemTooltip(item);
-            tooltipPinned = true;
-        }
-
-        private void ShowItemTooltip(string item)
-        {
-            if (GameplayModalOpen || pausePanel.activeSelf) return;
+            if (!CanInteractWithInventorySlots) return false;
             detailItem = item;
             tooltipName.text = item == "photo" ? "去年的活动室照片" : "林未的旧工牌";
+            SetInventoryContentsVisible(false);
             tooltip.SetActive(true);
+            return true;
         }
 
         private void OpenDetail(string item)
@@ -321,26 +318,58 @@ namespace WWG
             detailPanel.SetActive(true);
         }
 
-        private void UseTooltipItem() { SelectDetailItem(); }
-        private void InspectTooltipItem() { InspectDetailItem(); }
+        private void SetInventoryContentsVisible(bool visible)
+        {
+            inventoryBackground.enabled = visible;
+            inventoryContents.SetActive(visible);
+        }
 
-        private void CloseDetail() { detailPanel.SetActive(false); }
+        private void CloseItemActions()
+        {
+            if (!CanInteractWithItemActions) return;
+            tooltip.SetActive(false);
+            detailItem = null;
+            SetInventoryContentsVisible(true);
+        }
+
+        private void CloseInventory()
+        {
+            tooltip.SetActive(false);
+            inventoryPanel.SetActive(false);
+            detailItem = null;
+            SetInventoryContentsVisible(true);
+        }
+
+        private void UseTooltipItem()
+        {
+            if (CanInteractWithItemActions) SelectDetailItem();
+        }
+
+        private void InspectTooltipItem()
+        {
+            if (CanInteractWithItemActions) InspectDetailItem();
+        }
+
+        private void CloseDetail()
+        {
+            detailPanel.SetActive(false);
+            detailItem = null;
+        }
+
         private void SelectDetailItem()
         {
+            if (InventoryBlocked || detailItem == null) return;
             selectedItem = detailItem;
-            tooltip.SetActive(false);
-            tooltipPinned = false;
-            inventoryPanel.SetActive(false);
+            CloseInventory();
             CloseDetail();
             ShowDragGhost(selectedItem);
             ShowToast("选择了" + (selectedItem == "photo" ? "旧照片" : "旧工牌") + "，点击场景热点使用");
         }
         private void InspectDetailItem()
         {
+            if (InventoryBlocked || detailItem == null) return;
             string item = detailItem;
-            tooltip.SetActive(false);
-            tooltipPinned = false;
-            inventoryPanel.SetActive(false);
+            CloseInventory();
             CloseDetail();
             if (s1 == null) { OpenDetail(item); return; }
             if (item == "photo") s1.InspectPhoto();
@@ -349,7 +378,7 @@ namespace WWG
 
         public static bool TryUseSelected(string hotspot)
         {
-            if (current == null || current.selectedItem == null || current.s1 == null) return false;
+            if (current == null || current.selectedItem == null || current.s1 == null || current.InventoryBlocked) return false;
             var item = current.selectedItem;
             current.selectedItem = null;
             current.ClearCarriedItem();
@@ -359,6 +388,7 @@ namespace WWG
 
         public void DragItemTo(string item, PointerEventData eventData)
         {
+            if (!CanInteractWithInventorySlots) return;
             var hits = new List<RaycastResult>();
             EventSystem.current.RaycastAll(eventData, hits);
             foreach (var hit in hits)
@@ -391,7 +421,11 @@ namespace WWG
             if (carriedItem != null) carriedItem.position = position;
         }
 
-        public void HideDragGhost() { ClearCarriedItem(); }
+        public void HideDragGhost()
+        {
+            if (selectedItem == null) ClearCarriedItem();
+            else ShowDragGhost(selectedItem);
+        }
 
         private void ShowToast(string message)
         {

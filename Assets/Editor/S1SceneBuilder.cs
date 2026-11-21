@@ -8,6 +8,7 @@ using UnityEngine.EventSystems;
 using UnityEngine.InputSystem.UI;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using WWG;
 
 public static class S1SceneBuilder
 {
@@ -25,6 +26,9 @@ public static class S1SceneBuilder
             Debug.LogWarning("[WWG] S1 已存在。此脚手架不覆盖人工维护的地点场景。");
             return;
         }
+        var photoPrefab = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Prefabs/UI/ClubPhotoView.prefab");
+        if (photoPrefab == null || photoPrefab.GetComponent<ClubPhotoView>() == null)
+            throw new System.InvalidOperationException("缺少共享的旧照片详情预制体。");
         ImportSprite("Assets/Resources/S1/ClubRoomNightClean.png");
         ImportSprite("Assets/Resources/S1/FifthChair.png");
         ImportSprite("Assets/Resources/S1/CorridorNight.png");
@@ -122,35 +126,8 @@ public static class S1SceneBuilder
         Button(controller.inventoryPanel.transform, "Inspect badge", "查看林未工牌 · 正反面", 75, 450, 665, 75, controller.InspectBadge);
         Button(controller.inventoryPanel.transform, "Close", "关闭", 575, 690, 170, 60, controller.ToggleInventory);
 
-        controller.photoPanel = Panel(canvas.transform, "Old photograph", 330, 110, 1260, 860, Ink);
-        Label(controller.photoPanel.transform, "Source", "社团自留资料 · 去年的活动室照片", 55, 28, 970, 58, 33, Accent, TextAnchor.MiddleLeft);
-        controller.photoFace = Rect(controller.photoPanel.transform, "Photo front", 70, 110, 1120, 630);
-        GameObject miniature = Page(controller.photoFace.transform, "Photograph image", "Assets/Resources/S1/ClubRoomNightClean.png", 0, 0, 1120, 630);
-        controller.photoCurtain = Panel(miniature.transform, "Curtain in photo", 670, 90, 180, 280,
-            new Color(0.13f, 0.15f, 0.20f, 0.90f), false).GetComponent<Image>();
-        controller.photoLamp = Page(miniature.transform, "Lamp in photo", "Assets/Resources/S1/OldDeskLamp.png",
-            630, 310, 65, 95).GetComponent<Image>();
-        controller.hintLampHighlight = Panel(miniature.transform, "Lamp hint", 620, 300, 85, 112,
-            new Color(1f, 0.82f, 0.28f, 0.25f), false);
-        controller.hintTapeHighlight = Panel(miniature.transform, "Tape hint", 805, 480, 195, 105,
-            new Color(1f, 0.82f, 0.28f, 0.22f), false);
-        GameObject photoChair = Rect(miniature.transform, "Fifth chair in photo", 830, 370, 130, 195);
-        Image photoChairImage = photoChair.AddComponent<Image>();
-        photoChairImage.sprite = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Resources/S1/FifthChair.png");
-        photoChairImage.preserveAspect = true;
-        photoChairImage.raycastTarget = false;
-        controller.photoShadow = Panel(miniature.transform, "Fifth person's shadow", 872, 380, 58, 105,
-            new Color(0.04f, 0.07f, 0.10f, 0), false).GetComponent<Image>();
-        controller.photoShadowHead = Label(miniature.transform, "Shadow head", "●", 872, 340, 60, 70, 62,
-            new Color(0.04f, 0.07f, 0.10f, 0), TextAnchor.MiddleCenter);
-        controller.photoCaption = Label(controller.photoFace.transform, "Caption", "", 30, 570, 1040, 46, 29,
-            Color.white, TextAnchor.MiddleCenter);
-        controller.photoBack = Panel(controller.photoPanel.transform, "Photo back", 95, 120, 1070, 615,
-            new Color(0.74f, 0.70f, 0.61f, 1));
-        controller.photoBackText = Label(controller.photoBack.transform, "Back inscription", "", 95, 150, 880, 310,
-            49, new Color(0.16f, 0.16f, 0.15f), TextAnchor.MiddleCenter);
-        Button(controller.photoPanel.transform, "Flip photo", "翻面", 680, 770, 185, 56, controller.FlipPhoto);
-        Button(controller.photoPanel.transform, "Close photo", "收起照片", 930, 770, 225, 56, controller.ClosePhoto);
+        var photoPanel = (GameObject)PrefabUtility.InstantiatePrefab(photoPrefab, canvas.transform);
+        controller.photoView = photoPanel.GetComponent<ClubPhotoView>();
 
         controller.memoPanel = Panel(canvas.transform, "Task record", 350, 125, 1220, 840, Ink);
         Label(controller.memoPanel.transform, "Heading", "任务记录", 50, 35, 850, 55, 40, Accent, TextAnchor.MiddleLeft);
@@ -165,7 +142,6 @@ public static class S1SceneBuilder
 
         controller.infoPanel.SetActive(false);
         controller.inventoryPanel.SetActive(false);
-        controller.photoPanel.SetActive(false);
         controller.memoPanel.SetActive(false);
         controller.completionPanel.SetActive(false);
 
