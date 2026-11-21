@@ -94,7 +94,6 @@ public static class S0SceneBuilder
         // Club room: the old box, chair and taped floor remain in the shared scene art.
         Hotspot(roomInteractions.transform, "第五把椅子", "chair", "查看第五把椅子 / 储物柜", 1280, 395, 390, 380);
         Nav(roomInteractions.transform, "← 5F 走廊", "toCorridor", 64, 800, 280, 64);
-        Nav(roomInteractions.transform, "与袁祁交谈", "leader", 760, 800, 330, 64);
 
         // Four-floor entrance: leave source material on its own visual layer.
         Hotspot(bridgeInteractions.transform, "双栋导览练习稿", "guide", "查看双栋导览练习稿", 40, 135, 460, 460);

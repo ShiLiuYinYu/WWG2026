@@ -98,6 +98,7 @@ public sealed class S1Controller : MonoBehaviour, IDialogueContext
     private Vector2 boxFloorPosition;
     private Vector2 boxFloorSize;
     private Vector3 boxFloorScale;
+    private Vector2 defaultHoverPosition;
     private bool subscribed;
     private float idleSeconds;
     private float dangerSeconds;
@@ -165,6 +166,7 @@ public sealed class S1Controller : MonoBehaviour, IDialogueContext
 
     private void Start()
     {
+        defaultHoverPosition = hoverText.rectTransform.anchoredPosition;
         Application.runInBackground = true;
         if (box != null)
         {
@@ -274,7 +276,12 @@ public sealed class S1Controller : MonoBehaviour, IDialogueContext
         }
     }
 
-    public void SetHover(string label) { hoverText.text = label; }
+    public void SetHover(string label, Image arrow = null)
+    {
+        hoverText.text = label;
+        if (arrow != null) NavigationHintLayout.Place(hoverText, arrow);
+        else hoverText.rectTransform.anchoredPosition = defaultHoverPosition;
+    }
 
     public void HandleHotspot(string action)
     {

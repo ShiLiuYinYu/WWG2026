@@ -51,6 +51,9 @@ public static class DialogueHostBuilder
         GameObject dialogueRoot = Stretch(root.transform, "Dialogue root").gameObject;
         RectTransform panel = Box(dialogueRoot.transform, "Dialogue panel", 45, 820, 1830, 230, Panel, false);
         Image portrait = Box(panel, "Speaker portrait", 30, -75, 245, 305, Color.white, false).GetComponent<Image>();
+        RectTransform portraitRect = portrait.rectTransform;
+        portraitRect.anchorMin = portraitRect.anchorMax = portraitRect.pivot = Vector2.zero;
+        portraitRect.anchoredPosition = new Vector2(30, 0);
         portrait.preserveAspect = true;
         portrait.enabled = false;
         Text speaker = Label(panel, "Speaker", "", 36, 18, 390, 48, 31, Accent, TextAnchor.MiddleLeft);

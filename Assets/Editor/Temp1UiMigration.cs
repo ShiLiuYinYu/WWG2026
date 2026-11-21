@@ -268,7 +268,7 @@ namespace WWG.Editor
             portrait.color = new Color(.06f, .055f, .05f, 1f);
             portrait.preserveAspect = true;
             var portraitRect = portrait.rectTransform;
-            if (Mathf.Approximately(portraitRect.anchoredPosition.y, 75f))
+            if (portraitRect.pivot.y == 1f && Mathf.Approximately(portraitRect.anchoredPosition.y, 75f))
                 portraitRect.anchoredPosition = new Vector2(portraitRect.anchoredPosition.x, 305f);
             var presenter = root.GetComponent<WwgDialoguePresenter>();
             if (presenter != null)

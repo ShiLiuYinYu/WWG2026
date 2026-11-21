@@ -46,12 +46,10 @@ public sealed class S1Hotspot : MonoBehaviour, IPointerClickHandler, IPointerEnt
 
     public void OnPointerEnter(PointerEventData eventData)
     {
-        if (outlineHover == null)
-        {
-            if (image != null && action != "chair") image.color = new Color(0.65f, 0.88f, 0.95f, 0.16f);
-            controller.SetHover(label);
-        }
-        else controller.SetHover(IsNavigationArrow() ? label : "");
+        if (outlineHover == null && image != null && action != "chair")
+            image.color = new Color(0.65f, 0.88f, 0.95f, 0.16f);
+        Image arrow = WWG.NavigationHintLayout.FindArrow(transform);
+        controller.SetHover(outlineHover == null || arrow != null ? label : "", arrow);
         WWG.UISound.Cursor();
     }
 
@@ -87,12 +85,5 @@ public sealed class S1Hotspot : MonoBehaviour, IPointerClickHandler, IPointerEnt
             rect.anchoredPosition = dragStart;
             if (dragVisual != null) dragVisual.anchoredPosition = dragStart;
         }
-    }
-
-    private bool IsNavigationArrow()
-    {
-        Image parentImage = transform.parent != null ? transform.parent.GetComponent<Image>() : null;
-        return parentImage != null && parentImage.sprite != null &&
-            parentImage.sprite.name.StartsWith("WhiteArrow");
     }
 }
