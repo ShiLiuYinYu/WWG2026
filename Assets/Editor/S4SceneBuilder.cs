@@ -15,7 +15,6 @@ public static class S4SceneBuilder
 {
     private const string Source = "Assets/Scenes/S2/S2_ClubRoom.unity";
     private const string Destination = "Assets/Scenes/S4.unity";
-    private static readonly Color Ink = new Color(0.035f, 0.055f, 0.055f, 0.96f);
     private static readonly Color Paper = new Color(0.96f, 0.91f, 0.78f);
     private static readonly Color Accent = new Color(0.95f, 0.77f, 0.37f);
     private static Font font;
@@ -90,39 +89,22 @@ public static class S4SceneBuilder
             c.tangButton = Hotspot(canvas, "S4 Tang", 1020, 470, 270, 300, "与唐澈交谈", hover);
             c.computerButton = Hotspot(canvas, "S4 Computer", 590, 555, 365, 190, "周六_16:00.scene · 打开旧工程", hover);
 
-            c.choicePanel = Panel(canvas, "S4 Choice", 400, 240, 1120, 620, Ink);
-            c.choiceTitle = Label(c.choicePanel.transform, "Title", "如何打开旧工程？\n这会决定谁看到异常，确认后不可反悔。",
-                80, 55, 960, 150, 37, Paper, TextAnchor.MiddleCenter);
-            Button(c.choicePanel.transform, "Together", "四个人一起看 · 有福同享有难同当", 95, 270, 930, 95);
-            Button(c.choicePanel.transform, "Alone", "我先点开探路 · 你们站远点", 95, 390, 930, 95);
-            Button(c.choicePanel.transform, "Close", "稍后再决定", 400, 520, 320, 65);
+            c.choicePanel = Rect(canvas, "S4 Choice", 0, 0, 930, 335);
+            RectTransform choices = (RectTransform)c.choicePanel.transform;
+            choices.anchorMin = choices.anchorMax = choices.pivot = new Vector2(.5f, .5f);
+            choices.anchoredPosition = Vector2.zero;
+            Sprite choiceSprite = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Resources/S0/选项按钮.png");
+            Button(choices, "Together", "四个人一起看 · 有福同享有难同当", 0, 0, 930, 95, choiceSprite);
+            Button(choices, "Alone", "我先点开探路 · 你们站远点（SAN -10）", 0, 120, 930, 95, choiceSprite);
+            Button(choices, "Close", "稍后再决定", 0, 240, 930, 95, choiceSprite);
             c.choicePanel.SetActive(false);
 
-            c.confirmPanel = Panel(canvas, "S4 Confirm", 460, 280, 1000, 520, Ink);
-            c.confirmText = Label(c.confirmPanel.transform, "Description", "", 90, 70, 820, 250, 36, Paper, TextAnchor.MiddleCenter);
-            Button(c.confirmPanel.transform, "Confirm", "确认选择", 100, 385, 360, 75);
-            Button(c.confirmPanel.transform, "Back", "返回", 540, 385, 360, 75);
-            c.confirmPanel.SetActive(false);
-
-            c.oldProjectPanel = Panel(canvas, "S4 Old project", 0, 0, 1920, 1080, Color.black);
-            Image monitor = Panel(c.oldProjectPanel.transform, "Monitor frame", 180, 85, 1560, 875,
-                new Color(0.045f, 0.06f, 0.07f, 1f)).GetComponent<Image>();
-            var copiedArt = UnityEngine.Object.Instantiate(art.gameObject, c.oldProjectPanel.transform);
-            copiedArt.name = "Old project room image";
-            RectTransform copiedRect = copiedArt.GetComponent<RectTransform>();
-            copiedRect.localScale = Vector3.one * 0.72f;
-            copiedRect.anchoredPosition = new Vector2(270, -100);
-            foreach (Graphic graphic in copiedArt.GetComponentsInChildren<Graphic>(true)) graphic.raycastTarget = false;
-            Image figure = Panel(c.oldProjectPanel.transform, "Fifth silhouette", 1318, 610, 78, 160,
-                new Color(0.35f, 0.38f, 0.41f, 0.9f)).GetComponent<Image>();
-            figure.raycastTarget = false;
-            c.projectStatus = Label(c.oldProjectPanel.transform, "Status", "", 470, 180, 980, 130, 53,
-                Color.white, TextAnchor.MiddleCenter);
-            Label(c.oldProjectPanel.transform, "File name", "AfterLightsOut_Backup / 周六_16:00.scene",
-                280, 910, 1360, 60, 30, Accent, TextAnchor.MiddleCenter);
-            c.oldProjectPanel.SetActive(false);
-
-            c.blackout = Panel(canvas, "S4 Blackout", 0, 0, 1920, 1080, Color.black);
+            c.blackout = Panel(canvas, "S4 Blackout", 0, 0, 0, 0, Color.black);
+            RectTransform blackout = (RectTransform)c.blackout.transform;
+            blackout.anchorMin = Vector2.zero;
+            blackout.anchorMax = Vector2.one;
+            blackout.pivot = new Vector2(.5f, .5f);
+            blackout.offsetMin = blackout.offsetMax = Vector2.zero;
             c.blackout.SetActive(false);
             c.endingPanel = Panel(canvas, "S4 Ending", 0, 0, 1920, 1080, Color.black);
             c.endingText = Label(c.endingPanel.transform, "Ending text", "", 300, 250, 1320, 480, 64,
@@ -233,15 +215,6 @@ public static class S4SceneBuilder
             }
         }
 
-        Image silhouette = c.oldProjectPanel.transform.Find("Fifth silhouette")?.GetComponent<Image>();
-        Sprite figure = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Resources/S1/失踪女生.png");
-        if (silhouette != null && silhouette.sprite == null && figure != null)
-        {
-            silhouette.sprite = figure;
-            silhouette.preserveAspect = true;
-            silhouette.color = new Color(0.45f, 0.47f, 0.5f, 0.78f);
-            silhouette.rectTransform.sizeDelta = new Vector2(125, 180);
-        }
     }
 
     private static GameObject Rect(Transform parent, string name, float x, float y, float w, float h)
@@ -275,11 +248,17 @@ public static class S4SceneBuilder
         text.raycastTarget = false;
         return text;
     }
-    private static Button Button(Transform parent, string name, string caption, float x, float y, float w, float h)
+    private static Button Button(Transform parent, string name, string caption, float x, float y, float w, float h,
+        Sprite sprite = null)
     {
-        GameObject go = Panel(parent, name, x, y, w, h, new Color(0.18f, 0.22f, 0.24f, 0.96f));
+        Color background = sprite != null ? Color.white : new Color(0.18f, 0.22f, 0.24f, 0.96f);
+        GameObject go = Panel(parent, name, x, y, w, h, background);
+        Image image = go.GetComponent<Image>();
+        image.sprite = sprite;
         Button button = go.AddComponent<Button>();
-        Label(go.transform, "Caption", caption, 10, 5, w - 20, h - 10, 32, Paper, TextAnchor.MiddleCenter);
+        button.targetGraphic = image;
+        Color textColor = sprite != null ? new Color(.95f, .88f, .72f) : Paper;
+        Label(go.transform, "Caption", caption, 10, 5, w - 20, h - 10, 32, textColor, TextAnchor.MiddleCenter);
         return button;
     }
     private static Button Hotspot(Transform parent, string name, float x, float y, float w, float h,
