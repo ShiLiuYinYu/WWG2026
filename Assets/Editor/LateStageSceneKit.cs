@@ -141,6 +141,7 @@ public static class LateStageSceneKit
         GameObject panel = LateUi.Panel(canvas, "Inspect", 345, 160, 1230, 760, Ink);
         title = LateUi.Label(panel.transform, "Title", "", 55, 35, 1110, 85, 40, Accent, TextAnchor.MiddleLeft);
         body = LateUi.Label(panel.transform, "Body", "", 65, 150, 1090, 430, 34, Paper, TextAnchor.UpperLeft);
+        LateUi.FitBody(body);
         LateUi.Button(panel.transform, "Close", "继续调查", 920, 640, 245, 68);
         panel.SetActive(false);
         return panel;
@@ -164,9 +165,12 @@ public static class LateStageSceneKit
         GameObject panel = LateUi.Panel(canvas, "Puzzle", 260, 140, 1400, 800, Ink);
         title = LateUi.Label(panel.transform, "Title", "", 60, 36, 1180, 70, 40, Accent, TextAnchor.MiddleLeft);
         body = LateUi.Label(panel.transform, "Body", "", 60, 118, 1280, 460, 32, Paper, TextAnchor.UpperLeft);
-        a = LateUi.Button(panel.transform, "Option A", "", 60, 596, 380, 76, 27);
-        b = LateUi.Button(panel.transform, "Option B", "", 460, 596, 380, 76, 27);
-        c = LateUi.Button(panel.transform, "Option C", "", 860, 596, 380, 76, 27);
+        a = LateUi.Button(panel.transform, "Option A", "", 60, 596, 380, 88, 24);
+        b = LateUi.Button(panel.transform, "Option B", "", 460, 596, 380, 88, 24);
+        c = LateUi.Button(panel.transform, "Option C", "", 860, 596, 380, 88, 24);
+        LateUi.AutoFitCaption(a, 24);
+        LateUi.AutoFitCaption(b, 24);
+        LateUi.AutoFitCaption(c, 24);
         note = LateUi.Label(panel.transform, "Feedback", "", 60, 690, 1120, 70, 28, PaperDim, TextAnchor.MiddleLeft);
         close = LateUi.Button(panel.transform, "Close", "关闭", 1180, 44, 180, 62);
         panel.SetActive(false);

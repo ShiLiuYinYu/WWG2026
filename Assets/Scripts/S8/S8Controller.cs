@@ -28,6 +28,8 @@ namespace WWG
         private bool development;
         private bool subscribed;
         private float feedbackTimer;
+        private Button infoCloseButton;
+        private Action nextInfoPage;
 
         private bool Blocked => DialogueRunning || SaveSlotPanel.IsOpen || ModalOpen;
         private bool ModalOpen =>
@@ -71,7 +73,9 @@ namespace WWG
             CloseAllPanels();
             SceneHotspotInput.Install(this, () => state == null || Blocked,
                 materialsButton, computerButton, memorialButton);
-            Bind("Inspect/Close", () => infoPanel.SetActive(false));
+            Bind("Inspect/Close", CloseInfo);
+            Transform closeView = infoPanel.transform.Find("Close");
+            infoCloseButton = closeView != null ? closeView.GetComponent<Button>() : null;
             Bind("Task record/Close", () => recordPanel.SetActive(false));
             BindButton(puzzleClose, () => puzzlePanel.SetActive(false));
             BindButton(materialsButton, OpenMaterials);
@@ -138,6 +142,7 @@ namespace WWG
 
         private void CloseAllPanels()
         {
+            nextInfoPage = null;
             if (infoPanel != null) infoPanel.SetActive(false);
             if (recordPanel != null) recordPanel.SetActive(false);
             if (puzzlePanel != null) puzzlePanel.SetActive(false);
@@ -171,8 +176,20 @@ namespace WWG
                 Persist();
                 UpdateView();
             }
-            ShowInfo("袁祁拿出的两份材料",
-                DialogueDocuments.GetBody("s8.letter") + "\n\n——\n\n" + DialogueDocuments.GetBody("s8.archive"), false);
+            ShowMaterialsPage(1);
+        }
+
+        // 两份材料分开成页：一页装 16 行正文会压出资料窗边框，分页后正文保持 34 号。
+        private void ShowMaterialsPage(int page)
+        {
+            if (page <= 1)
+            {
+                ShowInfo("袁祁拿出的两份材料（1/2）", DialogueDocuments.GetBody("s8.letter"), false);
+                LateUi.SetCaption(infoCloseButton, "下一页");
+                nextInfoPage = () => ShowMaterialsPage(2);
+                return;
+            }
+            ShowInfo("袁祁拿出的两份材料（2/2）", DialogueDocuments.GetBody("s8.archive"), false);
         }
 
         private void OpenMemorial()
@@ -387,7 +404,7 @@ namespace WWG
         {
             if (state == null || Blocked) return;
             recordText.text =
-                "【S8 封包】\n" +
+                "【封包】\n" +
                 "材料：" + (state.HasFlag(StoryIds.Flag.S8MaterialsSeen) ? "署名更正页 + 协会内部存档" : "未查看") + "\n" +
                 "资料去向：" + (string.IsNullOrEmpty(state.endingChoice)
                     ? "未选择"
@@ -432,12 +449,23 @@ namespace WWG
         private void ShowInfo(string title, string body, bool residue, bool showBadge = false)
         {
             if (infoPanel == null) return;
+            nextInfoPage = null;
+            LateUi.SetCaption(infoCloseButton, "继续调查");
             infoTitle.text = (residue ? "【残影】" : "") + title;
             infoBody.text = body;
-            Transform badge = infoPanel.transform.Find("Badge artwork");
-            if (badge != null) badge.gameObject.SetActive(showBadge);
+            LateUi.FitBody(infoBody);
+            BadgeDetailLayout.Apply(infoPanel, infoBody, showBadge);
             infoPanel.SetActive(true);
             if (recordPanel != null) recordPanel.SetActive(false);
+        }
+
+        /// <summary>「继续调查」：关闭资料窗；排了下一页时接着翻，而不是直接收起。</summary>
+        private void CloseInfo()
+        {
+            if (infoPanel != null) infoPanel.SetActive(false);
+            Action next = nextInfoPage;
+            nextInfoPage = null;
+            if (next != null) next();
         }
 
         public SaveSlotSnapshot CaptureSaveSlot()

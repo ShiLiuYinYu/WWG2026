@@ -414,7 +414,8 @@ public sealed class S4Controller : MonoBehaviour, IDialogueContext
         if (photoView != null) photoView.Close();
         infoTitle.text = (residue ? "【残影】" : "") + title;
         infoBody.text = body;
-        infoPanel.transform.Find("Badge artwork")?.gameObject.SetActive(showBadge);
+        LateUi.FitBody(infoBody);
+        BadgeDetailLayout.Apply(infoPanel, infoBody, showBadge);
         infoPanel.SetActive(true);
     }
     public void CloseInfo() => infoPanel.SetActive(false);

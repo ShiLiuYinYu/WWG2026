@@ -592,6 +592,6 @@ public sealed class S0Controller : MonoBehaviour, IDialogueContext
         else if (phase == 3) objectiveText.text = "与队友整理关卡草图";
         else if (phase == 2) objectiveText.text = AllMemories ? "回 5F 活动室" : "查看活动室、5F 走廊和 4F 连廊入口";
         else objectiveText.text = "前往单数栋 5F 游戏开发协会活动室";
-        progressText.text = phase == 4 ? (boxFallen ? "S0 完成 · 旧照片待调查" : "23:30 · 公共照明熄灭") : phase == 3 ? "时间推进中" : phase < 2 ? "开题前" : "白天记忆点 " + ((chairRead ? 1 : 0) + (signRead && timerRead ? 1 : 0) + (guideRead ? 1 : 0)) + "/3";
+        progressText.text = phase == 4 ? (boxFallen ? "旧照片待调查" : "23:30 · 公共照明熄灭") : phase == 3 ? "时间推进中" : phase < 2 ? "开题前" : "白天记忆点 " + ((chairRead ? 1 : 0) + (signRead && timerRead ? 1 : 0) + (guideRead ? 1 : 0)) + "/3";
     }
 }

@@ -335,7 +335,8 @@ public sealed class S3Controller : MonoBehaviour, IDialogueContext
         if (photoView != null) photoView.Close();
         infoTitle.text = title;
         infoBody.text = body;
-        infoPanel.transform.Find("Badge artwork")?.gameObject.SetActive(showBadge);
+        LateUi.FitBody(infoBody);
+        BadgeDetailLayout.Apply(infoPanel, infoBody, showBadge);
         infoPanel.SetActive(true);
     }
     private void UpdateView()

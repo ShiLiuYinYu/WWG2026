@@ -454,8 +454,8 @@ namespace WWG
             if (infoPanel == null) return;
             infoTitle.text = (residue ? "【残影】" : "") + title;
             infoBody.text = body;
-            Transform badge = infoPanel.transform.Find("Badge artwork");
-            if (badge != null) badge.gameObject.SetActive(showBadge);
+            LateUi.FitBody(infoBody);
+            BadgeDetailLayout.Apply(infoPanel, infoBody, showBadge);
             infoPanel.SetActive(true);
             if (recordPanel != null) recordPanel.SetActive(false);
         }

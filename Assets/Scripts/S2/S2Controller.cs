@@ -133,7 +133,7 @@ public sealed class S2Controller : MonoBehaviour, IDialogueContext
         if (state == null)
         {
             Debug.LogError("[S2] 缺少 S1 交接或 S2 检查点。请从 S1 进入，或用 WWG/Dev/Play S2。");
-            ShowInfo("无法进入 S2", "请从 S1 到达连廊，或使用编辑器的 WWG/Dev/Play S2。", false);
+            ShowInfo("无法进入本章", "请从上一章到达连廊，或使用编辑器的章节预览菜单。", false);
             return;
         }
         if (state.locationId == StoryIds.Location.ClubRoom && state.HasFlag(StoryIds.Flag.P3Copied))
@@ -519,7 +519,7 @@ public sealed class S2Controller : MonoBehaviour, IDialogueContext
     {
         if (development) return;
         if (!Persist()) return;
-        feedbackText.text = automatic ? "P2 完成，已自动保存检查点。" : "S2 检查点已保存。";
+        feedbackText.text = automatic ? "P2 完成，已自动保存检查点。" : "检查点已保存。";
     }
     private bool Persist()
     {
@@ -555,7 +555,8 @@ public sealed class S2Controller : MonoBehaviour, IDialogueContext
         if (photoView != null) photoView.Close();
         infoTitle.text = (residue ? "【残影】" : "") + title;
         infoBody.text = body;
-        infoPanel.transform.Find("Badge artwork")?.gameObject.SetActive(showBadge);
+        LateUi.FitBody(infoBody);
+        BadgeDetailLayout.Apply(infoPanel, infoBody, showBadge);
         infoPanel.SetActive(true);
     }
 

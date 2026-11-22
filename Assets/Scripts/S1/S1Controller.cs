@@ -471,7 +471,7 @@ public sealed class S1Controller : MonoBehaviour, IDialogueContext
         timeText.text = phase >= 4 ? "周六 00:10" : phase >= 2 ? "周六 00:00" : "周五 23:30";
         objectiveText.text = phase == 0 ? "捡起掉落的旧照片" : phase == 1 ? "对照旧照片还原活动室" :
             phase == 2 ? "查看第五把椅子的坐垫" : phase == 3 ? "前往 4F 玻璃连廊" : "抵达 4F 连廊入口";
-        progressText.text = phase == 1 ? "环境匹配 " + Matches + "/3" : phase >= 2 ? "P1 已完成" : "S1 · 旧照片";
+        progressText.text = phase == 1 ? "环境匹配 " + Matches + "/3" : phase >= 2 ? "P1 已完成" : "旧照片";
         statusText.text = "SAN " + san + "/100    生命 " + health + "/3";
         inventoryText.text = "任务物品\n\n" + (hasPhoto ? "✓ 去年的活动室照片\n" : "○ 照片待取得\n") +
                              (hasBadge ? "✓ 林未的旧工牌" : "○ 工牌待取得");
@@ -591,7 +591,7 @@ public sealed class S1Controller : MonoBehaviour, IDialogueContext
     public void LoadCheckpoint()
     {
         if (DialogueRunning) return;
-        if (!PlayerPrefs.HasKey(SaveKey)) { ShowInfoPanel("检查点", "目前还没有可读取的 S1 检查点。"); return; }
+        if (!PlayerPrefs.HasKey(SaveKey)) { ShowInfoPanel("检查点", "目前还没有可读取的检查点。"); return; }
         memoPanel.SetActive(false);
         Restore();
         if (screen != GameFlow.S1LocationIndex(SceneManager.GetActiveScene().name))
@@ -662,7 +662,8 @@ public sealed class S1Controller : MonoBehaviour, IDialogueContext
     {
         infoTitle.text = title;
         infoBody.text = body;
-        infoPanel.transform.Find("Badge artwork")?.gameObject.SetActive(showBadge);
+        LateUi.FitBody(infoBody);
+        BadgeDetailLayout.Apply(infoPanel, infoBody, showBadge);
         infoPanel.SetActive(true);
         UpdateInteractionVisibility();
     }

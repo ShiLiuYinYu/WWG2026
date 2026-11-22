@@ -6,6 +6,12 @@ tags: chapter_replay location_clubroom
 袁祁: 名单第五格只有一个编号。有人把它写成三个人之一，也有人什么都没写。 #line:s5_arrival_03
 许圆: 我画了房间草图，纸团在插线板左边。 #line:s5_arrival_04
 唐澈: 先按你昨晚的查看方式对齐。对齐之后，先别急着改名单。 #line:s5_arrival_05
+袁祁: 先把暂停帧弄清楚。名字不是我们该替她改的。 #line:s5_yuan_01
+袁祁: 如果对不上，就记「待确认」。 #line:s5_yuan_02
+许圆: 纸团的位置我没记错。插线板左边，离门更远。 #line:s5_xu_01
+许圆: 你要用那张草图，就按这个比。 #line:s5_xu_02
+唐澈: 昨晚我在连廊看到玻璃上有字。倒影不是我们写的。 #line:s5_tang_01
+唐澈: 今晚灯灭以后，那一块会更清楚。 #line:s5_tang_02
 系统: 点击电脑开始 P4 复盘。 #line:s5_arrival_06
 ===
 
@@ -55,25 +61,4 @@ tags: chapter_replay location_clubroom
 ---
 袁祁: 五楼走廊到头，再下到四楼入口。 #line:s5_depart_01
 系统: 前往 5F 走廊。 #line:s5_depart_02
-===
-
-title: S5_Yuan
-tags: chapter_replay location_clubroom
----
-袁祁: 先把暂停帧弄清楚。名字不是我们该替她改的。 #line:s5_yuan_01
-袁祁: 如果对不上，就记「待确认」。 #line:s5_yuan_02
-===
-
-title: S5_Xu
-tags: chapter_replay location_clubroom
----
-许圆: 纸团的位置我没记错。插线板左边，离门更远。 #line:s5_xu_01
-许圆: 你要用那张草图，就按这个比。 #line:s5_xu_02
-===
-
-title: S5_Tang
-tags: chapter_replay location_clubroom
----
-唐澈: 昨晚我在连廊看到玻璃上有字。倒影不是我们写的。 #line:s5_tang_01
-唐澈: 今晚灯灭以后，那一块会更清楚。 #line:s5_tang_02
 ===

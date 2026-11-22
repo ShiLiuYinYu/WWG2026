@@ -235,9 +235,6 @@ public static class LateStageScenePresentation
         if (chapter == 5)
         {
             S5Controller controller = canvas.GetComponentInParent<S5Controller>();
-            AlignHotspot(controller.yuanButton);
-            AlignHotspot(controller.xuButton);
-            AlignHotspot(controller.tangButton);
             // The new note sits on the near edge of the same computer table.
             var note = (RectTransform)controller.ruleButton.transform;
             note.anchoredPosition = new Vector2(720f, -765f);

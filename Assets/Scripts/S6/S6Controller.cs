@@ -560,7 +560,7 @@ namespace WWG
         {
             if (state == null || Blocked) return;
             recordText.text =
-                "【S6 第二次熄灯】\n" +
+                "【第二次熄灯】\n" +
                 "路线：" + state.routeChoice + "\n" +
                 "位置：" + LocationLabel(state.locationId) + "\n\n" +
                 "【已取得】\n" +
@@ -613,8 +613,8 @@ namespace WWG
             if (infoPanel == null) return;
             infoTitle.text = (residue ? "【残影】" : "") + title;
             infoBody.text = body;
-            Transform badge = infoPanel.transform.Find("Badge artwork");
-            if (badge != null) badge.gameObject.SetActive(showBadge);
+            LateUi.FitBody(infoBody);
+            BadgeDetailLayout.Apply(infoPanel, infoBody, showBadge);
             infoPanel.SetActive(true);
             if (recordPanel != null) recordPanel.SetActive(false);
         }

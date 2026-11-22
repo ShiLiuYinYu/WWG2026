@@ -15,7 +15,7 @@ namespace WWG
         public Text infoTitle, infoBody;
         public GameObject infoPanel, recordPanel, casePanel;
         public Text caseTitle, caseBody, caseFeedback, caseRows;
-        public Button badgeButton, ruleButton, yuanButton, xuButton, tangButton, computerButton, waitButton;
+        public Button badgeButton, ruleButton, computerButton, waitButton;
         public Button frameOne, frameTwo, frameThree, logA, logB, replayButton, caseClose;
 
         private static GameState pending;
@@ -89,16 +89,13 @@ namespace WWG
             ApplyFont();
             CloseAllPanels();
             SceneHotspotInput.Install(this, () => state == null || IsInventoryBlocked,
-                badgeButton, ruleButton, yuanButton, xuButton, tangButton, computerButton, waitButton);
+                badgeButton, ruleButton, computerButton, waitButton);
 
             Bind("Inspect/Close", CloseInfo);
             Bind("Task record/Close", CloseRecord);
 
             BindButton(badgeButton, InspectBadgeBox);
             BindButton(ruleButton, InspectOldTestNote);
-            BindButton(yuanButton, () => Talk("S5_Yuan"));
-            BindButton(xuButton, () => Talk("S5_Xu"));
-            BindButton(tangButton, () => Talk("S5_Tang"));
             BindButton(computerButton, OpenCase);
             BindButton(waitButton, WaitForLights);
             BindButton(frameOne, () => PickFrame(1));
@@ -242,7 +239,7 @@ namespace WWG
             LateUi.SetActive(replayButton, !done && !Together && logFirst != null);
             caseFeedback.text = done
                 ? "两行状态已经分开：你只是这一场的新记录，05 仍是原文件名下的待确认项。"
-                : "选出的证据会写进备忘录，S6 归队时用得上。";
+                : "选出的证据会写进备忘录，归队时用得上。";
             caseFeedback.color = LateUi.WindowInk;
         }
 
@@ -355,12 +352,6 @@ namespace WWG
             }
         }
 
-        private void Talk(string node)
-        {
-            if (state == null || IsInventoryBlocked) return;
-            PlayNode(node);
-        }
-
         private void OnDestroy()
         {
             if (!subscribed || DialogueService.Instance == null) return;
@@ -420,9 +411,9 @@ namespace WWG
         {
             if (state == null || IsInventoryBlocked || !state.HasItem(item)) return;
             if (item == StoryIds.Item.TeamSheet)
-                ShowInfo(S2InventoryGrid.ItemName(item), "分工表残页停在第五格被撕去的位置。按纸面线索，S6 去偶数栋资料柜时会用到它。", false);
+                ShowInfo(S2InventoryGrid.ItemName(item), "分工表残页停在第五格被撕去的位置。按纸面线索，去偶数栋资料柜时会用到它。", false);
             else if (item == StoryIds.Item.OldProjectUsb)
-                ShowInfo(S2InventoryGrid.ItemName(item), "旧工程的只读副本。S6 若要核对备份里的归队页，需要去单数栋 3F 机房。", false);
+                ShowInfo(S2InventoryGrid.ItemName(item), "旧工程的只读副本。若要核对备份里的归队页，需要去单数栋 3F 机房。", false);
             else
                 ShowInfo(S2InventoryGrid.ItemName(item), "这是调查证据，暂时不在这次复盘里使用。", false);
         }
@@ -445,8 +436,8 @@ namespace WWG
             if (infoPanel == null) return;
             infoTitle.text = (residue ? "【残影】" : "") + title;
             infoBody.text = body;
-            Transform badge = infoPanel.transform.Find("Badge artwork");
-            if (badge != null) badge.gameObject.SetActive(showBadge);
+            LateUi.FitBody(infoBody);
+            BadgeDetailLayout.Apply(infoPanel, infoBody, showBadge);
             infoPanel.SetActive(true);
             if (recordPanel != null) recordPanel.SetActive(false);
         }
