@@ -17,7 +17,7 @@ tags: chapter_secondblackout location_bridgeodd4f
 <<else>>
 唐澈: 先把应急灯打开。我昨晚在玻璃上看到的字，灯亮着反而看不见。 #line:s6_odd4f_03
 <<endif>>
-系统: 应急灯开关在展板左侧。 #line:s6_odd4f_04
+系统: 应急灯开关在展板右侧。 #line:s6_odd4f_04
 ===
 
 title: S6_SpanArrival

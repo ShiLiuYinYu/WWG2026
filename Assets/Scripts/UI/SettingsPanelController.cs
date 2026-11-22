@@ -52,6 +52,8 @@ namespace WWG
             rt.pivot = new Vector2(0.5f, 0.5f);
             rt.anchoredPosition = Vector2.zero;
             inst.gameObject.SetActive(true);
+            // 预制体里存的是内置 Arial（无中文字形），运行时实例化后统一套随包字体。
+            WwgFonts.Apply(inst.transform);
             inst.BuildShade();
             inst.Bind();
             current = inst;

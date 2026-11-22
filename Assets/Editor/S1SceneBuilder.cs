@@ -57,7 +57,7 @@ public static class S1SceneBuilder
         scaler.referenceResolution = new Vector2(1920, 1080);
         scaler.screenMatchMode = CanvasScaler.ScreenMatchMode.MatchWidthOrHeight;
         scaler.matchWidthOrHeight = 0.5f;
-        font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+        font = WWG.WwgFonts.Body;
 
         controller.room = Page(canvas.transform, "5F Activity Room", "Assets/Resources/S1/ClubRoomNightClean.png");
         controller.corridor = Page(canvas.transform, "5F Corridor", "Assets/Resources/S1/CorridorNight.png");

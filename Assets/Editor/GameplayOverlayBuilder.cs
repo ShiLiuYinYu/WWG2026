@@ -29,7 +29,7 @@ public static class GameplayOverlayBuilder
     {
         if (Application.isPlaying) { Debug.LogWarning("Stop Play mode before installing the UI."); return; }
         string previous = SceneManager.GetActiveScene().path;
-        font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+        font = WWG.WwgFonts.Body;
         if (!AssetDatabase.IsValidFolder("Assets/Prefabs")) AssetDatabase.CreateFolder("Assets", "Prefabs");
         if (!AssetDatabase.IsValidFolder("Assets/Prefabs/UI")) AssetDatabase.CreateFolder("Assets/Prefabs", "UI");
         GameObject prefab = AssetDatabase.LoadAssetAtPath<GameObject>(PrefabPath);

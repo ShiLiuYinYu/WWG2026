@@ -63,7 +63,7 @@ public static class S0SceneBuilder
         scaler.referenceResolution = new Vector2(1920, 1080);
         scaler.screenMatchMode = CanvasScaler.ScreenMatchMode.MatchWidthOrHeight;
         scaler.matchWidthOrHeight = 0.5f;
-        font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+        font = WWG.WwgFonts.Body;
 
         controller.exterior = Page(canvas.transform, "Exterior", "Exterior");
         controller.exterior.GetComponent<Image>().sprite = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Resources/Title/白天.png");

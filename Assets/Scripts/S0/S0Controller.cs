@@ -148,7 +148,7 @@ public sealed class S0Controller : MonoBehaviour, IDialogueContext
         Application.runInBackground = true;
         S0Audio.Ensure(transform);
         // A system CJK font is used at runtime; the editor asset stays portable.
-        Font font = Font.CreateDynamicFontFromOSFont(new[] { "Microsoft YaHei", "Noto Sans CJK SC", "SimHei" }, 24);
+        Font font = WWG.WwgFonts.Body;
         if (font != null)
             foreach (Text text in GetComponentsInChildren<Text>(true)) text.font = font;
 

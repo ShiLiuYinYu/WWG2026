@@ -40,7 +40,7 @@ namespace WWG
         private void Awake()
         {
             Instance = this;
-            ApplySystemFont();
+            ApplySharedFont();
 #if UNITY_EDITOR
             EditorApplication.playModeStateChanged += HandlePlayModeStateChanged;
 #endif
@@ -74,7 +74,7 @@ namespace WWG
             if (existing != null)
             {
                 Instance = existing;
-                existing.ApplySystemFont();
+                existing.ApplySharedFont();
                 existing.Initialize();
                 return existing;
             }
@@ -92,7 +92,7 @@ namespace WWG
             TitleButtonFx.Install(host);
             Instance = host.GetComponent<DialogueService>();
             if (Instance == null) Instance = host.AddComponent<DialogueService>();
-            Instance.ApplySystemFont();
+            Instance.ApplySharedFont();
             Instance.Initialize();
             return Instance;
         }
@@ -326,10 +326,9 @@ namespace WWG
             }
         }
 
-        private void ApplySystemFont()
+        private void ApplySharedFont()
         {
-            Font font = Font.CreateDynamicFontFromOSFont(
-                new[] { "Microsoft YaHei", "Noto Sans CJK SC", "SimHei" }, 24);
+            Font font = WWG.WwgFonts.Body;
             if (font == null) return;
             foreach (UnityEngine.UI.Text text in GetComponentsInChildren<UnityEngine.UI.Text>(true))
                 text.font = font;

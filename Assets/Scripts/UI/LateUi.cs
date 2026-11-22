@@ -37,10 +37,9 @@ namespace WWG
             get
             {
                 if (font != null) return font;
-                Text existing = Object.FindFirstObjectByType<Text>(FindObjectsInactive.Include);
-                if (existing != null && existing.font != null) return font = existing.font;
-                font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
-                return font;
+                // 统一用随包字体，不再沿用场景里已有的 Text 字体：旧场景可能仍指向
+                // 仅含拉丁字形的内置 LegacyRuntime 字体，照抄过去会缺中文。
+                return font = WWG.WwgFonts.Body;
             }
         }
 

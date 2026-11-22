@@ -32,7 +32,7 @@ public static class DialogueHostBuilder
         if (project.Program == null) throw new InvalidOperationException("Yarn 工程尚未编译成功，请先检查 Console。");
 
         Directory.CreateDirectory(Folder);
-        font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+        font = WWG.WwgFonts.Body;
         DialogueCast cast = LoadOrCreateCast();
 
         GameObject root = new GameObject("WwgDialogueHost", typeof(RectTransform), typeof(Canvas),

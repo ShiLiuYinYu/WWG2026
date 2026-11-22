@@ -62,7 +62,7 @@ public sealed class S4Controller : MonoBehaviour, IDialogueContext
     private void Start()
     {
         Application.runInBackground = true;
-        Font font = Font.CreateDynamicFontFromOSFont(new[] { "Microsoft YaHei", "Noto Sans CJK SC", "SimHei" }, 24);
+        Font font = WWG.WwgFonts.Body;
         if (font != null)
             foreach (Text text in GetComponentsInChildren<Text>(true)) text.font = font;
 

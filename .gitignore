@@ -25,6 +25,9 @@
 # Generated local artifacts
 /outputs/
 
+# 分发包（打包产物，不进版本库）
+*.zip
+
 # OS files
 .DS_Store
 Thumbs.db

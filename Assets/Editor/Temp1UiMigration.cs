@@ -115,7 +115,7 @@ namespace WWG.Editor
             var rect = Place(parent, name, new Vector2(0, 1), new Vector2(0, 1),
                 new Vector2(0, 1), pos, size);
             var text = rect.GetComponent<Text>() ?? rect.gameObject.AddComponent<Text>();
-            text.text = value; text.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+            text.text = value; text.font = WWG.WwgFonts.Body;
             text.fontSize = fontSize; text.color = new Color(.95f, .88f, .72f);
             text.alignment = TextAnchor.MiddleCenter; text.raycastTarget = false;
             return text;

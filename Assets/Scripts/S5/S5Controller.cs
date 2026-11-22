@@ -164,7 +164,7 @@ namespace WWG
 
         private void ApplyFont()
         {
-            Font font = Font.CreateDynamicFontFromOSFont(new[] { "Microsoft YaHei", "Noto Sans CJK SC", "SimHei" }, 24);
+            Font font = WWG.WwgFonts.Body;
             if (font == null) return;
             foreach (Text text in GetComponentsInChildren<Text>(true)) text.font = font;
         }
