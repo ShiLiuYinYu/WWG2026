@@ -47,6 +47,30 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/S4.unity
     guid: 1f62a3df695be8e42badc379478b5bdd
+  - enabled: 1
+    path: Assets/Scenes/S5.unity
+    guid: c530b66d4ba80874184a8411b93b2a89
+  - enabled: 1
+    path: Assets/Scenes/S6/S6_Corridor.unity
+    guid: bbd820ae5515ded418191d098c89c1a1
+  - enabled: 1
+    path: Assets/Scenes/S6/S6_BridgeOdd4F.unity
+    guid: 84a70344bdfb1114b9ca81452245b01c
+  - enabled: 1
+    path: Assets/Scenes/S6/S6_BridgeSpan4F.unity
+    guid: f8c85cf2db6076145ba35364ffc936e6
+  - enabled: 1
+    path: Assets/Scenes/S6/S6_BridgeEven4F.unity
+    guid: 369acec6a839a3345b272a39bde284f2
+  - enabled: 1
+    path: Assets/Scenes/S6/S6_ServerRoom3F.unity
+    guid: 75c20c60a6b83dd4297957327d67d15e
+  - enabled: 1
+    path: Assets/Scenes/S7.unity
+    guid: a4f7a68b786b6ab4da9ffeba903c143f
+  - enabled: 1
+    path: Assets/Scenes/S8.unity
+    guid: c381febecaa3c7c47a768dc4a93d2b25
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 2bcd2660ca9b64942af0de543d8d7100, type: 3}
   m_UseUCBPForAssetBundles: 0

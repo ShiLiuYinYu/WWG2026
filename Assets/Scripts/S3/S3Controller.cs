@@ -64,7 +64,7 @@ public sealed class S3Controller : MonoBehaviour, IDialogueContext
             foreach (Text label in GetComponentsInChildren<Text>(true)) label.font = font;
         infoPanel.SetActive(false); archivePanel.SetActive(false); recordPanel.SetActive(false);
         inventoryPanel.SetActive(false); pausePanel.SetActive(false);
-        state = pending;
+        state = pending ?? SaveSlotStore.TakeLoadedState(StoryIds.Chapter.ServerRecovery);
         development = pendingDevelopment;
         pending = null;
         pendingDevelopment = false;

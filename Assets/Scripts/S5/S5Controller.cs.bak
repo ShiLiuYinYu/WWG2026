@@ -1,0 +1,482 @@
+using System;
+using System.Collections;
+using UnityEngine;
+using UnityEngine.UI;
+using WWG;
+
+/// <summary>S5 复盘（周�?16:05�?3:29�?F 活动室）：P4 证据核对与“等到熄灯”�?/summary>
+public sealed class S5Controller : MonoBehaviour, IDialogueContext, IChapterInventory
+{
+    public Image roomImage;
+    public Text locationText, timeText, objectiveText, feedbackText, recordText;
+    public Text infoTitle, infoBody;
+    public GameObject infoPanel, recordPanel, inventoryPanel, pausePanel, casePanel;
+    public Text caseTitle, caseBody, caseFeedback, caseRows;
+    public Button badgeButton, ruleButton, yuanButton, xuButton, tangButton, computerButton, waitButton;
+    public Button frameOne, frameTwo, frameThree, logA, logB, replayButton, caseClose;
+    public VitalsBars vitals;
+
+
+    private static GameState pending;
+    private static bool pendingDevelopment;
+    private GameState state;
+    private bool development, subscribed;
+    private string logFirst, logSecond;
+
+    private bool Together => state != null && state.viewChoice == StoryIds.Choice.ViewTogether;
+    private bool Alone => state != null && state.viewChoice == StoryIds.Choice.ViewAlone;
+    private static bool DialogueRunning => DialogueService.Instance != null && DialogueService.Instance.IsRunning;
+    internal bool IsInventoryBlocked => DialogueRunning || SaveSlotPanel.IsOpen || infoPanel.activeSelf ||
+        recordPanel.activeSelf || pausePanel.activeSelf || casePanel.activeSelf;
+    bool IChapterInventory.IsInventoryBlocked => IsInventoryBlocked;
+
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+    private static void ResetPending() { pending = null; pendingDevelopment = false; }
+
+    /// <summary>Enters S5 from either 24H ending of S4.</summary>
+    public static void Begin(GameState handoff, bool editorDevelopment = false)
+    {
+        if (handoff == null || !handoff.Validate(out string error))
+            throw new ArgumentException("S5 需要有效的 S4 交接状态�? + error);
+        pending = JsonUtility.FromJson<GameState>(JsonUtility.ToJson(handoff));
+        pendingDevelopment = editorDevelopment;
+        pending.chapterId = StoryIds.Chapter.Replay;
+        pending.locationId = StoryIds.Location.ClubRoom;
+        pending.locationVariant = StoryIds.Variant.Day;
+        pending.timeId = pending.HasFlag(StoryIds.Flag.P5Complete) ? "saturday.2329" : "saturday.1605";
+        if (string.IsNullOrEmpty(pending.stepId)) pending.stepId = "s5Start";
+        if (!GameFlow.LoadLocation(GameFlow.S5Scene))
+        {
+            pending = null;
+            throw new InvalidOperationException("S5 活动室未加入 Build Settings�?);
+        }
+    }
+
+    public GameState CurrentState => state;
+
+    private void Start()
+    {
+        Application.runInBackground = true;
+        Font font = Font.CreateDynamicFontFromOSFont(new[] { "Microsoft YaHei", "Noto Sans CJK SC", "SimHei" }, 24);
+        if (font != null)
+            foreach (Text text in GetComponentsInChildren<Text>(true)) text.font = font;
+
+        infoPanel.SetActive(false); recordPanel.SetActive(false); inventoryPanel.SetActive(false);
+        pausePanel.SetActive(false); casePanel.SetActive(false);
+
+        Bind("Inspect/Close", CloseInfo);
+        Bind("Task record/Close", CloseRecord);
+        Bind("Inventory/Close", CloseInventory);
+        Bind("Pause/Resume", TogglePause);
+        Bind("Pause/Save", SaveManual);
+        Bind("Pause/Load", LoadManual);
+        Bind("Pause/Title", ReturnTitle);
+        BindButton(badgeButton, InspectBadgeBox);
+        BindButton(ruleButton, InspectOldTestNote);
+        BindButton(yuanButton, () => Talk("S5_Yuan"));
+        BindButton(xuButton, () => Talk("S5_Xu"));
+        BindButton(tangButton, () => Talk("S5_Tang"));
+        BindButton(computerButton, OpenCase);
+        BindButton(waitButton, WaitForLights);
+        BindButton(frameOne, () => PickFrame(1));
+        BindButton(frameTwo, () => PickFrame(2));
+        BindButton(frameThree, () => PickFrame(3));
+        BindButton(logA, () => PickLog("A"));
+        BindButton(logB, () => PickLog("B"));
+        BindButton(replayButton, ReplayLog);
+        BindButton(caseClose, () => casePanel.SetActive(false));
+
+        state = pending;
+        development = pendingDevelopment;
+        pending = null;
+        pendingDevelopment = false;
+#if UNITY_EDITOR
+        if (state == null)
+        {
+            string bootstrap = UnityEditor.SessionState.GetString("WWG_S5Bootstrap", "");
+            if (!string.IsNullOrEmpty(bootstrap))
+            {
+                UnityEditor.SessionState.EraseString("WWG_S5Bootstrap");
+                state = JsonUtility.FromJson<GameState>(bootstrap);
+                development = true;
+            }
+        }
+        if (state == null)
+        {
+            state = ChapterPreviewStates.S5();
+            development = true;
+        }
+#endif
+        if (state == null && GameStateStore.LoadCheckpoint(out GameState saved, out _) &&
+            saved.chapterId == StoryIds.Chapter.Replay) state = saved;
+        if (state == null || state.chapterId != StoryIds.Chapter.Replay)
+        {
+            Debug.LogError("[S5] 缺少有效�?S4 交接�?S5 检查点�?);
+            ShowInfo("无法进入复盘", "请先完成�?24H 的结尾，再进入周六下午�?, false);
+            return;
+        }
+        state.EnsureCollections();
+        if (string.IsNullOrEmpty(state.viewChoice)) state.ChooseView(StoryIds.Choice.ViewTogether);
+        if (string.IsNullOrEmpty(state.routeChoice)) state.ChooseRoute(StoryIds.Choice.RouteLight);
+
+        DialogueService service = DialogueService.Ensure();
+        if (service != null) { service.DialogueCompleted += OnDialogueCompleted; subscribed = true; }
+        evening = state.HasFlag(StoryIds.Flag.P4Complete) && state.HasFlag(StoryIds.Flag.P4RuleSeen);
+        UpdateView();
+        if (!state.HasSeenDialogue("S5_Arrival")) PlayNode("S5_Arrival", true);
+        else if (state.HasFlag(StoryIds.Flag.P4RuleSeen)) PlayNode("S5_ReadyForLights", true);
+    }
+
+    private void OnDestroy()
+    {
+        if (subscribed && DialogueService.Instance != null)
+            DialogueService.Instance.DialogueCompleted -= OnDialogueCompleted;
+    }
+
+    private void Bind(string path, Action action)
+    {
+        Transform target = transform.Find("S5 Canvas/" + path);
+        if (target == null) { Debug.LogError("[S5] 缺少 UI�? + path); return; }
+        BindButton(target.GetComponent<Button>(), action);
+    }
+    private static void BindButton(Button button, Action action)
+    {
+        if (button != null) button.onClick.AddListener(() => action());
+    }
+    private void PlayNode(string node, bool once = false)
+    {
+        DialogueService service = DialogueService.Ensure();
+        if (service != null) service.Play(node, this, once);
+    }
+    private void OnDialogueCompleted(string node)
+    {
+        if (node == "S5_ToBlackout")
+        {
+            state.SetFlag(StoryIds.Flag.S5Finished);
+            state.stepId = "lightsOut";
+            Persist();
+            S6Controller.Begin(state, development, StoryIds.Location.Corridor5F);
+            return;
+        }
+        Persist();
+        UpdateView();
+    }
+
+    // ---------------------------------------------------------------- P4
+
+    public void OpenCase()
+    {
+        if (state == null || IsInventoryBlocked) return;
+        if (!state.HasFlag(StoryIds.Flag.P4FrameRead) && Together)
+        {
+            state.SetFlag(StoryIds.Flag.P4FrameRead);
+            ShowInfo("四人的目击记�?, DialogueDocuments.GetBody("p4.frames"), false);
+            Persist();
+            UpdateView();
+            return;
+        }
+        if (!state.HasFlag(StoryIds.Flag.P4LogRead) && Alone)
+        {
+            state.SetFlag(StoryIds.Flag.P4LogRead);
+            ShowInfo("离线预览日志", DialogueDocuments.GetBody("p4.log"), false);
+            Persist();
+            UpdateView();
+            return;
+        }
+        logFirst = null;
+        logSecond = null;
+        casePanel.SetActive(true);
+        RefreshCase();
+    }
+
+    private void RefreshCase()
+    {
+        bool done = state.HasFlag(StoryIds.Flag.P4Complete);
+        caseTitle.text = Together ? "四人的目击记�?· 对照房间草图" : "离线预览日志 · 状态先�?;
+        caseBody.gameObject.SetActive(!done);
+        caseRows.gameObject.SetActive(done);
+        if (done)
+        {
+            caseBody.text = string.Empty;
+            caseRows.text = doneText;
+        }
+        else caseBody.text = Together ? caseTogetherText : caseAloneText;
+        LateUi.SetActive(frameOne, !done && Together);
+        LateUi.SetActive(frameTwo, !done && Together);
+        LateUi.SetActive(frameThree, !done && Together);
+        LateUi.SetActive(logA, !done && Alone);
+        LateUi.SetActive(logB, !done && Alone);
+        LateUi.SetActive(replayButton, !done && Alone && logFirst != null);
+        caseFeedback.text = done
+            ? "两行状态已经分开：你只是这一场的新记录，05 仍是原文件名下的待确认项�?
+            : "选出的证据会写进备忘录，S6 归队时用得上�?;
+        caseFeedback.color = done ? LateUi.Accent : LateUi.PaperDim;
+    }
+
+    private const string caseTogetherText =
+        "三张帧卡按拍摄顺序摆在桌上，旁边是许圆画的房间草图：插线板左侧压着一张纸团。\n" +
+        "名单抄件只剩五个格子，第五格写着�?5」，名字被擦掉了。\n\n" +
+        "找出「写入发生之前」的那一�?—�?椅子还是五把，名单还没被改过�?;
+
+    private const string caseAloneText =
+        "唐澈留下的离线工具只给了一张快照和两条状态日志，没有任何画面。\n" +
+        "先把两条日志按真实先后点出来，再回放这一段�?;
+
+    private const string doneText =
+        "【写入前的暂停帧�?3:30:00 椅子 5 把，插线板左侧有纸团，名单第五格�?05。\n" +
+        "【状态变化的时间段�?3:30:00�?3:30:12。\n\n" +
+        "当前玩家临时标记：本场新记录，可自行归队。\n" +
+        "05 原待确认项：原作者林未，写入后从座位表消失�?;
+
+    private void PickFrame(int index)
+    {
+        if (state == null || !Together || state.HasFlag(StoryIds.Flag.P4Complete)) return;
+        if (index == 2)
+        {
+            state.SetFlag(StoryIds.Flag.P4FrameFound);
+            CompleteCase();
+            return;
+        }
+        caseFeedback.text = index == 1
+            ? "帧卡 1 是灯刚暗下：椅子还在，纸团还没被压住 —�?早于写入�?
+            : "帧卡 3 已经把第五把椅子抹掉了，状态变化早就结束�?;
+        caseFeedback.color = LateUi.Warm;
+    }
+
+    private void PickLog(string id)
+    {
+        if (state == null || !Alone || state.HasFlag(StoryIds.Flag.P4Complete)) return;
+        if (logFirst == null)
+        {
+            logFirst = id;
+            caseFeedback.text = "已把日志 " + id + " 放在前面。再点另一条，然后回放�?;
+            caseFeedback.color = LateUi.PaperDim;
+            LateUi.SetActive(replayButton, true);
+            return;
+        }
+        if (logFirst == id)
+        {
+            caseFeedback.text = "同一条日志不能自己排在自己前面�?;
+            caseFeedback.color = LateUi.Warm;
+            return;
+        }
+        logSecond = id;
+        caseFeedback.text = "顺序：日�?" + logFirst + " �?日志 " + logSecond + "。点「回放这一段」核对�?;
+        caseFeedback.color = LateUi.PaperDim;
+        LateUi.SetActive(replayButton, true);
+    }
+
+    private void ReplayLog()
+    {
+        if (state == null || !Alone || state.HasFlag(StoryIds.Flag.P4Complete)) return;
+        if (logFirst == "A" && logSecond == "B")
+        {
+            state.SetFlag(StoryIds.Flag.P4LogFound);
+            CompleteCase();
+            return;
+        }
+        logFirst = null;
+        logSecond = null;
+        RefreshCase();
+        caseFeedback.text = "回放后椅子数量先少后�?—�?顺序反了。状态是「先 5 �?4」�?;
+        caseFeedback.color = LateUi.Warm;
+    }
+
+    private void CompleteCase()
+    {
+        if (!state.SetFlag(StoryIds.Flag.P4Complete)) return;
+        state.stepId = "p4Complete";
+        logFirst = null;
+        logSecond = null;
+        Persist();
+        UpdateView();
+        RefreshCase();
+        PlayNode("S5_P4Complete", true);
+    }
+
+    // ---------------------------------------------------------------- 线索与推�?
+    public void InspectBadgeBox()
+    {
+        if (state == null || IsInventoryBlocked) return;
+        state.SetFlag(StoryIds.Flag.P4BadgeRead);
+        Persist();
+        ShowInfo("社团纪念�?, DialogueDocuments.GetBody("p4.badge"), false, showBadge: true);
+    }
+
+    public void InspectOldTestNote()
+    {
+        if (state == null || IsInventoryBlocked) return;
+        if (!state.HasFlag(StoryIds.Flag.P4Complete))
+        {
+            ShowInfo("未核实的归队规则", "先把桌上的四人的记录和名单核对完，再读林未留下的规则�?, false);
+            return;
+        }
+        if (!state.HasFlag(StoryIds.Flag.P4RuleSeen))
+        {
+            state.SetFlag(StoryIds.Flag.P4RuleSeen);
+            state.stepId = "ruleKnown";
+            Persist();
+            UpdateView();
+            PlayNode("S5_RuleSeen", true);
+            return;
+        }
+        ShowInfo("旧测试说�?, DialogueDocuments.GetBody("p4.rule"), false);
+    }
+
+    public void Talk(string node)
+    {
+        if (state == null || IsInventoryBlocked) return;
+        PlayNode(node, true);
+    }
+
+    public void WaitForLights()
+    {
+        if (state == null || IsInventoryBlocked) return;
+        if (!state.HasFlag(StoryIds.Flag.P4RuleSeen))
+        {
+            ShowInfo("还不到熄�?, "P4 的证据还没核对完，归队规则也还没读�?, false);
+            return;
+        }
+        if (state.HasFlag(StoryIds.Flag.S5Finished)) { S6Controller.Begin(state, development, StoryIds.Location.Corridor5F); return; }
+        PlayNode("S5_ToBlackout");
+    }
+
+    // ---------------------------------------------------------------- 记录与背�?
+    public void OpenRecord()
+    {
+        if (state == null || IsInventoryBlocked) return;
+        string evidence = state.HasFlag(StoryIds.Flag.P4FrameFound) ? "写入前的暂停�? :
+            state.HasFlag(StoryIds.Flag.P4LogFound) ? "状态变化的时间�? : "尚未完成核对";
+        recordText.text =
+            "【P4 复盘】\n" + (Together ? "四人的目击记录：三张帧卡 + 许圆的房间草�?+ 名单抄件�? :
+                "离线预览日志：一张快�?+ 两条状态日志�?) +
+            "\n核对结果�? + evidence +
+            "\n\n【名单】\n当前玩家：本场临时标记（新记录）。\n05：原文件名下的待确认项，原作者被擦除。\n" +
+            (state.HasFlag(StoryIds.Flag.P4BadgeRead) ? "\n【纪念盒】\n林未的旧工牌编号 05，已归档。\n" : "") +
+            (state.HasFlag(StoryIds.Flag.P4RuleSeen) ? "\n【旧测试说明】\n" + DialogueDocuments.GetBody("p4.rule") + "\n" : "") +
+            "\n【下一步�? + (state.HasFlag(StoryIds.Flag.P4RuleSeen)
+                ? "周六 23:29，公共照明即将断电。点电脑旁的「等到熄灯」�?
+                : "核对 P4 证据，再读未核实的归队规则�?) +
+            "\n\n路线�? + state.routeChoice + "；查看方式：" + state.viewChoice;
+        recordText.fontSize = 25;
+        recordPanel.SetActive(true);
+    }
+    public void CloseRecord() => recordPanel.SetActive(false);
+
+    public void OpenInventory() { if (state != null && !IsInventoryBlocked) inventoryPanel.SetActive(true); }
+    public void CloseInventory() => inventoryPanel.SetActive(false);
+
+    public bool HasItem(string item) => state != null && state.HasItem(item);
+    public void UseInventoryItem(string item)
+    {
+        if (state == null || IsInventoryBlocked || !state.HasItem(item)) return;
+        if (item == StoryIds.Item.TeamSheet)
+        {
+            ShowInfo(S2InventoryGrid.ItemName(item), "分工表残页停在第五格被撕去的位置。按纸面线索，S6 去偶数栋资料柜时会用到它�?, false);
+            return;
+        }
+        if (item == StoryIds.Item.OldProjectUsb)
+        {
+            ShowInfo(S2InventoryGrid.ItemName(item), "旧工程的只读副本。S6 若要核对备份里的归队页，需要去单数�?3F 机房�?, false);
+            return;
+        }
+        ShowInfo(S2InventoryGrid.ItemName(item), "这是调查证据，暂时不在这次复盘里使用�?, false);
+    }
+    public void InspectInventoryItem(string item)
+    {
+        if (state == null || !state.HasItem(item)) return;
+        bool isBadge = item == StoryIds.Item.Badge;
+        string body = item == StoryIds.Item.Photo ? "去年活动室的照片，背面标�?23:30�? :
+            isBadge ? string.Empty :
+            item == StoryIds.Item.MachineNote ? "借用记录：单数栋 3F 机房靠窗�?3 台，周五 23:30�? :
+            item == StoryIds.Item.TeamSheet ? "分工表残页，第五格被撕去，只剩编�?05�? :
+            "旧工�?AfterLightsOut_Backup；周六_16:00.scene 已解锁�?;
+        ShowInfo(isBadge ? string.Empty : S2InventoryGrid.ItemName(item), body, false, showBadge: isBadge);
+    }
+
+    public void TogglePause()
+    {
+        if (state == null || DialogueRunning) return;
+        pausePanel.SetActive(!pausePanel.activeSelf);
+    }
+    public void SaveManual() { if (state == null || DialogueRunning) return; pausePanel.SetActive(false); SaveSlotPanel.OpenSave(CaptureSaveSlot); }
+    public void LoadManual() { if (DialogueRunning) return; pausePanel.SetActive(false); SaveSlotPanel.OpenLoad(CaptureSaveSlot); }
+    public void ReturnTitle() { DialogueService.Shutdown(); GameFlow.LoadLocation(GameFlow.TitleScene); }
+    public SaveSlotSnapshot CaptureSaveSlot()
+    {
+        if (state == null || development || DialogueRunning) return null;
+        return new SaveSlotSnapshot { chapter = "S5", payload = JsonUtility.ToJson(state),
+            gameTime = timeText.text, locationLabel = "S5 · " + timeText.text + " · 5F 活动�? };
+    }
+    private bool Persist()
+    {
+        if (development || state == null || DialogueRunning) return false;
+        if (!GameStateStore.SaveCheckpoint(state, out string error))
+        {
+            Debug.LogError("[S5] 存档失败�? + error);
+            return false;
+        }
+        PlayerPrefs.SetInt("WWG_LastCheckpointChapter", 5);
+        PlayerPrefs.Save();
+        return true;
+    }
+
+    private void UpdateView()
+    {
+        if (state == null) return;
+        locationText.text = "单数�?· 5F 活动�?;
+        timeText.text = state.HasFlag(StoryIds.Flag.P4RuleSeen) ? "周六 23:29" : "周六 16:05";
+        bool done = state.HasFlag(StoryIds.Flag.P4Complete);
+        objectiveText.text = !done ? "把四人的记录和名单核对完" :
+            !state.HasFlag(StoryIds.Flag.P4RuleSeen) ? "读一遍林未留下的归队规则" :
+            "等到 23:29，公共照明断�?;
+        LateUi.SetCaption(computerButton, done ? "再核对一�? : Together ? "查看四人的记�? : "查看离线日志");
+        LateUi.SetActive(waitButton, state.HasFlag(StoryIds.Flag.P4RuleSeen));
+        LateUi.SetCaption(ruleButton, state.HasFlag(StoryIds.Flag.P4RuleSeen) ? "旧测试说�? : "未核实的归队规则");
+        LateUi.SetActive(badgeButton, !state.HasFlag(StoryIds.Flag.P4BadgeRead));
+        vitals.SetSan(state.san, state.sanMax);
+        vitals.SetHealth(state.health, 3);
+    }
+
+    private void ShowInfo(string title, string body, bool residue, bool showBadge = false)
+    {
+        infoTitle.text = (residue ? "【残影�? : "") + title;
+        infoBody.text = body;
+        infoPanel.transform.Find("Badge artwork")?.gameObject.SetActive(showBadge);
+        infoPanel.SetActive(true);
+    }
+    public void CloseInfo() => infoPanel.SetActive(false);
+
+    public IEnumerator ShowDocument(string id)
+    {
+        if (!DialogueDocuments.TryGet(id, out DialogueDocuments.Entry doc)) yield break;
+        if (DialogueService.Instance != null) DialogueService.Instance.HideOverlay();
+        ShowInfo(doc.title, doc.body, doc.residue);
+        while (infoPanel.activeSelf) yield return null;
+    }
+    public IEnumerator ShowPhoto() { yield break; }
+    public bool HasFlag(string id) => state != null && state.HasFlag(id);
+    public bool HasSeenDialogue(string id) => state != null && state.HasSeenDialogue(id);
+    public void MarkDialogueSeen(string id) { if (state != null) state.MarkDialogueSeen(id); }
+    public int San => state != null ? state.san : 0;
+    public int Health => state != null ? state.health : 0;
+    public string Route => state != null ? state.routeChoice : string.Empty;
+    public string View => state != null ? state.viewChoice : string.Empty;
+    public void SetFlag(string id) { if (state != null) state.SetFlag(id); }
+    public void ClearFlag(string id) { if (state != null) state.ClearFlag(id); }
+    public void AddItem(string id) { if (state != null) state.AddItem(id); }
+    public void ApplyShock(string id, int sanDelta, int healthDelta = 0)
+    {
+        if (state == null) return;
+        string guard = "flag." + id + ".shock";
+        if (!state.SetFlag(guard)) return;
+        state.san = Mathf.Clamp(state.san + sanDelta, 0, state.sanMax);
+        state.health = Mathf.Clamp(state.health + healthDelta, 0, 3);
+        UpdateView();
+    }
+    public void ChooseRoute(string choice) { if (state != null) { state.ChooseRoute(choice); UpdateView(); } }
+    public void ChooseView(string choice) { if (state != null) { state.ChooseView(choice); UpdateView(); } }
+    public void RequestCheckpoint() { if (!DialogueRunning) Persist(); }
+    public void RequestGoTo(string locationId, string variant) => Debug.LogWarning("[Dialogue] S5 不使�?go_to�? + locationId + "/" + variant);
+    public void RefreshHud() => UpdateView();
+}

@@ -1,0 +1,58 @@
+title: S7_Arrival
+tags: chapter_reunion location_clubroom
+---
+系统: 周日 00:20。5F 活动室。走廊还黑着，第五把椅子空在原处。 #line:s7_arrival_01
+袁祁: 名单副本调出来了。第五格还是只有一个编号。 #line:s7_arrival_02
+许圆: 先把名字写回去。写回去之后，状态按林未自己的规则记。 #line:s7_arrival_03
+唐澈: 本队四个人，一个一个来。 #line:s7_arrival_04
+系统: 顺序：恢复原署名 → 确认本队 → 复查 → 再验证一次。 #line:s7_arrival_05
+===
+
+title: S7_NameRestored
+tags: chapter_reunion location_clubroom
+---
+袁祁: 05 那一格现在是：林未 · 待确认。 #line:s7_name_01
+许圆: 空着的椅子还是空着。名字回来了，人没有。 #line:s7_name_02
+唐澈: 这样才是对的。不用替她填「已归队」。 #line:s7_name_03
+系统: 接下来点「我已归队」，确认本队四人。 #line:s7_name_04
+===
+
+title: S7_TeamConfirmed
+tags: chapter_reunion location_clubroom
+---
+系统: 袁祁、许圆、唐澈依次应答。本队 4/4。 #line:s7_team_01
+袁祁: 到齐了。 #line:s7_team_02
+许圆: 到齐了。 #line:s7_team_03
+唐澈: 到齐了。 #line:s7_team_04
+系统: 05 单列，状态待确认。 #line:s7_team_05
+===
+
+title: S7_ReviewDone
+tags: chapter_reunion location_clubroom
+---
+<<if view() == "ViewTogether">>
+袁祁: 暂停帧里，05 和主角是分开的两行。名字不会被顶掉。 #line:s7_review_01
+许圆: 空椅在那两行旁边，没有多出第五个名字。 #line:s7_review_02
+<<else>>
+唐澈: 日志游标停在第二次状态变化。05 回到原格，主角的临时标记退回去了。 #line:s7_review_03
+袁祁: 两行都没有互相覆盖。 #line:s7_review_04
+<<endif>>
+系统: 点「再验一次」。 #line:s7_review_05
+===
+
+title: S7_Verified
+tags: chapter_reunion location_clubroom
+---
+系统: 重播一遍。两行状态稳定，没有新的变化。 #line:s7_verify_01
+<<sfx chair 0.55>>
+许圆: 椅子……好像轻响了一下。 #line:s7_verify_02
+袁祁: 现实里的第五张椅还是空的。不用回头看。 #line:s7_verify_03
+系统: P6 完成。确认页已存进备忘录。 #line:s7_verify_04
+===
+
+title: S7_ToMorning
+tags: chapter_reunion location_clubroom
+---
+系统: 灯亮了。周日 10:00。 #line:s7_morning_01
+袁祁: 睡一会儿吧。作品下午要交。 #line:s7_morning_02
+===

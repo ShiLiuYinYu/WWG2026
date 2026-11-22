@@ -14,6 +14,13 @@ namespace WWG
         private Button button;
         private Image arrow;
 
+        public void SetDestination(string destination)
+        {
+            if (hint == destination) return;
+            Hide();
+            hint = destination;
+        }
+
         private void Awake()
         {
             button = GetComponent<Button>();

@@ -1,0 +1,71 @@
+title: S6_Arrival
+tags: chapter_secondblackout location_corridor5f
+---
+系统: 周六 23:30。公共区域的灯全灭了，活动室的门在身后合上。 #line:s6_arrival_01
+袁祁: 走廊只剩安全出口的绿光。脚下慢一点。 #line:s6_arrival_02
+许圆: 归队表在我这儿。到地方再拿出来。 #line:s6_arrival_03
+唐澈: 四楼连廊入口那边，昨晚就有人走过。 #line:s6_arrival_04
+系统: 点「下到 4F 连廊入口」。 #line:s6_arrival_05
+===
+
+title: S6_Odd4FArrival
+tags: chapter_secondblackout location_bridgeodd4f
+---
+系统: 单数栋 4F 连廊入口。导览展板立在转角，玻璃门里全是黑的。 #line:s6_odd4f_01
+<<if route() == "RouteLight">>
+许圆: 展板旁边有块旧贴纸，昨晚没看清。开应急灯试试。 #line:s6_odd4f_02
+<<else>>
+唐澈: 先把应急灯打开。我昨晚在玻璃上看到的字，灯亮着反而看不见。 #line:s6_odd4f_03
+<<endif>>
+系统: 应急灯开关在展板左侧。 #line:s6_odd4f_04
+===
+
+title: S6_SpanArrival
+tags: chapter_secondblackout location_bridgespan4f
+---
+系统: 玻璃连廊中段。外面的路灯照进来，地面被切成一条一条。 #line:s6_span_01
+<<if route() == "RouteDark">>
+唐澈: 别急着开灯。先看玻璃。 #line:s6_span_02
+系统: 中段玻璃上有一行倒着的字。点玻璃查看。 #line:s6_span_03
+<<else>>
+许圆: 灯亮着，玻璃上只有我们自己的影子。往偶数栋走。 #line:s6_span_04
+系统: 点「往偶数栋」。 #line:s6_span_05
+<<endif>>
+===
+
+title: S6_Even4FArrival
+tags: chapter_secondblackout location_bridgeeven4f
+---
+系统: 偶数栋 4F 资料区。资料柜靠墙，柜门是前一晚被打开过的样子。 #line:s6_even_01
+许圆: 柜门内侧压着一张折页，就是归队确认表。 #line:s6_even_02
+系统: 折页被卡扣绷着。背包里有分工表残页，可以压住它。 #line:s6_even_03
+===
+
+title: S6_ServerArrival
+tags: chapter_secondblackout location_serverroom3f
+---
+系统: 单数栋 3F 机房。靠窗那排机器还亮着待机灯。 #line:s6_server_01
+唐澈: 第 3 台。旧工程 U 盘插上去，能进只读测试时间轴。 #line:s6_server_02
+系统: 时间轴不会改动原始文件。 #line:s6_server_03
+===
+
+title: S6_Returned
+tags: chapter_secondblackout location_corridor5f
+---
+系统: 回到 5F 走廊。活动室门缝下有光。 #line:s6_returned_01
+袁祁: 归队规则拿到了？ #line:s6_returned_02
+我: 拿到了。 #line:s6_returned_03
+袁祁: 那就进去，把名字和人都对上。 #line:s6_returned_04
+===
+
+title: S6_RuleRecorded
+tags: chapter_secondblackout
+---
+<<if route() == "RouteLight">>
+许圆: 抄好了：原作者留在原格。现队到齐后各记各的，空格可以留作待确认。 #line:s6_rule_light_01
+<<else>>
+唐澈: 备份里的归队页也是这条：05 单列，状态待确认。 #line:s6_rule_dark_02
+<<endif>>
+袁祁: 回活动室。走廊的灯不会自己亮。 #line:s6_rule_03
+系统: 回 5F 走廊，再点「进活动室」。 #line:s6_rule_04
+===

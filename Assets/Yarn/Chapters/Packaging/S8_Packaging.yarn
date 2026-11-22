@@ -1,0 +1,42 @@
+title: S8_Arrival
+tags: chapter_packaging location_clubroom
+---
+系统: 周日 10:00。白天。四把椅子围着一张长桌，桌上摊着做完的作品。 #line:s8_arrival_01
+袁祁: 16:00 封包。现在我们手上还有两份材料。 #line:s8_arrival_02
+袁祁: 一份是署名更正页，一份是协会内部存档。 #line:s8_arrival_03
+许圆: 更正页写的是「旧工程署名更正」，还有核对过的姓名和来源。 #line:s8_arrival_04
+唐澈: 存档那份不走自愿展示。要留，就留在这里。 #line:s8_arrival_05
+系统: 点「袁祁的材料」看完两份，再去电脑决定去向。 #line:s8_arrival_06
+===
+
+title: S8_LetterChosen
+tags: chapter_packaging location_clubroom
+---
+袁祁: 带上更正页，就是把名字带给外面的人看。 #line:s8_letter_01
+许圆: 附在我们自己的说明页后面。别把它单独抽出来当卖点。 #line:s8_letter_02
+系统: 把「旧工程署名更正」附在本队说明页，然后预览确认。 #line:s8_letter_03
+===
+
+title: S8_SealChosen
+tags: chapter_packaging location_clubroom
+---
+唐澈: 封存原始材料。旧工程不离开这间活动室。 #line:s8_seal_01
+袁祁: 用 U 盘生成本机留存副本，副本和纸面记录一起归进纪念盒。 #line:s8_seal_02
+系统: 先在电脑生成留存副本。 #line:s8_seal_03
+===
+
+title: S8_Preview
+tags: chapter_packaging location_clubroom
+---
+系统: 预览：本队作品与四人名单在前，更正页在最后单独一页。 #line:s8_preview_01
+许圆: 这样看的人会先看到我们的东西，再看到那一行名字。 #line:s8_preview_02
+袁祁: 可以。封包。 #line:s8_preview_03
+===
+
+title: S8_Archived
+tags: chapter_packaging location_clubroom
+---
+系统: 纪念盒打开。工牌记录、纸面归队表、旧工程留存副本，归进同一份档案。 #line:s8_archived_01
+唐澈: 索引写清楚：05 林未 · 原工程署名 · 待确认。 #line:s8_archived_02
+系统: 回电脑封包。 #line:s8_archived_03
+===

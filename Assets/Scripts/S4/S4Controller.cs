@@ -91,8 +91,9 @@ public sealed class S4Controller : MonoBehaviour, IDialogueContext
         Bind("S4 Choice/Alone", () => SelectChoice(StoryIds.Choice.ViewAlone), "独自查看 · 用 U 盘载入（SAN -10）");
         Bind("S4 Choice/Close", () => choicePanel.SetActive(false));
         Bind("S4 Ending/Title", ReturnTitle);
+        EnsureContinueButton();
 
-        state = pending;
+        state = pending ?? SaveSlotStore.TakeLoadedState(StoryIds.Chapter.Finale);
         development = pendingDevelopment;
         pending = null;
         pendingDevelopment = false;
@@ -316,10 +317,32 @@ public sealed class S4Controller : MonoBehaviour, IDialogueContext
         string evidence = null;
         if (ViewingTogether && WitnessesReady) evidence = "四人的目击记录";
         if (ViewingAlone && state.HasFlag(StoryIds.Flag.S4UsbMounted)) evidence = "离线预览日志";
-        endingText.text = "距离 48H 结束还剩\n\n24:00:00\n前 24H Demo 完结";
+        endingText.text = "距离 48H 结束还剩\n\n24:00:00\n前 24H 结束 · 周六 16:05";
         if (evidence != null) endingText.text += "\n<size=40>留下证据 · " + evidence + "</size>";
         blackout.SetActive(true);
         endingPanel.SetActive(true);
+        if (continueButton != null) continueButton.gameObject.SetActive(true);
+    }
+
+    private Button continueButton;
+
+    /// <summary>Adds the hand-off into the second 24H at the end of either S4 ending.</summary>
+    private void EnsureContinueButton()
+    {
+        if (endingPanel == null) return;
+        Transform existing = endingPanel.transform.Find("Continue");
+        if (existing != null) continueButton = existing.GetComponent<Button>();
+        if (continueButton == null)
+            continueButton = LateUi.Button(endingPanel.transform, "Continue",
+                "继续 · 后 24H（周六 16:05）", 660, 750, 600, 78, 32);
+        BindButton(continueButton, ContinueToSecondHalf);
+        continueButton.gameObject.SetActive(false);
+    }
+
+    private void ContinueToSecondHalf()
+    {
+        if (state == null) return;
+        S5Controller.Begin(state, development);
     }
 
     public void OpenRecord()

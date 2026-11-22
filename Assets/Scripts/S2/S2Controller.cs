@@ -99,7 +99,7 @@ public sealed class S2Controller : MonoBehaviour, IDialogueContext
 
         infoPanel.SetActive(false); codePanel.SetActive(false);
         recordPanel.SetActive(false); inventoryPanel.SetActive(false); pausePanel.SetActive(false);
-        state = pending;
+        state = pending ?? SaveSlotStore.TakeLoadedState(StoryIds.Chapter.BridgeRoute);
         development = pendingDevelopment;
         pending = null;
         pendingDevelopment = false;
