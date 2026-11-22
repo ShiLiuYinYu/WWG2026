@@ -14,9 +14,9 @@
 
 - 当前项目文件记录 Unity `6000.3.28f1`、URP `17.3.0`（2D）、Input System `1.20.1`、uGUI `2.0.0`。制作前以实际连接的 WWG 编辑器和 `ProjectSettings/ProjectVersion.txt`、`Packages/manifest.json` 为准。
 - `dev.yarnspinner.unity` 3.2.8 已接入：`Assets/Yarn/WWG.yarnproject`、`Assets/Scripts/Dialogue/` 共享服务与自定义 uGUI 呈现器、`Assets/Resources/Dialogue/WwgDialogueHost.prefab`、`WWG/Yarn/Validate Dialogue` 校验菜单已存在；S0–S4 的对白位于 `Assets/Yarn/Chapters/`，五个控制器都实现 `IDialogueContext`。S2–S4 仍使用各自场景 UI 和 `GameState`，`GameplayOverlay` 与 `GameRuntime` 的目标架构合并（重构阶段 4–5）尚未实施。接入方案和迁移顺序见 `Document/Program/YarnSpinner接入与对话系统重构.md`。
-- 项目已安装 `com.coplaydev.unity-mcp`。需要操作或检查 Unity 编辑器时，优先使用 Unity MCP，并先确认连接到 **WWG** 实例。仅在 Unity MCP 无法连接 WWG 或无法完成当前操作时，用 Computer Use 补足对应步骤。
+- 项目已安装 `com.coplaydev.unity-mcp`。需要操作或检查 Unity 编辑器时，使用 Unity MCP，并先确认连接到 **WWG** 实例。代理只完成 Unity MCP 能完成的任务；需要 Computer Use 的步骤不在本机代做，整理成明确的待办交给用户，详见下一条约束。
 - 当前没有 `WjSceneBuilder`、`WJ/Setup` 菜单、`WJ.*` 命名空间或 WJ 的预制体。不要照搬 WJ 专属调用。
-- S0/S1 的七个地点场景已引用 `Assets/Prefabs/UI/GameplayOverlay.prefab`，包含暂停菜单、右下角背包按钮、5×5 背包格网和物品详情。标题页及各章暂停菜单共用 `Assets/Resources/UI/SaveSlotPanel.prefab` 的三槽位存读档界面，槽位仍承载各章节检查点，不是完整 Demo 存档。调整共享游戏内 UI 时改预制体，显式安装命令为 `WWG/UI/Install Gameplay Overlay`。
+- S0/S1 的七个地点场景已引用 `Assets/Prefabs/UI/GameplayOverlay.prefab`，包含暂停菜单、右下角背包按钮、5×5 背包格网和物品详情。标题页及各章暂停菜单共用 `Assets/Resources/UI/SaveSlotPanel.prefab` 的三槽位存读档界面，槽位仍承载各章节检查点，不是完整 Demo 存档。设置窗口同样是共用预制体 `Assets/Resources/UI/SettingsPanel.prefab`（音乐/音效两条音量滑条，音量键 `WWG_MusicVolume` / `WWG_SfxVolume` 由 `Assets/Scripts/Audio/WwgAudioSettings.cs` 读写），重建菜单为 `WWG/UI/Build Settings Window`。调整共享游戏内 UI 时改预制体，显式安装命令为 `WWG/UI/Install Gameplay Overlay`。
 - S2–S4 现有独立场景分别为 `Assets/Scenes/S2.unity`、`S2/S2_BridgeSpan4F.unity`、`S2/S2_BridgeEven4F.unity`、`S2/S2_ClubRoom.unity`、`S3.unity`、`S4.unity`，均保留迁移前 GUID；章节控制器仍各自运行。`GameStateStore` 覆盖 S2–S4，但 S0/S1 尚未统一为完整 Demo 存档。`WWG/Dev/Play S2`、`Play S3`、`Play S4` 使用不写玩家存档的编辑器状态样本。场景生成菜单只在全部目标场景不存在时使用，已有人工维护场景不得重建。
 - 重构目标改为**阶段场景差分**：S0–S4 的 `.unity` 已按阶段独立可编辑，公共静态空间将逐地点提取为基础 Prefab，阶段专属物件、热点、照明及位置 override 留在各自场景。`StoryIds.LocationScene(chapterId, locationId)` 已映射当前文件；基础 Prefab 差分和 `GameRuntime` 迁移尚未实施。不要按旧方案把各阶段物件聚合进一个地点场景，也不要删除现有阶段场景或改其 GUID。详见 `Document/Program/架构重构设计.md`。
 - 编辑器中直接从 S2 任一地点或 S3/S4 场景按 Play，会使用 `ChapterPreviewStates` 的内存默认配置；开发菜单沿用相同样本。该预览状态不写玩家检查点或槽位，正式交接仍优先。构建版仍需有效交接或存档。
@@ -30,6 +30,7 @@
 - 当前真实场景、社团留下的资料、低 SAN 残影须能被玩家区分。不要添加赛事监控、强制汇报或统一上传设定。
 - 每次制作决策都记录到 `Document/Requirement/决策记录.md`，即使当次没有单独需求文件；备忘录文案清单见 `Document/Requirement/备忘录内容.md`，美术方向见 `Document/Requirement/美术方向.md`。
 - 程序创建的资源、游戏对象和预制体只创建一次；已有对象保留可在编辑器手动调整的位置。`WWG/UI/Apply temp1 Layout` 仅用于给现有资源补缺失结构与指定样式，不得重建已人工调整的布局。
+- 任务边界：只完成 Unity MCP 能完成的步骤，包括脚本、对白和文档编辑，以及 MCP 提供的编辑器检查、场景/预制体修改、编译刷新、Console 读取、Play 模式切换与截图。需要 Computer Use 的步骤（在 Unity 窗口内拖拽或点击、操作 Game 视图热点、控制系统或第三方窗口、需要人工确认的画面判断等）不自行执行：把目标、具体操作、预期结果和验证标准写成清晰的待办交给用户手动完成，并说明该部分为何无法由 MCP 完成。Unity MCP 连不上 WWG 时不要改走 Computer Use 兜底，先报告连接问题。
 
 ## 场景与 UI 工作
 

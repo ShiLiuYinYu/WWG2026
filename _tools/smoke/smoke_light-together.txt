@@ -1,0 +1,17 @@
+scenario light-together
+PASS S5 P4 完成
+PASS S5 证据与查看方式一致
+PASS S5 纪念盒工牌记录
+PASS S5 旧测试说明
+PASS S6 导览展板旧展位号
+PASS S6 纸质归队规则
+PASS S6 取证完成
+PASS S7 原署名恢复
+PASS S7 本队 4/4
+PASS S7 证据复查
+PASS S7 二次验证
+PASS S8 两份材料
+PASS S8 说明页预览
+PASS S8 封包完成
+PASS S7 休息过渡
+RESULT PASS

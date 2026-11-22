@@ -313,8 +313,7 @@ public sealed class S0Controller : MonoBehaviour, IDialogueContext
                 PlayNode("S0_Exterior_Bridge");
                 break;
             case "enter":
-                if (!boardRead) PlayNode("S0_Exterior_NeedBoard");
-                else ShowScreen(1, "S0_Corridor_Arrive");
+                ShowScreen(1, "S0_Corridor_Arrive");
                 break;
             case "toRoom":
                 ShowScreen(2);
@@ -415,13 +414,13 @@ public sealed class S0Controller : MonoBehaviour, IDialogueContext
     {
         transitionBusy = true;
         UpdateInteractionVisibility();
-        if (deskWorkSound != null) audioSource.PlayOneShot(deskWorkSound, 0.65f);
+        if (deskWorkSound != null) audioSource.PlayOneShot(deskWorkSound, 0.65f * WwgAudioSettings.SfxVolume);
         PlayNode("S0_ClubRoom_WorkMontage");
     }
 
     private void LightsOut()
     {
-        if (breakerSound != null) audioSource.PlayOneShot(breakerSound, 0.75f);
+        if (breakerSound != null) audioSource.PlayOneShot(breakerSound, 0.75f * WwgAudioSettings.SfxVolume);
         phase = 4;
         boxFallen = false;
         ShowScreen(2);

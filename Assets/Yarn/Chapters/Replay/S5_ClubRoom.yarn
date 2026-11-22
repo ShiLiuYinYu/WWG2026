@@ -1,0 +1,79 @@
+title: S5_Arrival
+tags: chapter_replay location_clubroom
+---
+袁祁: 电脑先别关。我们还有一件事没理清。 #line:s5_arrival_01
+我: 昨晚的帧和日志都在。 #line:s5_arrival_02
+袁祁: 名单第五格只有一个编号。有人把它写成三个人之一，也有人什么都没写。 #line:s5_arrival_03
+许圆: 我画了房间草图，纸团在插线板左边。 #line:s5_arrival_04
+唐澈: 先按你昨晚的查看方式对齐。对齐之后，先别急着改名单。 #line:s5_arrival_05
+系统: 点击电脑开始 P4 复盘。 #line:s5_arrival_06
+===
+
+title: S5_P4Complete
+tags: chapter_replay location_clubroom
+---
+袁祁: 对上了。不是谁走了，是写入被暂停了一下。 #line:s5_p4_01
+许圆: 暂停帧里有两行：一行是当时临时标的名字，一行是编号 05 原来的待确认。 #line:s5_p4_02
+唐澈: 也就是说，我们四个人的归队记录，和 05 是分开的。 #line:s5_p4_03
+袁祁: 分开写。别合并。 #line:s5_p4_04
+系统: 名单副本里现在显示两行。 #line:s5_p4_05
+===
+
+title: S5_RuleSeen
+tags: chapter_replay location_clubroom
+---
+袁祁: 这是林未那只旧测试留下的说明。 #line:s5_rule_01
+袁祁: 「公共灯熄灭后，按归队表验一次。」 #line:s5_rule_02
+许圆: 灯快熄了。再晚就得摸黑下楼。 #line:s5_rule_03
+唐澈: 我得再去看一眼连廊那块玻璃。 #line:s5_rule_04
+系统: 22:29——公共区域照明将在 23:30 熄灭。 #line:s5_rule_05
+===
+
+title: S5_ReadyForLights
+tags: chapter_replay location_clubroom
+---
+袁祁: 该带的东西都在身上了？ #line:s5_ready_01
+许圆: 归队表、分工表残页、U 盘。 #line:s5_ready_02
+唐澈: 走吧。熄灯以后走廊比昨晚还黑。 #line:s5_ready_03
+系统: 点「等到熄灯」，进入第二次熄灯。 #line:s5_ready_04
+===
+
+title: S5_ToBlackout
+tags: chapter_replay location_clubroom
+---
+系统: 23:29。楼里的灯一盏一盏灭下去。 #line:s5_blackout_01
+袁祁: 按白天说好的分工走。 #line:s5_blackout_02
+许圆: 我在。 #line:s5_blackout_03
+唐澈: 我在。 #line:s5_blackout_04
+<<sfx S0/Breaker 0.75>>
+系统: 公共区域照明熄灭。室内设备不断电。 #line:s5_blackout_05
+<<jump S5_Depart>>
+===
+
+title: S5_Depart
+tags: chapter_replay location_clubroom
+---
+袁祁: 五楼走廊到头，再下到四楼入口。 #line:s5_depart_01
+系统: 前往 5F 走廊。 #line:s5_depart_02
+===
+
+title: S5_Yuan
+tags: chapter_replay location_clubroom
+---
+袁祁: 先把暂停帧弄清楚。名字不是我们该替她改的。 #line:s5_yuan_01
+袁祁: 如果对不上，就记「待确认」。 #line:s5_yuan_02
+===
+
+title: S5_Xu
+tags: chapter_replay location_clubroom
+---
+许圆: 纸团的位置我没记错。插线板左边，离门更远。 #line:s5_xu_01
+许圆: 你要用那张草图，就按这个比。 #line:s5_xu_02
+===
+
+title: S5_Tang
+tags: chapter_replay location_clubroom
+---
+唐澈: 昨晚我在连廊看到玻璃上有字。倒影不是我们写的。 #line:s5_tang_01
+唐澈: 今晚灯灭以后，那一块会更清楚。 #line:s5_tang_02
+===

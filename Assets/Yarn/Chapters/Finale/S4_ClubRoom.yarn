@@ -2,10 +2,10 @@ title: S4_Arrival
 tags: chapter_finale location_clubroom
 ---
 许圆: 回来了！电话里机房那声门响，吓得我笔都掉了。 #line:s4_arrival_01
-我: 门外没人。U 盘拷回来了，但「周六_16:00.scene」文件头校验不对，怎么也打不开。 #line:s4_arrival_02
+我: U 盘拷回来了，原件还在机房。「周六_16:00.scene」的文件头锁着，现在读不出来。 #line:s4_arrival_02
 唐澈: 时间戳写着今天下午四点。上一届的工程，怎么会有今年日期的场景文件？ #line:s4_arrival_03
-袁祁: 现在凌晨两点，先休息。下午四点跑第一版 Demo，编译环境齐了再试。 #line:s4_arrival_04
-袁祁: 今晚这事也够咱们做一幕了。游戏名字就叫《熄灯之后：48H》。 #line:s4_arrival_05
+袁祁: 两点了，今晚到这儿。你先睡会儿，我把借用便签抄下来，天亮了再跟学长对一下。 #line:s4_arrival_04
+唐澈: 咱们自己的工程和她那份分开。我在测试机上留个离线预览，查清署名之前，旧素材先别动。 #line:s4_arrival_05
 袁祁: 还有林未的旧工牌，储物柜旁边的社团纪念盒能收好它。 #line:s4_arrival_06
 ===
 
@@ -35,9 +35,9 @@ tags: chapter_finale location_clubroom
 title: S4_Yuan
 tags: chapter_finale location_clubroom
 ---
-袁祁: 我又翻了分工表。四人队是策划、程序、美术、音效，林未编号 05，当年到底负责什么？ #line:s4_yuan_01
-我: 去年提交名单只有四个人，连她的名字都没署。 #line:s4_yuan_02
-袁祁: 咱们队可不能少算一个人。把四楼密码和三楼机房逻辑再对一遍，我写进配置表。 #line:s4_yuan_03
+袁祁: 学长说去年最后交了四个人的名字。他认得这张工牌，却记不起林未具体做了哪部分。 #line:s4_yuan_01
+我: 分工表剩着编号 05，机房登记也有她。我们手上其实有两份记录能对。 #line:s4_yuan_02
+袁祁: 那我把原件和我们亲眼看到的分开记。再问人，就有确切的东西可对了。 #line:s4_yuan_03
 ===
 
 title: S4_Xu
@@ -45,19 +45,23 @@ tags: chapter_finale location_clubroom
 ---
 <<if route() == "RouteLight">>
 许圆: 昨晚四楼应急灯亮起来时，我在五楼都松了口气。要是你摸黑在连廊乱晃，我真怕你出事。 #line:s4_xu_light_01
-我: 开灯稳妥，但玻璃上的字被反光遮住了。 #line:s4_xu_light_02
-许圆: 人平安回来更重要。 #line:s4_xu_light_03
+我: 远端两张贴纸都能揭开，展位号是原来就印在纸上的。 #line:s4_xu_light_02
+许圆: 我把编号和海报的位置记下来了，日后还能回去拍原件。 #line:s4_xu_light_03
 <<else>>
-许圆: 你昨晚没开应急灯，就那么摸黑过连廊。玻璃上的字真的写着那些话？ #line:s4_xu_dark_01
-我: 录音、工程文件、还有玻璃上的字，都是她留下的线索。 #line:s4_xu_dark_02
-许圆: 那旧工程里或许还有答案。 #line:s4_xu_dark_03
+许圆: 你昨晚是从中段玻璃看见远端数字的？我在楼上都看不见那两张海报。 #line:s4_xu_dark_01
+<<if has_flag("flag.p2.glassRead")>>
+我: 倒影里还有一句「别只看照片，看看他们留下了什么」。柜子真被那几个数字打开了。 #line:s4_xu_dark_02
+<<else>>
+我: 昨晚从柜子带回的原件都在这。玻璃上的痕迹，等有光了再一起去看。 #line:s4_xu_dark_04
+<<endif>>
+许圆: 我把玻璃里你看见的和柜里我们拿得到的分开记。有影子再出现，咱们就能对着看。 #line:s4_xu_dark_03
 <<endif>>
 ===
 
 title: S4_Tang
 tags: chapter_finale location_clubroom
 ---
-唐澈: 好消息是咱们第一版 Demo 跑通了。坏消息是，你看一眼表，现在 15:59。 #line:s4_tang_01
+唐澈: 我们自己的第一版跑通了。旧工程我隔离开了，测试机和离线日志也备好了。现在 15:59。 #line:s4_tang_01
 唐澈: U 盘里那个「周六_16:00.scene」，文件锁刚才自己解开了。 #line:s4_tang_02
 ===
 
@@ -65,9 +69,35 @@ title: S4_Decision
 tags: chapter_finale location_clubroom
 ---
 唐澈: 真准时。一到四点，它就自己解锁。 #line:s4_decision_01
-袁祁: 林未录音里说别乱碰他们的素材，可它像是掐着表等我们。现在怎么说？ #line:s4_decision_02
-许圆: 要看就四个人一块儿看，至少能互相照应。 #line:s4_decision_03
-唐澈: 万一是精神污染呢？U 盘是你带回来的，四个人一起看，还是你先点开？ #line:s4_decision_04
+袁祁: 我想查她的署名。一起看，我们各盯一处，看到什么当场核对。 #line:s4_decision_02
+许圆: 要是只想先试一次，我可以退到桌子那头。你开口我就过来。 #line:s4_decision_03
+唐澈: 那就用背包里的 U 盘载入离线副本。独自预览能留下本地日志，屏幕上的事只有你看见。 #line:s4_decision_04
+===
+
+title: S4_ReviewTogether
+tags: chapter_finale ending_together
+---
+唐澈: 旧场景先停在第一帧。画面跟这间屋子太像了，先别让它往下跑。 #line:s4_review_together_01
+我: 袁祁看画面里的名单，许圆看看屋里的东西。两边核对完，我再点电脑继续。 #line:s4_review_together_02
+===
+
+title: S4_YuanWitness
+tags: chapter_finale ending_together
+---
+袁祁: 前四格都是咱们现在的岗位。第五格只有 05，跟工牌一个编号。我把屏幕上这一排先抄下来。 #line:s4_witness_yuan_01
+===
+
+title: S4_XuWitness
+tags: chapter_finale ending_together
+---
+许圆: 看长桌下面。我刚踢进去的纸团，画面里也在那儿。连滚到插线板左边的位置都一样。我把它的位置画下来。 #line:s4_witness_xu_01
+===
+
+title: S4_ReviewAlone
+tags: chapter_finale ending_alone
+---
+系统: 三名队友退到长桌另一头。你的手心发冷，SAN 减少 10。 #line:s4_review_alone_01
+唐澈: 从背包用旧工程的 U 盘，载入只读快照。再点电脑播放，工具会记下每次状态变化。 #line:s4_review_alone_02
 ===
 
 title: S4_EndTogether
@@ -80,14 +110,14 @@ tags: chapter_finale ending_together
 系统: 画面里的三名队友依次起身离开。只剩你的小人，头顶变成红字：【状态：缺席】。 #line:s4_together_05
 袁祁: 都看见了吧？它把策划标成「缺席」，跟去年的林未一样。 #line:s4_together_06
 我: 如果按去年的剧本走，今晚熄灯之后被抹掉的就是我？ #line:s4_together_07
-唐澈: 我们三个都在。还有二十四小时，我去反编译它，看它究竟怎么跑起来的。 #line:s4_together_08
+唐澈: 我把刚才这一帧停住。把袁祁抄的名单和许圆画的位置放一起，四个人各写下自己看见的。今晚谁也别单独离队。 #line:s4_together_08
 <<jump S4_RouteOutro>>
 ===
 
 title: S4_EndAlone
 tags: chapter_finale ending_alone
 ---
-系统: 你让队友退到长桌另一头，独自打开旧工程。直面未知，SAN 减少 10。 #line:s4_alone_01
+系统: U 盘快照开始播放。离线工具在后台记录画面状态。 #line:s4_alone_01
 系统: 画面里的三名队友依次起身离开，只剩你的小人，头顶出现红字：【状态：缺席】。 #line:s4_alone_02
 我: 不对劲！你们过来，画面里把我标成「缺席」了！ #line:s4_alone_03
 系统: 三个人走近屏幕。画面闪了一帧，三名队友重新坐回座位。你头顶变成绿字：【状态：在线】。 #line:s4_alone_04
@@ -95,19 +125,19 @@ tags: chapter_finale ending_alone
 唐澈: 这房间连桌上的外卖盒都画出来了。可你明明是「在线」，缺席的是林未。 #line:s4_alone_06
 我: 你们来之前，缺席的明明是我！ #line:s4_alone_07
 袁祁: 我信你。这工程像是在判断谁落单。之后谁都别一个人看它。 #line:s4_alone_08
-许圆: 到明天交稿，去走廊接水也得有人陪着你。 #line:s4_alone_09
+唐澈: 日志里确实有两次状态变化。我把它连同快照一起存下来，等下先对时间。 #line:s4_alone_09
 <<jump S4_RouteOutro>>
 ===
 
 title: S4_RouteOutro
 tags: chapter_finale ending_shared
 ---
-<<if route() == "RouteDark">>
+<<if has_flag("flag.p2.glassRead")>>
 系统: 四楼玻璃上的字闪回：「别只看照片，看看他们留下了什么。」 #line:s4_outro_dark_01
 我: 她留下的是工程。我们打开它，就像接手了她去年的位置。 #line:s4_outro_dark_02
 <<else>>
-许圆: 至少从昨晚开不开灯，到现在看不看工程，都是我们自己选的。 #line:s4_outro_light_01
-我: 但愿今晚十一点半熄灯时，我们还来得及选。 #line:s4_outro_light_02
+许圆: 工牌、展位号、借用便签。咱们把能回头核对的线索先收在一起。 #line:s4_outro_light_01
+我: 距离今晚再熄灯，还有七个半小时。 #line:s4_outro_light_02
 <<endif>>
 系统: 林未是去年队伍被抹去署名的 05 号成员。工牌、借用记录和旧工程证明她确实来过；工程为何把你标为缺席，仍没有答案。 #line:s4_outro_03
 ===

@@ -120,7 +120,7 @@ public sealed class S2InventoryGrid : MonoBehaviour
         gameObject.SetActive(false);
         if (controller != null) controller.ShowInventoryUseHint(item);
         else if (s3Controller != null) s3Controller.ShowInventoryUseHint(item);
-        else s4Controller.ShowInventoryUseHint(item);
+        else s4Controller.UseInventoryItem(item);
     }
 
     private void Inspect()

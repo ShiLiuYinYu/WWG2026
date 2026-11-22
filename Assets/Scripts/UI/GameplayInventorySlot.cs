@@ -47,7 +47,7 @@ namespace WWG
 
         public void OnBeginDrag(PointerEventData eventData)
         {
-            if (eventData.button != PointerEventData.InputButton.Left || owner == null || !owner.CanInteractWithInventorySlots) return;
+            if (eventData.button != PointerEventData.InputButton.Left || owner == null || !owner.CanDragInventoryItems) return;
             UISound.Cursor();
             group = GetComponent<CanvasGroup>();
             if (group == null) group = gameObject.AddComponent<CanvasGroup>();

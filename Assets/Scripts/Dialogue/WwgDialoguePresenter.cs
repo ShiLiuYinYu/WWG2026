@@ -153,8 +153,8 @@ namespace WWG
             {
                 speakerText.text = speaker;
                 speakerText.color = entry != null
-                    ? entry.speakerColor
-                    : new Color(0.56f, 0.82f, 0.86f, 1f);
+                    ? Color.Lerp(LateUi.WindowInk, entry.speakerColor, 0.3f)
+                    : LateUi.WindowInk;
             }
 
             fullBody = body ?? string.Empty;

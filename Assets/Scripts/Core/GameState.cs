@@ -22,6 +22,7 @@ namespace WWG
         public List<string> seenDialogue = new List<string>();
         public string routeChoice;
         public string viewChoice;
+        public string endingChoice;
 
         public bool HasFlag(string id) => Contains(flags, id);
         public bool HasItem(string id) => Contains(inventory, id);
@@ -47,6 +48,15 @@ namespace WWG
                 return false;
             if (!string.IsNullOrEmpty(viewChoice)) return viewChoice == choice;
             viewChoice = choice;
+            return true;
+        }
+
+        public bool ChooseEnding(string choice)
+        {
+            if (choice != StoryIds.Choice.EndingLetter && choice != StoryIds.Choice.EndingSeal)
+                return false;
+            if (!string.IsNullOrEmpty(endingChoice)) return endingChoice == choice;
+            endingChoice = choice;
             return true;
         }
 
@@ -94,6 +104,12 @@ namespace WWG
                 viewChoice != StoryIds.Choice.ViewTogether && viewChoice != StoryIds.Choice.ViewAlone)
             {
                 error = "结尾选择无效";
+                return false;
+            }
+            if (!string.IsNullOrEmpty(endingChoice) &&
+                endingChoice != StoryIds.Choice.EndingLetter && endingChoice != StoryIds.Choice.EndingSeal)
+            {
+                error = "封包选择无效";
                 return false;
             }
             if (flags == null || inventory == null || seenDialogue == null)

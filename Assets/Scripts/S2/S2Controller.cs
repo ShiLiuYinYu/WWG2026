@@ -28,9 +28,16 @@ public sealed class S2Controller : MonoBehaviour, IDialogueContext
     private bool development;
     private bool subscribed;
     private int[] digits = { 0, 0, 0, 0 };
-    private float dangerSeconds, zeroSanSeconds, idleSeconds, revealedUntil;
-    private string revealLocation;
+    private const int GlassFocusCost = 40;
+    private const string GlassMessage = "别只看照片，看看他们留下了什么。";
+    private float dangerSeconds, zeroSanSeconds, idleSeconds;
     private int hintStage;
+
+    private bool UsingGlass => state.routeChoice == StoryIds.Choice.RouteDark;
+    private bool FarNumbersFound => state.HasFlag(StoryIds.Flag.P2OddFarRead) &&
+        state.HasFlag(StoryIds.Flag.P2EvenFarRead);
+    private bool AllNumbersFound => FarNumbersFound && state.HasFlag(StoryIds.Flag.P2OddNearRead) &&
+        state.HasFlag(StoryIds.Flag.P2EvenNearRead);
 
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
     private static void ResetPending() { pending = null; pendingDevelopment = false; }
@@ -94,7 +101,7 @@ public sealed class S2Controller : MonoBehaviour, IDialogueContext
 
         infoPanel.SetActive(false); codePanel.SetActive(false);
         recordPanel.SetActive(false); inventoryPanel.SetActive(false); pausePanel.SetActive(false);
-        state = pending;
+        state = pending ?? SaveSlotStore.TakeLoadedState(StoryIds.Chapter.BridgeRoute);
         development = pendingDevelopment;
         pending = null;
         pendingDevelopment = false;
@@ -165,7 +172,7 @@ public sealed class S2Controller : MonoBehaviour, IDialogueContext
         {
             idleSeconds += Time.deltaTime;
             if (hintStage == 0 && idleSeconds >= 45f &&
-                (!state.HasFlag(StoryIds.Flag.P2OddFarRead) || !state.HasFlag(StoryIds.Flag.P2EvenFarRead)))
+                !FarNumbersFound)
             {
                 hintStage = 1;
                 PlayNode("S2_Odd4F_Hint_Far", true);
@@ -206,11 +213,6 @@ public sealed class S2Controller : MonoBehaviour, IDialogueContext
                 }
             }
         }
-        if (revealedUntil > 0 && Time.time >= revealedUntil)
-        {
-            revealedUntil = 0;
-            UpdateView();
-        }
     }
 
     public void SwitchLight()
@@ -249,19 +251,23 @@ public sealed class S2Controller : MonoBehaviour, IDialogueContext
         bool odd = state.locationId == StoryIds.Location.BridgeOdd4F;
         string flag = odd ? StoryIds.Flag.P2OddFarRead : StoryIds.Flag.P2EvenFarRead;
         int number = odd ? 7 : 1;
-        if (state.HasFlag(StoryIds.Flag.P2EmergencyLightOn))
+        if (state.HasFlag(flag))
         {
-            state.SetFlag(flag);
-            ShowInfo("现实海报 · 揭开贴纸", "新贴纸的胶还没干。揭开后，旧展位号是 " + number + "。", false);
+            ShowInfo("调查记录 · 远端海报", "这张海报的旧展位号是 " + number + "，已记入任务记录。", false);
+            return;
         }
-        else
+        if (UsingGlass)
         {
-            state.san = Mathf.Max(0, state.san - 20);
-            state.SetFlag(flag);
-            revealLocation = state.locationId;
-            revealedUntil = Time.time + 8f;
-            ShowInfo("凝视 · 旧字显影", "贴纸在视野中短暂褪色。旧展位号是 " + number + "。\n\nSAN -20；这个真实数字已记入任务记录。", true);
+            ShowInfo("远端海报", "这张贴纸盖得很严。沿着刚才发现的痕迹，回连廊中段凝视玻璃。", false);
+            return;
         }
+        if (!state.HasFlag(StoryIds.Flag.P2EmergencyLightOn))
+        {
+            ShowInfo("远端海报", "暗处摸不准贴纸的边。回单数栋入口开灯，再揭开贴纸。", false);
+            return;
+        }
+        state.SetFlag(flag);
+        ShowInfo("现实海报 · 揭开贴纸", "顺着翘边揭开贴纸。旧展位号是 " + number + "。", false);
         idleSeconds = 0;
         UpdateView();
         Persist();
@@ -275,24 +281,36 @@ public sealed class S2Controller : MonoBehaviour, IDialogueContext
             bool lightOn = state.HasFlag(StoryIds.Flag.P2EmergencyLightOn);
             ChooseRoute(lightOn ? StoryIds.Choice.RouteLight : StoryIds.Choice.RouteDark);
             if (PlayNode(lightOn ? "S2_Odd4F_RouteLight" : "S2_Odd4F_RouteDark")) return;
+            if (UsingGlass)
+            {
+                ShowInfo("连廊玻璃", "玻璃里浮出两张远端海报的倒影。再点击一次凝视，SAN 最多扣 " + GlassFocusCost + "。", true);
+                return;
+            }
         }
-        ShowGlassTrace();
-    }
-
-    private bool CanReadGlassMessage => state.routeChoice == StoryIds.Choice.RouteDark &&
-        !state.HasFlag(StoryIds.Flag.P2EmergencyLightOn) && state.san <= 60;
-
-    private void ShowGlassTrace()
-    {
-        if (state.HasFlag(StoryIds.Flag.P2EmergencyLightOn))
-            ShowInfo("连廊玻璃", "应急灯的反光太亮，只能看到浅浅的划痕。", false);
-        else if (CanReadGlassMessage)
+        if (!UsingGlass)
         {
-            state.SetFlag(StoryIds.Flag.P2GlassRead);
-            Persist();
-            ShowInfo("残影 · 玻璃旧字", "别只看照片，看看他们留下了什么。\n\n这句话只出现在玻璃水雾里，已记入任务记录。", true);
+            ShowInfo("连廊玻璃", "刚才的反光里只有划痕。沿两端墙面找海报，远端的贴纸得开灯才好揭。", false);
+            return;
         }
-        else ShowInfo("连廊玻璃", "玻璃上似乎有旧字。等眼睛适应黑暗，也许能看得更清楚。", true);
+        if (state.HasFlag(StoryIds.Flag.P2EmergencyLightOn))
+        {
+            ShowInfo("连廊玻璃", "反光盖住了残影。回单数栋入口关灯，再来凝视玻璃。", false);
+            return;
+        }
+
+        int spent = FarNumbersFound && state.HasFlag(StoryIds.Flag.P2GlassRead)
+            ? 0 : Mathf.Min(state.san, GlassFocusCost);
+        state.san -= spent;
+        state.SetFlag(StoryIds.Flag.P2GlassRead);
+        state.SetFlag(StoryIds.Flag.P2OddFarRead);
+        state.SetFlag(StoryIds.Flag.P2EvenFarRead);
+        idleSeconds = 0;
+        Persist();
+        UpdateView();
+        ShowInfo("残影 · 玻璃旧字",
+            "玻璃里映出两张被贴纸遮住的海报。单数栋远端是 7，偶数栋远端是 1。\n\n「" +
+            GlassMessage + "」\n\n两处远端编号已记录。两张近端海报还可以在墙上核对。" +
+            (spent > 0 ? "\nSAN -" + spent + "。" : ""), true);
     }
 
     public void InspectCabinet()
@@ -311,6 +329,12 @@ public sealed class S2Controller : MonoBehaviour, IDialogueContext
 
     private void OpenCabinetCode()
     {
+        if (!AllNumbersFound)
+        {
+            ShowInfo("资料柜 · 核对展位号", "先把四个展位号记齐。两张近端海报都在各自的连廊口。" +
+                (UsingGlass ? "\n远端编号从中段玻璃的残影读取。" : "\n远端编号要开灯揭开两张海报上的贴纸。"), false);
+            return;
+        }
         codePanel.SetActive(true);
         codeFeedbackText.text = "";
         UpdateDigits();
@@ -328,7 +352,7 @@ public sealed class S2Controller : MonoBehaviour, IDialogueContext
     }
     public void SubmitCode()
     {
-        if (state == null) return;
+        if (state == null || !codePanel.activeSelf || !AllNumbersFound) return;
         if (digits[0] != 2 || digits[1] != 7 || digits[2] != 4 || digits[3] != 1)
         {
             codeFeedbackText.text = "顺序不符。四位输入已保留，可以继续修改。";
@@ -412,16 +436,18 @@ public sealed class S2Controller : MonoBehaviour, IDialogueContext
     public void CloseRecord() => recordPanel.SetActive(false);
     private string BuildRecord()
     {
-        string order = "单数栋近端 " + (state.HasFlag(StoryIds.Flag.P2OddNearRead) || hintStage >= 2 ? "2" : "?") +
+        string order = "单数栋近端 " + (state.HasFlag(StoryIds.Flag.P2OddNearRead) ? "2" : "?") +
             " → 远端 " + (state.HasFlag(StoryIds.Flag.P2OddFarRead) ? "7" : "?") +
-            " → 偶数栋近端 " + (state.HasFlag(StoryIds.Flag.P2EvenNearRead) || hintStage >= 2 ? "4" : "?") +
+            " → 偶数栋近端 " + (state.HasFlag(StoryIds.Flag.P2EvenNearRead) ? "4" : "?") +
             " → 远端 " + (state.HasFlag(StoryIds.Flag.P2EvenFarRead) ? "1" : "?");
         return "【社团自留资料】\n旧照片：背面 23:30。工牌：林未，编号 05；玻璃两边各存一半。\n双栋导览：先单数栋，后偶数栋；每栋从连廊口向外。\n" +
             (state.HasItem(StoryIds.Item.MachineNote) ? "机房借用便签：单数栋 3F，靠窗第 3 台。\n" : "") +
             (state.HasItem(StoryIds.Item.TeamSheet) ? "分工表残页：第五格被撕去，余编号 05。\n" : "") +
             (state.HasItem(StoryIds.Item.OldProjectUsb) ? "旧工程 U 盘：已拷贝 AfterLightsOut_Backup。\n" : "") +
-            "\n【现实调查】\n" + order + "\n应急灯：" + (state.HasFlag(StoryIds.Flag.P2EmergencyLightOn) ? "亮" : "灭") +
-            (state.HasFlag(StoryIds.Flag.P2GlassRead) ? "\n\n【残影】\n玻璃旧字：别只看照片，看看他们留下了什么。" : "") +
+            "\n【展位号】\n" + order + "\n调查方式：" +
+            (UsingGlass ? "玻璃倒影" : state.routeChoice == StoryIds.Choice.RouteLight ? "纸面海报" : "待决定") +
+            "\n应急灯：" + (state.HasFlag(StoryIds.Flag.P2EmergencyLightOn) ? "亮" : "灭") +
+            (state.HasFlag(StoryIds.Flag.P2GlassRead) ? "\n\n【残影】\n玻璃旧字：" + GlassMessage : "") +
             (state.HasFlag(StoryIds.Flag.P3MemoHeard) ? "\n\n【林未的录音备忘全文】\n" + DialogueDocuments.GetBody("s3.memo") : "");
     }
     public void OpenInventory()
@@ -519,7 +545,6 @@ public sealed class S2Controller : MonoBehaviour, IDialogueContext
     private void HandleDialogueCompleted(string nodeId)
     {
         if (nodeId == "S2_Even4F_Cabinet") OpenCabinetCode();
-        if (nodeId == "S2_Odd4F_RouteDark" && CanReadGlassMessage) ShowGlassTrace();
         Persist();
         UpdateView();
     }
@@ -625,7 +650,9 @@ public sealed class S2Controller : MonoBehaviour, IDialogueContext
         timeText.text = state.HasFlag(StoryIds.Flag.P3Copied) ? "周六 01:45" :
             state.HasFlag(StoryIds.Flag.P2DrawerTaken) ? "周六 00:50" : "周六 00:10";
         objectiveText.text = state.HasFlag(StoryIds.Flag.P2DrawerTaken) ? "借用便签指向单数栋 3F 机房" :
-            string.IsNullOrEmpty(state.routeChoice) ? "查看连廊中段右侧的玻璃" : "查找四张海报，打开偶数栋资料柜";
+            string.IsNullOrEmpty(state.routeChoice) ? "查看连廊中段右侧的玻璃" :
+            AllNumbersFound ? "打开偶数栋资料柜" :
+            UsingGlass ? "核对两张近端海报和连廊玻璃" : "开灯检查两端的四张海报";
         if (state.HasFlag(StoryIds.Flag.P3Copied)) objectiveText.text = "旧工程已带回 5F；等待整理证据";
         vitals.SetSan(state.san, state.sanMax);
         vitals.SetHealth(state.health, 3);
@@ -639,9 +666,7 @@ public sealed class S2Controller : MonoBehaviour, IDialogueContext
         {
             bool odd = location == StoryIds.Location.BridgeOdd4F;
             bool read = state.HasFlag(odd ? StoryIds.Flag.P2OddFarRead : StoryIds.Flag.P2EvenFarRead);
-            bool visible = read && (light || state.san <= 60 ||
-                (revealLocation == location && Time.time < revealedUntil));
-            farRevealText.text = visible ? "旧展位号  " + (odd ? "7" : "1") : "贴纸遮住了旧展位号";
+            farRevealText.text = read && !UsingGlass && light ? "旧展位号  " + (odd ? "7" : "1") : "贴纸遮住了旧展位号";
         }
         if (drawerButton != null) drawerButton.gameObject.SetActive(state.HasFlag(StoryIds.Flag.P2CabinetOpen) && !state.HasFlag(StoryIds.Flag.P2DrawerTaken));
         if (switchButton != null)

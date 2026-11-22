@@ -9,8 +9,8 @@ description: 在 WWG 项目中创建或修改 Unity 2D 场景、点击热点、U
 
 ## 工具选择
 
-- 检查编辑器状态、编辑场景和预制体、刷新编译、读取 Console、切换 Play 模式和截图时，优先使用 Unity MCP。脚本、对白和文档可直接在仓库中编辑。
-- Unity MCP 无法连接 **WWG** 或无法完成当前步骤时，用 Computer Use 补足该步骤，例如在 Game 视图操作热点，或查看 MCP 截图遗漏的界面。改用桌面操作前，先确认目标窗口属于 **WWG**。其余可由 MCP 执行的步骤继续用 MCP。
+- 检查编辑器状态、编辑场景和预制体、刷新编译、读取 Console、切换 Play 模式和截图时，使用 Unity MCP。脚本、对白和文档可直接在仓库中编辑。
+- 只完成 Unity MCP 能完成的步骤。需要 Computer Use 的桌面操作（在 Unity 窗口内拖拽或点击、操作 Game 视图热点、切换系统或第三方窗口、依赖人眼判断的画面确认）不自行执行，也不作为 MCP 失败后的兜底：把目标、具体操作、预期结果和验证标准写成待办交给用户，并说明该步骤为何无法由 MCP 完成。Unity MCP 连不上 **WWG** 时先报告连接问题，不要改用桌面操作。
 
 ## 开始前
 
@@ -38,7 +38,7 @@ description: 在 WWG 项目中创建或修改 Unity 2D 场景、点击热点、U
 ## 验证
 
 1. 脚本或资产改动后，优先用 Unity MCP 的 `refresh_unity(compile="request", scope="all", wait_for_ready=true)` 请求编译，再用 `read_console(types=["error","warning"], format="detailed")` 检查新错误。先解决编译错误，再验证交互。改对白后执行 `WWG/Yarn/Validate Dialogue`。
-2. 场景/UI 改动需进 Play 模式检查目标界面，点击实际热点、按钮和切屏入口。优先用 `manage_camera(action="screenshot", include_image=true)` 查看画面，结束后退出 Play 模式。
+2. 场景/UI 改动需进 Play 模式检查目标界面，点击实际热点、按钮和切屏入口。用 `manage_camera(action="screenshot", include_image=true)` 查看画面，结束后退出 Play 模式。MCP 无法完成 Game 视图内的点击时，列出待点位置、操作顺序和预期结果，交给用户验证，不要改用桌面操作。
 3. UI 使用 Screen Space Overlay 时，截图不要指定某个 Camera，以免漏掉 UI。按工具选择规则补充验证，记录仍无法验证的部分和原因。
 4. 涉及 P1/P2/P3、分支或存档时，验证两条 4F 路线均可继续、两种旧工程查看选择均可到达结尾；SAN/生命耗尽和读档不能丢失关键物与选择标记。只验证本次改动涉及的路径。
 

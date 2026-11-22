@@ -9,6 +9,10 @@ namespace WWG
             public const string BridgeRoute = "BridgeRoute";
             public const string ServerRecovery = "ServerRecovery";
             public const string Finale = "Finale";
+            public const string Replay = "Replay";
+            public const string SecondBlackout = "SecondBlackout";
+            public const string Reunion = "Reunion";
+            public const string Packaging = "Packaging";
         }
 
         public static class Location
@@ -44,6 +48,8 @@ namespace WWG
             public const string RouteDark = "RouteDark";
             public const string ViewTogether = "ViewTogether";
             public const string ViewAlone = "ViewAlone";
+            public const string EndingLetter = "EndingLetter";
+            public const string EndingSeal = "EndingSeal";
         }
 
         public static class Flag
@@ -67,11 +73,57 @@ namespace WWG
             public const string S4YuanTalked = "flag.s4.yuanTalked";
             public const string S4XuTalked = "flag.s4.xuTalked";
             public const string S4TangTalked = "flag.s4.tangTalked";
+            public const string S4YuanWitness = "flag.s4.yuanWitness";
+            public const string S4XuWitness = "flag.s4.xuWitness";
+            public const string S4UsbMounted = "flag.s4.usbMounted";
             public const string S4Finished = "flag.s4.finished";
+
+            public const string P4BadgeRead = "flag.p4.badgeRead";
+            public const string P4FrameRead = "flag.p4.frameRead";
+            public const string P4FrameFound = "flag.p4.frameFound";
+            public const string P4LogRead = "flag.p4.logRead";
+            public const string P4LogFound = "flag.p4.logFound";
+            public const string P4Complete = "flag.p4.complete";
+            public const string P4RuleSeen = "flag.p4.ruleSeen";
+            public const string S5Finished = "flag.s5.finished";
+
+            public const string P5LightRead = "flag.p5.lightRead";
+            public const string P5GlassMark = "flag.p5.glassMark";
+            public const string P5SheetPlaced = "flag.p5.sheetPlaced";
+            public const string P5PaperRule = "flag.p5.paperRule";
+            public const string P5BackupRule = "flag.p5.backupRule";
+            public const string P5Complete = "flag.p5.complete";
+            public const string S6Finished = "flag.s6.finished";
+
+            public const string P6NameVerified = "flag.p6.nameVerified";
+            public const string P6BadgeChecked = "flag.p6.badgeChecked";
+            public const string P6NameSelected = "flag.p6.nameSelected";
+            public const string P6ReviewAtSecondEvent = "flag.p6.reviewAtSecondEvent";
+            public const string P6ReviewAuthor = "flag.p6.reviewAuthor";
+            public const string P6ReviewPlayer = "flag.p6.reviewPlayer";
+            public const string P6NameRestored = "flag.p6.nameRestored";
+            public const string P6TeamConfirmed = "flag.p6.teamConfirmed";
+            public const string P6ReviewDone = "flag.p6.reviewDone";
+            public const string P6Verified = "flag.p6.verified";
+            public const string P6Complete = "flag.p6.complete";
+            public const string S7Finished = "flag.s7.finished";
+
+            public const string S8MaterialsSeen = "flag.s8.materialsSeen";
+            public const string S8LetterAttached = "flag.s8.letterAttached";
+            public const string S8Previewed = "flag.s8.previewed";
+            public const string S8ArchiveCopy = "flag.s8.archiveCopy";
+            public const string S8Archived = "flag.s8.archived";
+            public const string S8Finished = "flag.s8.finished";
         }
 
+        /// <summary>True once the route-specific reunion rule of S6 was recorded.</summary>
+        public static bool HasReunionRule(GameState state) =>
+            state != null && (state.HasFlag(Flag.P5PaperRule) || state.HasFlag(Flag.P5BackupRule));
+
         public static bool IsChapter(string id) => id == Chapter.Prologue || id == Chapter.NightPhoto ||
-            id == Chapter.BridgeRoute || id == Chapter.ServerRecovery || id == Chapter.Finale;
+            id == Chapter.BridgeRoute || id == Chapter.ServerRecovery || id == Chapter.Finale ||
+            id == Chapter.Replay || id == Chapter.SecondBlackout || id == Chapter.Reunion ||
+            id == Chapter.Packaging;
 
         public static bool IsLocation(string id) => id == Location.Exterior || id == Location.Corridor5F ||
             id == Location.ClubRoom || id == Location.BridgeOdd4F || id == Location.BridgeSpan4F ||
@@ -115,6 +167,23 @@ namespace WWG
                 return "Assets/Scenes/S3.unity";
             else if (chapterId == Chapter.Finale && locationId == Location.ClubRoom)
                 return "Assets/Scenes/S4.unity";
+            else if (chapterId == Chapter.Replay && locationId == Location.ClubRoom)
+                return "Assets/Scenes/S5.unity";
+            else if (chapterId == Chapter.SecondBlackout)
+            {
+                switch (locationId)
+                {
+                    case Location.Corridor5F: return "Assets/Scenes/S6/S6_Corridor.unity";
+                    case Location.BridgeOdd4F: return "Assets/Scenes/S6/S6_BridgeOdd4F.unity";
+                    case Location.BridgeSpan4F: return "Assets/Scenes/S6/S6_BridgeSpan4F.unity";
+                    case Location.BridgeEven4F: return "Assets/Scenes/S6/S6_BridgeEven4F.unity";
+                    case Location.ServerRoom3F: return "Assets/Scenes/S6/S6_ServerRoom3F.unity";
+                }
+            }
+            else if (chapterId == Chapter.Reunion && locationId == Location.ClubRoom)
+                return "Assets/Scenes/S7.unity";
+            else if (chapterId == Chapter.Packaging && locationId == Location.ClubRoom)
+                return "Assets/Scenes/S8.unity";
             return null;
         }
     }

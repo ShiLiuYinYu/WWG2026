@@ -10,6 +10,8 @@ namespace WWG
 
         internal static Image FindArrow(Transform hotspot)
         {
+            Image marked = hotspot.Find("Navigation arrow")?.GetComponent<Image>();
+            if (marked != null) return marked;
             Image image = hotspot.parent != null ? hotspot.parent.GetComponent<Image>() : null;
             return image != null && image.sprite != null && image.sprite.name.StartsWith("WhiteArrow")
                 ? image

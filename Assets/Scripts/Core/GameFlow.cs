@@ -15,6 +15,14 @@ namespace WWG
         public const string S2StartScene = "S2";
         public const string S3Scene = "S3";
         public const string S4Scene = "S4";
+        public const string S5Scene = "S5";
+        public const string S6CorridorScene = "S6_Corridor";
+        public const string S6Odd4FScene = "S6_BridgeOdd4F";
+        public const string S6SpanScene = "S6_BridgeSpan4F";
+        public const string S6EvenScene = "S6_BridgeEven4F";
+        public const string S6ServerScene = "S6_ServerRoom3F";
+        public const string S7Scene = "S7";
+        public const string S8Scene = "S8";
 
         private static readonly string[] S0Locations = { "S0", "S0_Corridor", "S0_ClubRoom", "S0_Bridge" };
         private static readonly string[] S1Locations = { "S1", "S1_Corridor", "S1_BridgeEntrance" };
@@ -27,6 +35,12 @@ namespace WWG
         public static string S2Location(string locationId)
         {
             string path = StoryIds.LocationScene(StoryIds.Chapter.BridgeRoute, locationId);
+            return path == null ? null : System.IO.Path.GetFileNameWithoutExtension(path);
+        }
+
+        public static string S6Location(string locationId)
+        {
+            string path = StoryIds.LocationScene(StoryIds.Chapter.SecondBlackout, locationId);
             return path == null ? null : System.IO.Path.GetFileNameWithoutExtension(path);
         }
 
