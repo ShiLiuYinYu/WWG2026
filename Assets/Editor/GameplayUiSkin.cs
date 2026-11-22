@@ -15,7 +15,7 @@ public static class GameplayUiSkin
         "Inspect", "Inspect panel", "Memo panel", "Task record", "Inventory", "Inventory panel",
         "Tooltip", "Item detail", "Pause", "Pause card", "Settings panel", "SettingsPanel", "Confirmation",
         "Four digit cabinet", "ClubPhotoView", "Old photograph", "纸面线索", "任务记录", "背包", "暂停菜单",
-        "归档窗口内容", "S4 Choice", "Case panel", "Puzzle", "Dialogue panel", "Document card"
+        "S4 Choice", "Case panel", "Puzzle", "Dialogue panel", "Document card"
     };
 
     [MenuItem("WWG/UI/Apply Shared Window and Button Sprites")]
@@ -74,13 +74,13 @@ public static class GameplayUiSkin
         {
             if (!Windows.Contains(rect.name) || rect.GetComponent<Button>() != null) continue;
             Image image = rect.GetComponent<Image>();
-            if (image == null && (rect.name == "归档窗口内容" || rect.name == "S4 Choice"))
+            if (image == null && rect.name == "S4 Choice")
                 image = rect.gameObject.AddComponent<Image>();
             if (image == null || image.sprite == window && image.color == Color.white) continue;
             image.sprite = window;
             image.type = Image.Type.Simple;
             image.color = Color.white;
-            if (rect.name == "S4 Choice" || rect.name == "归档窗口内容") image.raycastTarget = false;
+            if (rect.name == "S4 Choice") image.raycastTarget = false;
             changed = true;
 
             foreach (Text label in rect.GetComponentsInChildren<Text>(true))
@@ -93,6 +93,7 @@ public static class GameplayUiSkin
         foreach (Button button in root.GetComponentsInChildren<Button>(true))
         {
             if (button.name is "CornerInventoryButton" or "Inventory button" or "背包入口") continue;
+            if (button.transform.parent?.name is S2SceneBuilder.CabinetKeypadFace or S3SceneBuilder.ArchiveWindowContent) continue;
             if (!(button.targetGraphic is Image image) || image.color.a < 0.05f ||
                 image.sprite == LateUi.ButtonSprite || image.sprite != null && image.sprite.name == "WhiteArrow") continue;
 
@@ -106,19 +107,6 @@ public static class GameplayUiSkin
 
     private static bool InstallEarlyArrows(GameObject root, string scene)
     {
-        if (scene == "S4")
-        {
-            var controller = root.GetComponent<S4Controller>();
-            if (controller == null || controller.endingPanel.transform.Find("Continue") != null) return false;
-            Button button = LateUi.Button(controller.endingPanel.transform, "Continue", "继续 · 后 24H（周六 16:05）",
-                660, 750, 600, 78, fontSize: 32);
-            button.transition = Selectable.Transition.None;
-            button.targetGraphic.color = Color.clear;
-            InstallArrowFace(button.transform, new Vector2(60f, -39f), 88f, 0f);
-            button.gameObject.SetActive(false);
-            return true;
-        }
-
         if (scene != "S0_Corridor") return false;
         S0Hotspot hotspot = root.GetComponentsInChildren<S0Hotspot>(true)
             .FirstOrDefault(candidate => candidate.action == "toRoom");

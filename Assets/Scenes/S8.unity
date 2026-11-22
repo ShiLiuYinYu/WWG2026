@@ -1001,19 +1001,19 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6590244049777051048, guid: ed3751d1613ce374a9e248739158e5a4, type: 3}
       propertyPath: m_AnchorMax.x
-      value: 0.86
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6590244049777051048, guid: ed3751d1613ce374a9e248739158e5a4, type: 3}
       propertyPath: m_AnchorMax.y
-      value: 0.86
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6590244049777051048, guid: ed3751d1613ce374a9e248739158e5a4, type: 3}
       propertyPath: m_AnchorMin.x
-      value: 0.14
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6590244049777051048, guid: ed3751d1613ce374a9e248739158e5a4, type: 3}
       propertyPath: m_AnchorMin.y
-      value: 0.14
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -3734,7 +3734,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &1589537831
 RectTransform:
   m_ObjectHideFlags: 0

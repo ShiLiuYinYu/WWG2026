@@ -88,11 +88,10 @@ public static class S3UiAlignment
 
             Sprite buttonArt = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Resources/S0/选项按钮.png");
             if (buttonArt == null) throw new InvalidOperationException("选项按钮素材缺失。");
-            foreach (string group in new[] { "归档提取工具", "返回楼梯口" })
+            Transform returnToStairs = canvas.transform.Find("返回楼梯口");
+            if (returnToStairs != null)
             {
-                Transform root = canvas.transform.Find(group);
-                if (root == null) continue;
-                foreach (Button button in root.GetComponentsInChildren<Button>(true))
+                foreach (Button button in returnToStairs.GetComponentsInChildren<Button>(true))
                 {
                     if (button.GetComponent<S3HotspotHover>() != null) continue;
                     Image image = button.GetComponent<Image>();

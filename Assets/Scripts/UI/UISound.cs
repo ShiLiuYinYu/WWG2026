@@ -22,7 +22,10 @@ namespace WWG
         private static AudioClip _ok;
         private static AudioClip _cancel;
         private static AudioClip _buzzer;
-        private static float _lastCursorAt = -99f;
+        private static float _lastCursorAt;
+
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+        private static void ResetCursorCooldown() => _lastCursorAt = float.NegativeInfinity;
 
         public static bool Ready
         {
@@ -54,9 +57,8 @@ namespace WWG
         private static void Play(AudioClip clip, float volume)
         {
             if (clip == null) return;
-            Ensure();
-            if (_source == null) return;
-            _source.PlayOneShot(clip, volume * WwgAudioSettings.SfxVolume);
+            float gain = volume * WwgAudioSettings.SfxVolume;
+            if (gain > 0f && _source != null) _source.PlayOneShot(clip, gain);
         }
 
         /// <summary>光标在选项间移动（鼠标移上按钮）。</summary>
@@ -75,7 +77,7 @@ namespace WWG
             Play(_ok, 0.7f);
         }
 
-        /// <summary>返回 / 取消。存档系统上线后接到对应按钮。</summary>
+        /// <summary>返回 / 取消。</summary>
         public static void Cancel()
         {
             Ensure();

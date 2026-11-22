@@ -158,6 +158,7 @@ public sealed class S1Controller : MonoBehaviour, IDialogueContext
 
     private void Start()
     {
+        hoverText.color = HotspotHoverStyle.Caption;
         defaultHoverPosition = hoverText.rectTransform.anchoredPosition;
         Application.runInBackground = true;
         if (box != null)
@@ -190,7 +191,9 @@ public sealed class S1Controller : MonoBehaviour, IDialogueContext
         pendingTravel = null;
         pendingArrivalNode = null;
         bool fresh = PlayerPrefs.GetInt("WWG_S1_EnterFresh", 0) == 1;
+        bool autoBox = PlayerPrefs.GetInt("WWG_S1_AutoBox", 0) == 1;
         PlayerPrefs.DeleteKey("WWG_S1_EnterFresh");
+        PlayerPrefs.DeleteKey("WWG_S1_AutoBox");
         if (travel != null)
         {
             Apply(travel);
@@ -209,6 +212,9 @@ public sealed class S1Controller : MonoBehaviour, IDialogueContext
         {
             screen = Mathf.Max(0, GameFlow.S1LocationIndex(SceneManager.GetActiveScene().name));
             UpdateView();
+            // 从 S0 点落地照片进来时，直接接上纸盒对白，让那次点击有可见结果。
+            // 只在本次交接生效，普通从标题进入 S1 不会自动播放。
+            if (autoBox) PlayNode("S1_ClubRoom_Box");
         }
     }
 
@@ -480,14 +486,16 @@ public sealed class S1Controller : MonoBehaviour, IDialogueContext
 
     internal void UpdateInteractionVisibility()
     {
-        bool visible = !ModalOpen;
+        bool visible = !ModalOpen && !GameplayOverlay.IsOverlayModalOpen;
         bool inventoryOpen = GameplayOverlay.IsInventoryOpen;
         if (roomHotspots != null) roomHotspots.SetActive(visible && screen == 0);
         if (corridorHotspots != null) corridorHotspots.SetActive(visible && screen == 1);
         if (bridgeHotspots != null) bridgeHotspots.SetActive(visible && screen == 2);
         foreach (var group in hotspotGroups)
         {
-            if (group != null) group.alpha = inventoryOpen ? 0f : 1f;
+            if (group == null) continue;
+            group.alpha = inventoryOpen ? 0f : 1f;
+            group.interactable = !inventoryOpen;
         }
         SetSceneHotspotRaycasts(!inventoryOpen);
         if (!visible || inventoryOpen) SetHover("");

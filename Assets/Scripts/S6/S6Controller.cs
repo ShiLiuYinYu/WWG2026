@@ -92,6 +92,8 @@ namespace WWG
             if (emergencySwitchArt != null) emergencySwitchOff = emergencySwitchArt.sprite;
             ApplyFont();
             CloseAllPanels();
+            SceneHotspotInput.Install(this, () => state == null || Blocked,
+                navA, navB, navC, emergencySwitch, guideBoard, glass, cabinet, serverMachine);
             Bind("Inspect/Close", () => infoPanel.SetActive(false));
             Bind("Task record/Close", () => recordPanel.SetActive(false));
             BindButton(puzzleClose, () => puzzlePanel.SetActive(false));
@@ -209,6 +211,7 @@ namespace WWG
             if (button == null) return;
             button.onClick.RemoveAllListeners();
             button.onClick.AddListener(() => action());
+            TitleButtonFx.Attach(button);
         }
 
         // ---------------------------------------------------------------- 场景配置

@@ -26,8 +26,11 @@ namespace WWG
         private string selectedItem;
         private string detailItem;
         private float messageUntil;
+        private bool lastOverlayModalOpen;
 
         internal static bool IsInventoryOpen => current != null && current.inventoryPanel.activeInHierarchy;
+        internal static bool IsOverlayModalOpen => SaveSlotPanel.IsOpen || SettingsPanelController.IsOpen ||
+            (current != null && (current.pausePanel.activeInHierarchy || current.detailPanel.activeInHierarchy));
 
         private bool InventoryBlocked => GameplayModalOpen || SaveSlotPanel.IsOpen || pausePanel.activeSelf ||
             (chapter != null && DialogueService.Instance != null && DialogueService.Instance.IsRunning);
@@ -114,9 +117,7 @@ namespace WWG
             if (t == null) return;
             Button b = t.GetComponent<Button>();
             if (b == null) return;
-            TitleButtonFx fx = t.GetComponent<TitleButtonFx>();
-            if (fx == null) fx = t.gameObject.AddComponent<TitleButtonFx>();
-            fx.SetClickSound(sound);
+            TitleButtonFx.Attach(b, animate: true).SetClickSound(sound);
         }
 
         private void OnDestroy()
@@ -190,6 +191,16 @@ namespace WWG
             }
             else if (messageLabel.transform.parent.gameObject.activeSelf && Time.unscaledTime >= messageUntil)
                 messageLabel.transform.parent.gameObject.SetActive(false);
+        }
+
+        private void LateUpdate()
+        {
+            if (s0 == null && s1 == null) return;
+            bool open = IsOverlayModalOpen;
+            if (open == lastOverlayModalOpen) return;
+            lastOverlayModalOpen = open;
+            if (s0 != null) s0.UpdateInteractionVisibility();
+            else s1.UpdateInteractionVisibility();
         }
 
         private bool GameplayModalOpen => chapter?.IsGameplayModalOpen ??

@@ -31,6 +31,7 @@ namespace WWG
         {
             if (owner == null || !owner.CanInteractWithInventorySlots) return;
             transform.localScale = originalScale * 1.12f;
+            UISound.Cursor();
         }
 
         public void OnPointerExit(PointerEventData eventData)

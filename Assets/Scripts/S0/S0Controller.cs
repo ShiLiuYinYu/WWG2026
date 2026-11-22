@@ -143,6 +143,7 @@ public sealed class S0Controller : MonoBehaviour, IDialogueContext
 
     private void Start()
     {
+        hoverText.color = HotspotHoverStyle.Caption;
         defaultHoverPosition = hoverText.rectTransform.anchoredPosition;
         Application.runInBackground = true;
         S0Audio.Ensure(transform);
@@ -285,7 +286,7 @@ public sealed class S0Controller : MonoBehaviour, IDialogueContext
 
     internal void UpdateInteractionVisibility()
     {
-        bool visible = !IsGameplayModalOpen && !GameplayOverlay.IsInventoryOpen;
+        bool visible = !IsGameplayModalOpen && !GameplayOverlay.IsOverlayModalOpen && !GameplayOverlay.IsInventoryOpen;
         if (interactionLayers != null)
             foreach (GameObject layer in interactionLayers)
                 if (layer != null) layer.SetActive(visible);
@@ -360,7 +361,10 @@ public sealed class S0Controller : MonoBehaviour, IDialogueContext
             case "photo":
                 if (phase == 4)
                 {
+                    // S0 与 S1 是同一间活动室，切场本身没有可见反馈。
+                    // 标记 S1 在进场后直接接上纸盒对白，避免玩家以为第一次点击没生效。
                     PlayerPrefs.SetInt("WWG_S1_EnterFresh", 1);
+                    PlayerPrefs.SetInt("WWG_S1_AutoBox", 1);
                     PlayerPrefs.Save();
                     GameFlow.LoadLocation(GameFlow.S1Scene);
                 }

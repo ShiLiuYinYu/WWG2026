@@ -88,6 +88,8 @@ namespace WWG
             Application.runInBackground = true;
             ApplyFont();
             CloseAllPanels();
+            SceneHotspotInput.Install(this, () => state == null || IsInventoryBlocked,
+                badgeButton, ruleButton, yuanButton, xuButton, tangButton, computerButton, waitButton);
 
             Bind("Inspect/Close", CloseInfo);
             Bind("Task record/Close", CloseRecord);
@@ -182,7 +184,7 @@ namespace WWG
             Transform target = infoPanel.transform.parent.Find(path);
             if (target == null) { UnityEngine.Debug.LogError("[S5] 缺少 UI：" + path); return; }
             Button button = target.GetComponent<Button>();
-            if (button != null) { button.onClick.RemoveAllListeners(); button.onClick.AddListener(() => action()); }
+            BindButton(button, action);
         }
 
         private static void BindButton(Button button, Action action)
@@ -190,6 +192,7 @@ namespace WWG
             if (button == null) return;
             button.onClick.RemoveAllListeners();
             button.onClick.AddListener(() => action());
+            TitleButtonFx.Attach(button);
         }
 
         // ---------------------------------------------------------------- 证据与调查

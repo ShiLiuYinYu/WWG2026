@@ -27,7 +27,8 @@ public sealed class S2Controller : MonoBehaviour, IDialogueContext
     private GameState state;
     private bool development;
     private bool subscribed;
-    private int[] digits = { 0, 0, 0, 0 };
+    private string codeEntry = string.Empty;
+    private const string CabinetCode = "2741";
     private const int GlassFocusCost = 40;
     private const string GlassMessage = "别只看照片，看看他们留下了什么。";
     private float dangerSeconds, zeroSanSeconds, idleSeconds;
@@ -99,8 +100,9 @@ public sealed class S2Controller : MonoBehaviour, IDialogueContext
             subscribed = true;
         }
 
-        infoPanel.SetActive(false); codePanel.SetActive(false);
+        infoPanel.SetActive(false); CloseCode();
         recordPanel.SetActive(false); inventoryPanel.SetActive(false); pausePanel.SetActive(false);
+        inventoryPanel.GetComponent<S2InventoryGrid>().InstallSceneInput(this, () => !CanAct());
         state = pending ?? SaveSlotStore.TakeLoadedState(StoryIds.Chapter.BridgeRoute);
         development = pendingDevelopment;
         pending = null;
@@ -160,8 +162,9 @@ public sealed class S2Controller : MonoBehaviour, IDialogueContext
         subscribed = false;
     }
 
+    private bool IsCodeOpen => codePanel != null && codePanel.activeSelf;
     internal bool IsInventoryBlocked => DialogueRunning || SaveSlotPanel.IsOpen || infoPanel.activeSelf ||
-        codePanel.activeSelf || recordPanel.activeSelf || pausePanel.activeSelf ||
+        IsCodeOpen || recordPanel.activeSelf || pausePanel.activeSelf ||
         (photoView != null && photoView.IsOpen);
     private bool ModalOpen => IsInventoryBlocked || inventoryPanel.activeSelf;
 
@@ -329,6 +332,7 @@ public sealed class S2Controller : MonoBehaviour, IDialogueContext
 
     private void OpenCabinetCode()
     {
+        if (state == null || codePanel == null) return;
         if (!AllNumbersFound)
         {
             ShowInfo("资料柜 · 核对展位号", "先把四个展位号记齐。两张近端海报都在各自的连廊口。" +
@@ -336,29 +340,45 @@ public sealed class S2Controller : MonoBehaviour, IDialogueContext
             return;
         }
         codePanel.SetActive(true);
-        codeFeedbackText.text = "";
-        UpdateDigits();
+        RefreshCodeEntry();
     }
 
-    public void CycleDigit(int index)
+    public void EnterCodeDigit(int digit)
     {
-        if (index < 0 || index >= digits.Length) return;
-        digits[index] = (digits[index] + 1) % 10;
-        UpdateDigits();
+        if (!IsCodeOpen || digit < 1 || digit > 9 || codeEntry.Length >= CabinetCode.Length) return;
+        codeEntry += (char)('0' + digit);
+        RefreshCodeEntry();
     }
-    private void UpdateDigits()
+
+    public void DeleteCodeDigit()
     {
-        for (int i = 0; i < digits.Length; i++) digitTexts[i].text = digits[i].ToString();
+        if (!IsCodeOpen || codeEntry.Length == 0) return;
+        codeEntry = codeEntry.Substring(0, codeEntry.Length - 1);
+        RefreshCodeEntry();
     }
+
+    private void RefreshCodeEntry()
+    {
+        codeFeedbackText.text = string.Empty;
+        for (int i = 0; i < digitTexts.Length; i++)
+            digitTexts[i].text = i < codeEntry.Length ? codeEntry[i].ToString() : string.Empty;
+    }
+
     public void SubmitCode()
     {
-        if (state == null || !codePanel.activeSelf || !AllNumbersFound) return;
-        if (digits[0] != 2 || digits[1] != 7 || digits[2] != 4 || digits[3] != 1)
+        if (state == null || !IsCodeOpen || !AllNumbersFound) return;
+        if (codeEntry.Length < CabinetCode.Length)
         {
-            codeFeedbackText.text = "顺序不符。四位输入已保留，可以继续修改。";
+            codeFeedbackText.text = "请输入完整的四位密码。";
             return;
         }
-        codePanel.SetActive(false);
+        if (codeEntry != CabinetCode)
+        {
+            codeFeedbackText.text = "密码错误，可删除后修改。";
+            return;
+        }
+
+        CloseCode();
         state.SetFlag(StoryIds.Flag.P2CabinetOpen);
         Persist();
         ShowInfo("资料柜", "咔哒一声，锁开了。抽屉里压着去年的纸质记录。", false);
@@ -520,7 +540,10 @@ public sealed class S2Controller : MonoBehaviour, IDialogueContext
         SaveSlotPanel.OpenLoad(CaptureSaveSlot);
     }
     public void ReturnTitle() { pausePanel.SetActive(false); GameFlow.LoadLocation(GameFlow.TitleScene); }
-    public void CloseCode() => codePanel.SetActive(false);
+    public void CloseCode()
+    {
+        if (IsCodeOpen) codePanel.SetActive(false);
+    }
     public void CloseInfo()
     {
         infoPanel.SetActive(false);

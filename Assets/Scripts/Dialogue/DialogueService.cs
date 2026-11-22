@@ -89,6 +89,7 @@ namespace WWG
             GameObject host = Instantiate(prefab);
             host.name = "WwgDialogueHost";
             DontDestroyOnLoad(host);
+            TitleButtonFx.Install(host);
             Instance = host.GetComponent<DialogueService>();
             if (Instance == null) Instance = host.AddComponent<DialogueService>();
             Instance.ApplySystemFont();

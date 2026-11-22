@@ -83,10 +83,7 @@ public static class S4SceneBuilder
             Text hover = Label(canvas, "S4 Hover hint", "", 510, 825, 900, 62, 30, Accent, TextAnchor.MiddleCenter);
             hover.gameObject.SetActive(false);
             c.badgeButton = Hotspot(canvas, "S4 Badge box", 1611, 224, 248, 173, "社团纪念盒 · 归档林未工牌", hover);
-            c.restButton = Hotspot(canvas, "S4 Rest chair", 1345, 685, 390, 345, "活动室座位 · 休息", hover);
-            c.yuanButton = Hotspot(canvas, "S4 Yuan", 330, 490, 270, 330, "与袁祁复盘", hover);
-            c.xuButton = Hotspot(canvas, "S4 Xu", 700, 450, 265, 300, "与许圆复盘", hover);
-            c.tangButton = Hotspot(canvas, "S4 Tang", 1020, 470, 270, 300, "与唐澈交谈", hover);
+            c.restButton = Hotspot(canvas, "S4 Rest chair", 1020, 620, 280, 395, "活动室座位 · 休息", hover);
             c.computerButton = Hotspot(canvas, "S4 Computer", 590, 555, 365, 190, "周六_16:00.scene · 打开旧工程", hover);
 
             c.choicePanel = Rect(canvas, "S4 Choice", 0, 0, 930, 335);
@@ -106,11 +103,6 @@ public static class S4SceneBuilder
             blackout.pivot = new Vector2(.5f, .5f);
             blackout.offsetMin = blackout.offsetMax = Vector2.zero;
             c.blackout.SetActive(false);
-            c.endingPanel = Panel(canvas, "S4 Ending", 0, 0, 1920, 1080, Color.black);
-            c.endingText = Label(c.endingPanel.transform, "Ending text", "", 300, 250, 1320, 480, 64,
-                new Color(0.78f, 0.12f, 0.11f), TextAnchor.MiddleCenter);
-            Button(c.endingPanel.transform, "Title", "返回标题", 760, 850, 400, 80);
-            c.endingPanel.SetActive(false);
 
             InstallVisuals(c);
 

@@ -69,6 +69,8 @@ namespace WWG
             Application.runInBackground = true;
             ApplyFont();
             CloseAllPanels();
+            SceneHotspotInput.Install(this, () => state == null || Blocked,
+                materialsButton, computerButton, memorialButton);
             Bind("Inspect/Close", () => infoPanel.SetActive(false));
             Bind("Task record/Close", () => recordPanel.SetActive(false));
             BindButton(puzzleClose, () => puzzlePanel.SetActive(false));
@@ -155,6 +157,7 @@ namespace WWG
             if (button == null) return;
             button.onClick.RemoveAllListeners();
             button.onClick.AddListener(() => action());
+            TitleButtonFx.Attach(button);
         }
 
         // ---------------------------------------------------------------- 材料与源头

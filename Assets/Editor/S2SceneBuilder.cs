@@ -15,6 +15,7 @@ using WWG;
 public static class S2SceneBuilder
 {
     private const string Folder = "Assets/Scenes/S2";
+    internal const string CabinetKeypadFace = "Cabinet keypad face";
     private static readonly string[] Names = { "BridgeOdd4F", "BridgeSpan4F", "BridgeEven4F", "ClubRoom" };
     private static readonly string[] ScenePaths = { "Assets/Scenes/S2.unity", "Assets/Scenes/S2/S2_BridgeSpan4F.unity",
         "Assets/Scenes/S2/S2_BridgeEven4F.unity", "Assets/Scenes/S2/S2_ClubRoom.unity" };
@@ -134,20 +135,6 @@ public static class S2SceneBuilder
         c.infoBody = Label(c.infoPanel.transform, "Body", "", 65, 165, 1060, 395, 36, Paper, TextAnchor.UpperLeft);
         Button(c.infoPanel.transform, "Close", "继续调查", 890, 615, 245, 68, c.CloseInfo);
 
-        c.codePanel = Panel(canvas.transform, "Four digit cabinet", 500, 225, 920, 600, Ink);
-        Label(c.codePanel.transform, "Title", "社团资料柜 · 四位密码", 60, 35, 800, 64, 40, Accent, TextAnchor.MiddleCenter);
-        Label(c.codePanel.transform, "Note", "密码是四张海报的展位号，按导览巡场顺序排。点击数字逐位调整。", 65, 125, 790, 110, 29, Paper, TextAnchor.MiddleCenter);
-        c.codeFeedbackText = Label(c.codePanel.transform, "Feedback", "", 70, 244, 780, 52, 27, Accent, TextAnchor.MiddleCenter);
-        c.digitTexts = new Text[4];
-        for (int i = 0; i < 4; i++)
-        {
-            Button b = Button(c.codePanel.transform, "Digit " + i, "0", 100 + i * 185, 300, 125, 100, null);
-            UnityEventTools.AddIntPersistentListener(b.onClick, c.CycleDigit, i);
-            c.digitTexts[i] = b.GetComponentInChildren<Text>();
-        }
-        Button(c.codePanel.transform, "Submit", "开锁", 190, 480, 245, 65, c.SubmitCode);
-        Button(c.codePanel.transform, "Close", "返回", 500, 480, 245, 65, c.CloseCode);
-
         c.recordPanel = Panel(canvas.transform, "Task record", 300, 125, 1320, 825, Ink);
         Label(c.recordPanel.transform, "Title", "任务记录", 60, 30, 880, 70, 42, Accent, TextAnchor.MiddleLeft);
         c.recordText = Label(c.recordPanel.transform, "Record", "", 75, 135, 1170, 580, 30, Paper, TextAnchor.UpperLeft);
@@ -166,12 +153,80 @@ public static class S2SceneBuilder
         Button(c.pausePanel.transform, "Title", "返回标题", 125, 481, 520, 72, c.ReturnTitle);
 
         c.infoPanel.SetActive(false);
-        c.codePanel.SetActive(false);
         c.recordPanel.SetActive(false);
         c.inventoryPanel.SetActive(false);
         c.pausePanel.SetActive(false);
+        if (index == 2) BuildCabinetKeypad(c, canvas.transform);
 
         EditorSceneManager.SaveScene(scene, ScenePaths[index]);
+    }
+
+    internal static void BuildCabinetKeypad(S2Controller controller, Transform canvas)
+    {
+        if (canvas.Find("Cabinet keypad modal") != null) return;
+        if (font == null) font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+
+        var modal = Panel(canvas, "Cabinet keypad modal", 0, 0, 0, 0, new Color32(0, 0, 0, 150));
+        var modalRect = (RectTransform)modal.transform;
+        modalRect.anchorMin = Vector2.zero;
+        modalRect.anchorMax = Vector2.one;
+        modalRect.offsetMin = modalRect.offsetMax = Vector2.zero;
+
+        var shell = Panel(modalRect, "Cabinet lock housing", 0, 0, 464, 594, new Color32(34, 32, 29, 255), false);
+        var shellRect = (RectTransform)shell.transform;
+        shellRect.anchorMin = shellRect.anchorMax = shellRect.pivot = new Vector2(0.5f, 0.5f);
+        shellRect.anchoredPosition = new Vector2(0, 15);
+        var face = Panel(shellRect, CabinetKeypadFace, 4, 4, 456, 586, new Color32(105, 100, 90, 255), false).transform;
+        Color displayInk = new Color32(34, 39, 40, 255);
+        Color keyColor = new Color32(58, 65, 67, 255);
+        Color actionColor = new Color32(67, 63, 56, 255);
+
+        Label(face, "Title", "社团资料柜", 30, 19, 396, 48, 35, Paper, TextAnchor.MiddleCenter);
+        Label(face, "Note", "按导览顺序输入四位展位号", 30, 67, 396, 36, 25, Paper, TextAnchor.MiddleCenter);
+        var display = Panel(face, "Four digit display", 38, 115, 380, 70, new Color32(41, 39, 35, 255), false).transform;
+        controller.digitTexts = new Text[4];
+        for (int i = 0; i < controller.digitTexts.Length; i++)
+        {
+            var slot = Panel(display, "Display slot " + (i + 1), 4 + i * 94, 4, 90, 62, displayInk, false).transform;
+            controller.digitTexts[i] = Label(slot, "Value", string.Empty, 0, 0, 90, 62, 40,
+                Accent, TextAnchor.MiddleCenter);
+        }
+
+        for (int digit = 1; digit <= 9; digit++)
+        {
+            int index = digit - 1;
+            Button key = KeypadButton(face, "Key " + digit, digit.ToString(), 50 + index % 3 * 122,
+                207 + index / 3 * 80, 112, 70, keyColor, 36);
+            UnityEventTools.AddIntPersistentListener(key.onClick, controller.EnterCodeDigit, digit);
+        }
+
+        controller.codeFeedbackText = Label(face, "Feedback", string.Empty, 19, 444, 418, 42, 26,
+            new Color32(255, 227, 179, 255), TextAnchor.MiddleCenter);
+        var delete = KeypadButton(face, "Delete", "删除", 38, 499, 118, 62, actionColor, 27);
+        var confirm = KeypadButton(face, "Confirm", "确认", 169, 499, 118, 62, keyColor, 27);
+        var back = KeypadButton(face, "Back", "返回", 300, 499, 118, 62, actionColor, 27);
+        UnityEventTools.AddPersistentListener(delete.onClick, controller.DeleteCodeDigit);
+        UnityEventTools.AddPersistentListener(confirm.onClick, controller.SubmitCode);
+        UnityEventTools.AddPersistentListener(back.onClick, controller.CloseCode);
+
+        controller.codePanel = modal;
+        modal.SetActive(false);
+    }
+
+    private static Button KeypadButton(Transform parent, string name, string caption, float x, float y,
+        float width, float height, Color color, int fontSize)
+    {
+        Button button = Button(parent, name, caption, x, y, width, height, null);
+        button.targetGraphic.color = color;
+        button.GetComponentInChildren<Text>().fontSize = fontSize;
+        ColorBlock colors = button.colors;
+        colors.highlightedColor = Color.white;
+        colors.selectedColor = Color.white;
+        colors.normalColor = new Color(0.86f, 0.86f, 0.86f);
+        colors.pressedColor = new Color(0.66f, 0.66f, 0.66f);
+        colors.colorMultiplier = 1.2f;
+        button.colors = colors;
+        return button;
     }
 
     private static VitalsBars Vitals(Transform parent)

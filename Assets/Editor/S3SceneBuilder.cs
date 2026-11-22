@@ -17,6 +17,7 @@ public static class S3SceneBuilder
     private const string ScenePath = "Assets/Scenes/S3.unity";
     private const string ArtPath = "Assets/Resources/S3/ServerRoom3F.png";
     private const string MonitorArtPath = "Assets/Resources/S3/ComputerScreen.png";
+    internal const string ArchiveWindowContent = "归档窗口内容";
     private static readonly Color Ink = new Color(0.035f, 0.055f, 0.055f, 0.97f);
     private static readonly Color Terminal = new Color(0.014f, 0.037f, 0.037f, 0.98f);
     private static readonly Color Green = new Color(0.62f, 0.9f, 0.7f);
@@ -97,11 +98,12 @@ public static class S3SceneBuilder
             c.fieldLabels[i] = b.GetComponentInChildren<Text>();
         }
         c.archiveFeedback = Label(c.archivePanel.transform, "校验反馈", "", 75, 532, 1060, 90, 27, Green, TextAnchor.MiddleCenter);
-        Button(c.archivePanel.transform, "提取", "提取归档", 75, 646, 210, 70, c.Extract);
-        c.memoButton = Button(c.archivePanel.transform, "录音", "播放备忘", 310, 646, 210, 70, c.PlayMemo);
-        c.copyButton = Button(c.archivePanel.transform, "拷贝", "拷入 U 盘", 545, 646, 210, 70, c.CopyProject);
-        Button(c.archivePanel.transform, "背包", "查看背包", 780, 646, 160, 70, c.OpenInventory);
-        Button(c.archivePanel.transform, "关闭", "返回机房", 965, 646, 180, 70, c.CloseComputer);
+        // 五个按钮统一 194×70、间距 25，左右各留 75，避免“查看背包”窄一截。
+        Button(c.archivePanel.transform, "提取", "提取归档", 75, 646, 194, 70, c.Extract);
+        c.memoButton = Button(c.archivePanel.transform, "录音", "播放备忘", 294, 646, 194, 70, c.PlayMemo);
+        c.copyButton = Button(c.archivePanel.transform, "拷贝", "拷入 U 盘", 513, 646, 194, 70, c.CopyProject);
+        Button(c.archivePanel.transform, "背包", "查看背包", 732, 646, 194, 70, c.OpenInventory);
+        Button(c.archivePanel.transform, "关闭", "返回机房", 951, 646, 194, 70, c.CloseComputer);
 
         c.infoPanel = PaperPanel(canvas.transform, "纸面线索", 330, 185, 1260, 700);
         c.infoTitle = Label(c.infoPanel.transform, "标题", "", 80, 67, 1090, 85, 42, Paper, TextAnchor.MiddleLeft);
@@ -205,9 +207,10 @@ public static class S3SceneBuilder
             maskImage.color = new Color(Terminal.r, Terminal.g, Terminal.b, 1f);
             maskImage.raycastTarget = false;
 
-            GameObject content = Rect(panel, "归档窗口内容", 365, 218, 1220, 775);
+            GameObject content = Rect(panel, ArchiveWindowContent, 365, 218, 1220, 775);
             content.transform.localScale = new Vector3(0.75f, 0.75f, 1f);
             foreach (Transform child in existingControls) child.SetParent(content.transform, false);
+            ApplyArchiveWindowStyle(content);
 
             GameObject close = Rect(panel, "屏幕关闭热点", 1243, 164, 34, 36);
             Image closeImage = close.AddComponent<Image>();
@@ -228,6 +231,68 @@ public static class S3SceneBuilder
         }
     }
 
+    internal static void ApplyArchiveWindowStyle(GameObject content)
+    {
+        var surface = content.GetComponent<Image>();
+        if (surface == null) surface = content.AddComponent<Image>();
+
+        surface.color = new Color32(9, 15, 13, 255);
+        surface.raycastTarget = false;
+        ApplyArchiveFrame(surface, new Color32(98, 173, 130, 255), 3f);
+
+        var sectionColor = new Color32(19, 39, 29, 255);
+        var ruleColor = new Color32(55, 104, 78, 255);
+        var header = ArchiveRule(content.transform, "程序标题栏", 0, 0, 104, sectionColor);
+        ArchiveRule(header, "分隔线", 0, 102, 2, ruleColor);
+        ArchiveRule(content.transform, "反馈区分隔线", 75, 509, 2, ruleColor);
+
+        var accent = new Color32(209, 250, 224, 255);
+        var text = new Color32(141, 189, 161, 255);
+        foreach (Text label in content.GetComponentsInChildren<Text>(true))
+            label.color = label.name == "标题" || label.GetComponentInParent<Button>(true) != null ? accent : text;
+
+        foreach (Button button in content.GetComponentsInChildren<Button>(true))
+        {
+            if (button.targetGraphic is not Image image) continue;
+
+            bool primary = button.name == "提取";
+            image.color = primary ? new Color32(47, 119, 80, 255) : new Color32(35, 66, 52, 255);
+            ApplyArchiveFrame(image, primary ? new Color32(144, 233, 175, 255) : new Color32(117, 187, 144, 255), 3f);
+
+            var colors = ColorBlock.defaultColorBlock;
+            colors.normalColor = new Color(0.78f, 0.78f, 0.78f);
+            colors.highlightedColor = Color.white;
+            colors.selectedColor = Color.white;
+            colors.pressedColor = new Color(0.55f, 0.55f, 0.55f);
+            button.transition = Selectable.Transition.ColorTint;
+            button.colors = colors;
+        }
+    }
+
+    private static void ApplyArchiveFrame(Image image, Color border, float width)
+    {
+        image.sprite = null;
+        image.overrideSprite = null;
+        image.type = Image.Type.Simple;
+        var outline = image.GetComponent<Outline>();
+        if (outline == null) outline = image.gameObject.AddComponent<Outline>();
+        outline.effectColor = border;
+        outline.effectDistance = new Vector2(width, width);
+    }
+
+    private static RectTransform ArchiveRule(Transform parent, string name, float inset, float y, float height, Color color)
+    {
+        var existing = parent.Find(name);
+        if (existing != null) return (RectTransform)existing;
+
+        var image = Panel(parent, name, inset, y, 0, height, color, false).GetComponent<Image>();
+        RectTransform rect = image.rectTransform;
+        rect.anchorMax = Vector2.one;
+        rect.sizeDelta = new Vector2(-2 * inset, height);
+        rect.SetAsFirstSibling();
+        return rect;
+    }
+
     private static void InstallUsbSlots()
     {
         string[] paths = { "Assets/Scenes/S2.unity", "Assets/Scenes/S2/S2_BridgeSpan4F.unity",
@@ -245,7 +310,7 @@ public static class S3SceneBuilder
             if (slot == null) slot = cell.gameObject.AddComponent<S2InventorySlot>();
             slot.item = StoryIds.Item.OldProjectUsb;
             if (cell.Find("USB label") == null)
-                Label(cell, "USB label", "U", 10, 5, 72, 78, 42, Green, TextAnchor.MiddleCenter);
+                Label(cell, "USB label", "U", 10, 7, 72, 78, 42, Green, TextAnchor.MiddleCenter).alignByGeometry = true;
             EditorSceneManager.SaveScene(scene);
         }
     }

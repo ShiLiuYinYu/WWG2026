@@ -64,6 +64,7 @@ public sealed class S3Controller : MonoBehaviour, IDialogueContext
             foreach (Text label in GetComponentsInChildren<Text>(true)) label.font = font;
         infoPanel.SetActive(false); archivePanel.SetActive(false); recordPanel.SetActive(false);
         inventoryPanel.SetActive(false); pausePanel.SetActive(false);
+        inventoryPanel.GetComponent<S2InventoryGrid>().InstallSceneInput(this, () => !CanAct);
         state = pending ?? SaveSlotStore.TakeLoadedState(StoryIds.Chapter.ServerRecovery);
         development = pendingDevelopment;
         pending = null;

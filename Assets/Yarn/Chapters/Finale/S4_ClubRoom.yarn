@@ -29,7 +29,7 @@ title: S4_DayIntro
 tags: chapter_finale location_clubroom
 ---
 我: 白天的活动室看起来几乎正常。三个人已经各自在工位上赶工。 #line:s4_day_01
-系统: 与袁祁、许圆复盘昨晚的线索，再找唐澈确认第一版 Demo。 #line:s4_day_02
+袁祁: 学长回我了。趁大家都在，先把昨晚查到的东西对一遍。 #line:s4_day_02
 ===
 
 title: S4_Yuan
@@ -78,7 +78,7 @@ title: S4_ReviewTogether
 tags: chapter_finale ending_together
 ---
 唐澈: 旧场景先停在第一帧。画面跟这间屋子太像了，先别让它往下跑。 #line:s4_review_together_01
-我: 袁祁看画面里的名单，许圆看看屋里的东西。两边核对完，我再点电脑继续。 #line:s4_review_together_02
+我: 袁祁，你核对画面里的名单。许圆，你对一下屋里的东西。两边核对完，我再点电脑继续。 #line:s4_review_together_02
 ===
 
 title: S4_YuanWitness
@@ -139,5 +139,4 @@ tags: chapter_finale ending_shared
 许圆: 工牌、展位号、借用便签。咱们把能回头核对的线索先收在一起。 #line:s4_outro_light_01
 我: 距离今晚再熄灯，还有七个半小时。 #line:s4_outro_light_02
 <<endif>>
-系统: 林未是去年队伍被抹去署名的 05 号成员。工牌、借用记录和旧工程证明她确实来过；工程为何把你标为缺席，仍没有答案。 #line:s4_outro_03
 ===

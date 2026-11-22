@@ -220,12 +220,14 @@ namespace WWG.Editor
                     label.offsetMin = new Vector2(5, 5); label.offsetMax = new Vector2(-5, -5);
                     var text = label.GetComponent<Text>();
                     text.alignment = TextAnchor.MiddleCenter; text.fontSize = 19;
+                    text.alignByGeometry = true;
                     text.color = Color.white; text.text = i == 0 ? "旧照片" : "旧工牌";
                 }
             }
             Label(panel, "Selection", "暂无物品", new Vector2(33, -609), new Vector2(490, 36), 19);
-            Button(panel, "Close", "返回", new Vector2(1, 1), new Vector2(1, 1),
+            var close = Button(panel, "Close", "返回", new Vector2(1, 1), new Vector2(1, 1),
                 new Vector2(1, 1), new Vector2(-22, -20), new Vector2(100, 52));
+            AlignNewInventoryHeader(panel, grid, (RectTransform)close.transform);
             var tip = Panel(panel, "Tooltip", center, center,
                 center, Vector2.zero, new Vector2(270, 195)).transform;
             Label(tip, "Name", "物品", new Vector2(16, -15), new Vector2(238, 54), 21);
@@ -242,6 +244,30 @@ namespace WWG.Editor
             Find(t, "Item detail/Use").gameObject.SetActive(false);
             Find(t, "Item detail/Inspect").gameObject.SetActive(false);
             EnsureGhost(t);
+        }
+
+        private static void AlignNewInventoryHeader(Transform panel, RectTransform grid, RectTransform close)
+        {
+            var title = panel.Find("Title")?.GetComponent<Text>();
+            if (title != null)
+            {
+                var rect = title.rectTransform;
+                rect.anchorMin = new Vector2(0, 1);
+                rect.anchorMax = Vector2.one;
+                rect.offsetMin = new Vector2(grid.anchoredPosition.x, close.anchoredPosition.y - close.sizeDelta.y);
+                rect.offsetMax = new Vector2(close.anchoredPosition.x - close.sizeDelta.x - 16f, close.anchoredPosition.y);
+                title.alignment = TextAnchor.MiddleLeft;
+                title.alignByGeometry = true;
+            }
+
+            var caption = close.GetComponentInChildren<Text>(true);
+            if (caption == null) return;
+            caption.alignByGeometry = true;
+            var label = caption.rectTransform;
+            label.anchorMin = Vector2.zero;
+            label.anchorMax = Vector2.one;
+            label.offsetMin = new Vector2(6, 0);
+            label.offsetMax = new Vector2(-6, 0);
         }
 
         internal static bool EnsureInventoryViews(Transform panel)
@@ -468,6 +494,7 @@ namespace WWG.Editor
                         slot.item = ids[i];
                         var label = Label(rect, "Name", S2InventoryGrid.ItemName(ids[i]), new Vector2(5, -5), new Vector2(82, 82), 17);
                         label.color = Color.white;
+                        label.alignByGeometry = true;
                     }
                 }
                 var close = panel.Find("Close") as RectTransform;
@@ -477,6 +504,7 @@ namespace WWG.Editor
                     close.pivot = new Vector2(1, 1);
                     close.anchoredPosition = new Vector2(-18, -18);
                     close.sizeDelta = new Vector2(110, 55);
+                    AlignNewInventoryHeader(panel, grid, close);
                 }
                 var tip = Panel(panel, "Tooltip", center, center,
                     center, Vector2.zero, new Vector2(270, 195)).transform;

@@ -28,7 +28,7 @@ public static class S8SceneBuilder
                 out controller.puzzleBody, out controller.puzzleFeedback,
                 out controller.puzzleA, out controller.puzzleB, out controller.puzzleC, out controller.puzzleClose);
 
-            controller.materialsButton = Prop(canvas, "Materials", "袁祁的材料", 40, 420, 300, 56);
+            controller.materialsButton = Prop(canvas, "Materials", "袁祁的材料", 330, 490, 270, 330);
             controller.computerButton = Prop(canvas, "Computer", "电脑", 690, 620, 240, 56);
             controller.memorialButton = Prop(canvas, "Memorial box", "纪念盒", 1500, 330, 330, 58);
 

@@ -31,7 +31,7 @@ public static class S7SceneBuilder
 
             controller.badgeButton = Prop(canvas, "Memorial box", "纪念盒", 1500, 330, 330, 58);
             controller.rosterButton = Prop(canvas, "Computer", "名单副本", 690, 620, 280, 56);
-            controller.teamButton = Prop(canvas, "Team confirm", "我已归队", 40, 700, 260, 56);
+            controller.teamButton = Prop(canvas, "Team confirm", "我已归队", 330, 490, 270, 330);
             controller.reviewButton = Prop(canvas, "Evidence review", "与队友对照", 40, 780, 300, 56);
             controller.verifyButton = Prop(canvas, "Verify again", "再验一次", 330, 700, 260, 56);
             controller.restButton = Prop(canvas, "Rest", "休息到周日上午", 330, 780, 300, 56);

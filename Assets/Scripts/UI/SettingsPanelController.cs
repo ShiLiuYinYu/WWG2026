@@ -77,7 +77,11 @@ namespace WWG
             var img = go.GetComponent<Image>();
             img.color = new Color(0f, 0f, 0f, 0.72f);
             Canvas.ForceUpdateCanvases();
-            go.GetComponent<Button>().onClick.AddListener(Close);
+            var button = go.GetComponent<Button>();
+            button.onClick.AddListener(Close);
+            var feedback = TitleButtonFx.Attach(button);
+            feedback.SetClickSound(TitleButtonFx.ClickSound.Cancel);
+            feedback.SetHoverSound(false);
             shade = go;
             transform.SetAsLastSibling();
         }
@@ -96,9 +100,7 @@ namespace WWG
             if (close != null)
             {
                 close.onClick.AddListener(Close);
-                var fx = close.GetComponent<TitleButtonFx>();
-                if (fx == null) fx = close.gameObject.AddComponent<TitleButtonFx>();
-                fx.SetClickSound(TitleButtonFx.ClickSound.Cancel);
+                TitleButtonFx.Attach(close, animate: true).SetClickSound(TitleButtonFx.ClickSound.Cancel);
             }
             else Debug.LogWarning("[Settings] 设置窗口内找不到 Close 按钮");
 
