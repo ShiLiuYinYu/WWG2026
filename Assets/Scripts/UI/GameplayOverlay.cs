@@ -13,15 +13,13 @@ namespace WWG
         private S0Controller s0;
         private S1Controller s1;
         private IChapterInventory chapter;
-        private GameObject pausePanel, settingsPanel, detailPanel, inventoryPanel, inventoryButton, tooltip, topBar;
+        private GameObject pausePanel, detailPanel, inventoryPanel, inventoryButton, tooltip, topBar;
         private GameObject inventoryContents;
         private Image inventoryBackground;
         private GameObject shade;
-        private Slider volumeSlider, textSpeedSlider;
-        private Text textSpeedLabel;
         private Text timeLabel, messageLabel;
         private VitalsBars vitals;
-        private Text detailName, detailBody, selectionLabel, volumeLabel;
+        private Text detailName, detailBody, selectionLabel;
         private Text tooltipName;
         private RectTransform carriedItem;
         private GameplayInventorySlot[] slots;
@@ -40,12 +38,10 @@ namespace WWG
         private void Awake()
         {
             current = this;
-            AudioListener.volume = PlayerPrefs.GetFloat("WWG_MasterVolume", 1f);
             s0 = GetComponentInParent<S0Controller>();
             s1 = GetComponentInParent<S1Controller>();
             chapter = GetComponentInParent<IChapterInventory>();
             pausePanel = transform.Find("Pause panel").gameObject;
-            settingsPanel = pausePanel.transform.Find("Settings panel").gameObject;
             detailPanel = transform.Find("Item detail").gameObject;
             inventoryPanel = transform.Find("Inventory panel").gameObject;
             inventoryContents = inventoryPanel.transform.Find("Bag contents").gameObject;
@@ -69,7 +65,6 @@ namespace WWG
             detailName = FindText("Item detail/Name");
             detailBody = FindText("Item detail/Body");
             selectionLabel = FindText("Inventory panel/Bag contents/Selection");
-            volumeLabel = FindText("Pause panel/Settings panel/Volume value");
             hud.pauseButton.onClick.AddListener(TogglePause);
             hud.recordButton.onClick.AddListener(OpenRecord);
             hud.inventoryButton.onClick.AddListener(ToggleInventory);
@@ -83,38 +78,15 @@ namespace WWG
             Bind("Pause panel/Settings", OpenSettings);
             Bind("Pause panel/Title", ReturnToTitle);
             Bind("Pause panel/Close", ClosePause);
-            Bind("Pause panel/Settings panel/Back", CloseSettings);
-            var volumeSlider = transform.Find("Pause panel/Settings panel/Volume").GetComponent<Slider>();
-            if (volumeSlider != null)
-            {
-                volumeSlider.minValue = 0f;
-                volumeSlider.maxValue = 1f;
-                volumeSlider.SetValueWithoutNotify(AudioListener.volume);
-                volumeSlider.onValueChanged.AddListener(SetVolume);
-            }
-
-            textSpeedSlider = transform.Find("Pause panel/Settings panel/Text speed")?.GetComponent<Slider>();
-            textSpeedLabel = FindText("Pause panel/Settings panel/Text speed value");
-            if (textSpeedSlider != null)
-            {
-                textSpeedSlider.minValue = 5f;
-                textSpeedSlider.maxValue = 80f;
-                textSpeedSlider.wholeNumbers = true;
-                textSpeedSlider.SetValueWithoutNotify(PlayerPrefs.GetFloat("WWG_TextSpeed", 30f));
-                textSpeedSlider.onValueChanged.AddListener(SetTextSpeed);
-            }
-            UpdateTextSpeedLabel();
             Bind("Item detail/Use", SelectDetailItem);
             Bind("Item detail/Inspect", InspectDetailItem);
             Bind("Item detail/Close", CloseDetail);
             slots = GetComponentsInChildren<GameplayInventorySlot>(true);
             foreach (var slot in slots) slot.owner = this;
             pausePanel.SetActive(false);
-            settingsPanel.SetActive(false);
             detailPanel.SetActive(false);
             inventoryPanel.SetActive(false);
             tooltip.SetActive(false);
-            UpdateVolumeLabel();
             AttachButtonSounds();
         }
 
@@ -126,7 +98,6 @@ namespace WWG
             AttachSound("Pause panel/Settings", TitleButtonFx.ClickSound.Ok);
             AttachSound("Pause panel/Title", TitleButtonFx.ClickSound.Cancel);
             AttachSound("Pause panel/Close", TitleButtonFx.ClickSound.Cancel);
-            AttachSound("Pause panel/Settings panel/Back", TitleButtonFx.ClickSound.Cancel);
             AttachSound("Item detail/Use", TitleButtonFx.ClickSound.Ok);
             AttachSound("Item detail/Inspect", TitleButtonFx.ClickSound.Ok);
             AttachSound("Item detail/Close", TitleButtonFx.ClickSound.Cancel);
@@ -165,9 +136,10 @@ namespace WWG
             if (SaveSlotPanel.IsOpen) return;
             bool dialogueRunning = DialogueService.Instance != null && DialogueService.Instance.IsRunning;
             if (Keyboard.current != null && Keyboard.current.escapeKey.wasPressedThisFrame &&
+                !SettingsPanelController.ConsumedEscapeThisFrame &&
                 (chapter == null || !chapter.CloseGameplayModal()) && !dialogueRunning)
             {
-                if (settingsPanel.activeSelf) CloseSettings();
+                if (SettingsPanelController.IsOpen) SettingsPanelController.CloseCurrent();
                 else if (detailPanel.activeSelf) CloseDetail();
                 else if (tooltip.activeSelf) CloseItemActions();
                 else if (inventoryPanel.activeSelf) ToggleInventory();
@@ -208,7 +180,7 @@ namespace WWG
             if (topBar != null) topBar.SetActive(!dialogueRunning && !inventoryPanel.activeSelf && (chapter == null || !GameplayModalOpen));
             if (shade != null)
             {
-                bool wantShade = pausePanel.activeSelf || detailPanel.activeSelf || inventoryPanel.activeSelf || settingsPanel.activeSelf || GameplayModalOpen;
+                bool wantShade = pausePanel.activeSelf || detailPanel.activeSelf || inventoryPanel.activeSelf || GameplayModalOpen;
                 if (shade.activeSelf != wantShade) shade.SetActive(wantShade);
             }
             if (dialogueRunning)
@@ -262,7 +234,7 @@ namespace WWG
 
         public void ClosePause()
         {
-            settingsPanel.SetActive(false);
+            SettingsPanelController.CloseCurrent();
             pausePanel.SetActive(false);
             Time.timeScale = 1f;
         }
@@ -282,29 +254,12 @@ namespace WWG
         private SaveSlotSnapshot CaptureSlot() => chapter != null ? chapter.CaptureSaveSlot() :
             s0 != null ? s0.CaptureSaveSlot() : s1 != null ? s1.CaptureSaveSlot() : null;
 
-        private void OpenSettings() { settingsPanel.SetActive(true); UpdateVolumeLabel(); }
-        private void CloseSettings() { settingsPanel.SetActive(false); }
-        private void SetVolume(float value)
+        private void OpenSettings()
         {
-            AudioListener.volume = value;
-            PlayerPrefs.SetFloat("WWG_MasterVolume", value);
-            PlayerPrefs.Save();
-            UpdateVolumeLabel();
-        }
-        private void UpdateVolumeLabel() { volumeLabel.text = "主音量  " + Mathf.RoundToInt(AudioListener.volume * 100f) + "%"; }
-
-        private void SetTextSpeed(float value)
-        {
-            PlayerPrefs.SetFloat("WWG_TextSpeed", value);
-            PlayerPrefs.Save();
-            UpdateTextSpeedLabel();
-        }
-
-        private void UpdateTextSpeedLabel()
-        {
-            if (textSpeedLabel == null) return;
-            float v = PlayerPrefs.GetFloat("WWG_TextSpeed", 30f);
-            textSpeedLabel.text = v <= 5f ? "文字速度  逐字" : "文字速度  " + Mathf.RoundToInt(v) + " 字/秒";
+            if (SettingsPanelController.IsOpen) return;
+            Canvas canvas = GetComponentInParent<Canvas>();
+            if (canvas == null) return;
+            SettingsPanelController.Open(canvas.transform);
         }
         private void ReturnToTitle() { ClosePause(); GameFlow.LoadLocation(GameFlow.TitleScene); }
         private void OpenRecord()

@@ -56,7 +56,7 @@ namespace WWG
             if (clip == null) return;
             Ensure();
             if (_source == null) return;
-            _source.PlayOneShot(clip, volume);
+            _source.PlayOneShot(clip, volume * WwgAudioSettings.SfxVolume);
         }
 
         /// <summary>光标在选项间移动（鼠标移上按钮）。</summary>

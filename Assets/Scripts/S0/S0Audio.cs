@@ -20,6 +20,7 @@ namespace WWG
         private sealed class Layer
         {
             public AudioSource src;
+            public float gain;
             public float target;
             public float fadeSpeed;
         }
@@ -59,7 +60,7 @@ namespace WWG
             go.loop = true;
             go.playOnAwake = false;
             go.spatialBlend = 0f;
-            l = new Layer { src = go, target = 0f, fadeSpeed = 0.8f };
+            l = new Layer { src = go, gain = 0f, target = 0f, fadeSpeed = 0.8f };
             layers[key] = l;
             return l;
         }
@@ -73,7 +74,7 @@ namespace WWG
             var l = GetLayer(key);
             if (l.src.clip != clip)
             {
-                l.src.clip = clip; l.src.loop = true; l.src.volume = 0f; l.src.Play();
+                l.src.clip = clip; l.src.loop = true; l.gain = 0f; l.src.volume = 0f; l.src.Play();
             }
             else if (!l.src.isPlaying)
             {
@@ -99,7 +100,7 @@ namespace WWG
             var l = GetLayer(key);
             if (volume > 0f && l.src.clip != null && !l.src.isPlaying)
             {
-                l.src.loop = true; l.src.volume = 0f; l.src.Play();
+                l.src.loop = true; l.gain = 0f; l.src.volume = 0f; l.src.Play();
             }
             l.target = volume;
             l.fadeSpeed = fadeSeconds > 0.01f ? 1f / fadeSeconds : 100f;
@@ -112,6 +113,7 @@ namespace WWG
             if (!layers.TryGetValue(key, out l)) return;
             if (l.src == null) return;
             l.target = 0f;
+            l.gain = 0f;
             l.src.volume = 0f;
             l.src.Stop();
         }
@@ -121,18 +123,20 @@ namespace WWG
             if (string.IsNullOrEmpty(resPath)) return;
             var clip = Resources.Load<AudioClip>(resPath);
             if (clip == null) { Debug.LogWarning("[S0Audio] 缺少音频：" + resPath); return; }
-            sfx.PlayOneShot(clip, volume);
+            sfx.PlayOneShot(clip, volume * WwgAudioSettings.SfxVolume);
         }
 
         private void Update()
         {
             float dt = Time.unscaledDeltaTime;
+            float music = WwgAudioSettings.MusicVolume;
             foreach (var kv in layers)
             {
                 var l = kv.Value;
                 if (l.src == null) continue;
-                l.src.volume = Mathf.MoveTowards(l.src.volume, l.target, l.fadeSpeed * dt);
-                if (l.target <= 0f && l.src.volume <= 0.001f && l.src.isPlaying) l.src.Stop();
+                l.gain = Mathf.MoveTowards(l.gain, l.target, l.fadeSpeed * dt);
+                l.src.volume = l.gain * music;
+                if (l.target <= 0f && l.gain <= 0.001f && l.src.isPlaying) l.src.Stop();
             }
         }
     }

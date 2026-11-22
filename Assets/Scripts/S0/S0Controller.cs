@@ -414,13 +414,13 @@ public sealed class S0Controller : MonoBehaviour, IDialogueContext
     {
         transitionBusy = true;
         UpdateInteractionVisibility();
-        if (deskWorkSound != null) audioSource.PlayOneShot(deskWorkSound, 0.65f);
+        if (deskWorkSound != null) audioSource.PlayOneShot(deskWorkSound, 0.65f * WwgAudioSettings.SfxVolume);
         PlayNode("S0_ClubRoom_WorkMontage");
     }
 
     private void LightsOut()
     {
-        if (breakerSound != null) audioSource.PlayOneShot(breakerSound, 0.75f);
+        if (breakerSound != null) audioSource.PlayOneShot(breakerSound, 0.75f * WwgAudioSettings.SfxVolume);
         phase = 4;
         boxFallen = false;
         ShowScreen(2);
