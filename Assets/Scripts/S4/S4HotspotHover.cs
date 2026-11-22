@@ -11,16 +11,20 @@ public sealed class S4HotspotHover : MonoBehaviour, IPointerEnterHandler, IPoint
 
     public void OnPointerEnter(PointerEventData data)
     {
-        if (hint != null) { hint.text = caption; hint.gameObject.SetActive(true); }
-        if (image != null) image.color = new Color(1f, 0.82f, 0.34f, 0.14f);
+        if (hint != null)
+        {
+            hint.text = caption;
+            hint.color = WWG.HotspotHoverStyle.Caption;
+            hint.gameObject.SetActive(true);
+        }
+        if (image != null) image.color = WWG.HotspotHoverStyle.Fill;
     }
-    public void OnPointerExit(PointerEventData data)
+    public void OnPointerExit(PointerEventData data) => Hide();
+    private void OnDisable() => Hide();
+
+    private void Hide()
     {
         if (hint != null) hint.gameObject.SetActive(false);
         if (image != null) image.color = new Color(1f, 1f, 1f, 0.001f);
-    }
-    private void OnDisable()
-    {
-        if (hint != null) hint.gameObject.SetActive(false);
     }
 }

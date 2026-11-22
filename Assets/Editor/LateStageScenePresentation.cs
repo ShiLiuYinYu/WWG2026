@@ -225,7 +225,7 @@ public static class LateStageScenePresentation
             bool night = chapter == 7;
             art.Find("Room Lower").gameObject.SetActive(night);
             art.Find("S4 Day Window").gameObject.SetActive(!night);
-            art.Find("Room Fifth Chair").gameObject.SetActive(night);
+            art.Find("Room Fifth Chair").gameObject.SetActive(true);
             art.Find("S4 Memorial Box Outline").GetComponent<Image>().enabled = false;
         }
 
@@ -235,9 +235,6 @@ public static class LateStageScenePresentation
         if (chapter == 5)
         {
             S5Controller controller = canvas.GetComponentInParent<S5Controller>();
-            AlignHotspot(controller.yuanButton, finale.yuanButton.transform);
-            AlignHotspot(controller.xuButton, finale.xuButton.transform);
-            AlignHotspot(controller.tangButton, finale.tangButton.transform);
             // The new note sits on the near edge of the same computer table.
             var note = (RectTransform)controller.ruleButton.transform;
             note.anchoredPosition = new Vector2(720f, -765f);
@@ -251,7 +248,7 @@ public static class LateStageScenePresentation
         if (chapter == 7)
         {
             S7Controller controller = canvas.GetComponentInParent<S7Controller>();
-            AlignHotspot(controller.teamButton, finale.yuanButton.transform);
+            AlignHotspot(controller.teamButton);
             AlignHotspot(controller.reviewButton, finale.computerButton.transform);
             AlignHotspot(controller.verifyButton, finale.computerButton.transform);
             AlignHotspot(controller.restButton, finale.restButton.transform);
@@ -263,13 +260,13 @@ public static class LateStageScenePresentation
             }
         }
         if (chapter == 8)
-            AlignHotspot(canvas.Find("Materials").GetComponent<Button>(), finale.yuanButton.transform);
+            AlignHotspot(canvas.Find("Materials").GetComponent<Button>());
     }
 
-    private static void AlignHotspot(Button button, Transform reference, Graphic highlight = null)
+    private static void AlignHotspot(Button button, Transform reference = null, Graphic highlight = null)
     {
         var target = (RectTransform)button.transform;
-        CopyRect(target, (RectTransform)reference);
+        if (reference != null) CopyRect(target, (RectTransform)reference);
 
         button.transition = Selectable.Transition.None;
         button.targetGraphic.color = Color.clear;

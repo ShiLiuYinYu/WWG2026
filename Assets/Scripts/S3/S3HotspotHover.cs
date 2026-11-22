@@ -11,12 +11,17 @@ public sealed class S3HotspotHover : MonoBehaviour, IPointerEnterHandler, IPoint
     private void Awake()
     {
         surface = GetComponent<Image>();
-        if (prompt != null) prompt.SetActive(false);
+        if (prompt != null)
+        {
+            if (prompt.GetComponentInChildren<Text>(true) is Text caption)
+                caption.color = WWG.HotspotHoverStyle.Caption;
+            prompt.SetActive(false);
+        }
     }
     public void OnPointerEnter(PointerEventData eventData)
     {
         if (prompt != null) prompt.SetActive(true);
-        if (surface != null) surface.color = new Color(1f, 0.82f, 0.34f, 0.12f);
+        if (surface != null) surface.color = WWG.HotspotHoverStyle.Fill;
     }
     public void OnPointerExit(PointerEventData eventData)
     {

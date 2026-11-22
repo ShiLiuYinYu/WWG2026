@@ -68,6 +68,8 @@ namespace WWG
             Application.runInBackground = true;
             ApplyFont();
             CloseAllPanels();
+            SceneHotspotInput.Install(this, () => state == null || Blocked,
+                badgeButton, rosterButton, teamButton, reviewButton, verifyButton, restButton);
             Bind("Inspect/Close", () => infoPanel.SetActive(false));
             Bind("Task record/Close", () => recordPanel.SetActive(false));
             BindButton(puzzleClose, () => puzzlePanel.SetActive(false));
@@ -155,6 +157,7 @@ namespace WWG
             if (button == null) return;
             button.onClick.RemoveAllListeners();
             button.onClick.AddListener(() => action());
+            TitleButtonFx.Attach(button);
         }
 
         // ---------------------------------------------------------------- P6 四步
@@ -451,8 +454,8 @@ namespace WWG
             if (infoPanel == null) return;
             infoTitle.text = (residue ? "【残影】" : "") + title;
             infoBody.text = body;
-            Transform badge = infoPanel.transform.Find("Badge artwork");
-            if (badge != null) badge.gameObject.SetActive(showBadge);
+            LateUi.FitBody(infoBody);
+            BadgeDetailLayout.Apply(infoPanel, infoBody, showBadge);
             infoPanel.SetActive(true);
             if (recordPanel != null) recordPanel.SetActive(false);
         }

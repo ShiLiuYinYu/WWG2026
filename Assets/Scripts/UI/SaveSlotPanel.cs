@@ -83,9 +83,7 @@ namespace WWG
         private static void Attach(Button button, TitleButtonFx.ClickSound sound)
         {
             if (button == null) return;
-            TitleButtonFx fx = button.GetComponent<TitleButtonFx>();
-            if (fx == null) fx = button.gameObject.AddComponent<TitleButtonFx>();
-            fx.SetClickSound(sound);
+            TitleButtonFx.Attach(button, animate: true).SetClickSound(sound);
         }
 
         private void OnDestroy()

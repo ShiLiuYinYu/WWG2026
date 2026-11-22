@@ -29,7 +29,7 @@ public sealed class S0Hotspot : MonoBehaviour, IPointerClickHandler, IPointerEnt
     public void OnPointerEnter(PointerEventData eventData)
     {
         if (outlineHover == null && image != null)
-            image.color = new Color(0.65f, 0.88f, 0.95f, 0.20f);
+            image.color = WWG.HotspotHoverStyle.Fill;
         Image arrow = WWG.NavigationHintLayout.FindArrow(transform);
         controller.SetHover(outlineHover == null || arrow != null ? label : "", arrow);
         WWG.UISound.Cursor();
@@ -46,6 +46,6 @@ public sealed class S0Hotspot : MonoBehaviour, IPointerClickHandler, IPointerEnt
     private void ResetHoverColor()
     {
         if (outlineHover == null && image != null)
-            image.color = new Color(0.65f, 0.88f, 0.95f, 0.005f);
+            image.color = Color.clear;
     }
 }

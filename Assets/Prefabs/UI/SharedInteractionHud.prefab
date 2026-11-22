@@ -273,6 +273,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: CornerInventoryButton
       objectReference: {fileID: 0}
+    - target: {fileID: 4141241179583954424, guid: 88d23c55cf48cef48b901882b79d5454, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 7861422669127373463, guid: 88d23c55cf48cef48b901882b79d5454, type: 3}
       propertyPath: m_Pivot.x
       value: 1

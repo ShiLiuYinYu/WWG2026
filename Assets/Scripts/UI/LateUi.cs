@@ -108,6 +108,29 @@ namespace WWG
             if (label != null) label.text = text;
         }
 
+        /// <summary>Lets long captions shrink a little instead of spilling out of the button frame.</summary>
+        public static void AutoFitCaption(Button button, int maxSize, int minSize = 16)
+        {
+            Text label = Caption(button);
+            if (label == null) return;
+            label.resizeTextForBestFit = true;
+            label.resizeTextMaxSize = maxSize;
+            label.resizeTextMinSize = minSize;
+        }
+
+        /// <summary>
+        /// Keeps a long document body inside its frame: the authored size stays the ceiling and BestFit only
+        /// steps in when the text no longer fits, so short documents keep their exact look.
+        /// </summary>
+        public static void FitBody(Text body, int minSize = 16)
+        {
+            if (body == null) return;
+            int maxSize = body.fontSize > 0 ? body.fontSize : 34;
+            body.resizeTextForBestFit = true;
+            body.resizeTextMaxSize = maxSize;
+            body.resizeTextMinSize = Mathf.Min(minSize, maxSize);
+        }
+
         public static void SetActive(Button button, bool active)
         {
             if (button != null) button.gameObject.SetActive(active);

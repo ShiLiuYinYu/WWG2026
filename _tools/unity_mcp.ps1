@@ -3,6 +3,7 @@
 param(
     [string]$Tool = "tools/list",
     [string]$ArgsJson = "{}",
+    [string]$ArgsFile = "",
     [string]$Uri = "http://127.0.0.1:8080/mcp",
     [switch]$Names,
     [string]$SchemaFor = "",
@@ -68,6 +69,7 @@ if ($Tool -eq "tools/list") {
     exit 0
 }
 
+if ($ArgsFile) { $ArgsJson = [System.IO.File]::ReadAllText($ArgsFile) }
 $argObj = $ArgsJson | ConvertFrom-Json
 $call = Invoke-Rpc "tools/call" @{ name = $Tool; arguments = $argObj }
 if ($Raw) { $call | ConvertTo-Json -Depth 40; exit 0 }

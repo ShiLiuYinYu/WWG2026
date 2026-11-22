@@ -34,9 +34,6 @@ public static class S5SceneBuilder
         Button note = Prop(canvas, "Old test note", "未核实的归队规则", 40, 300, 360, 58);
         Button computer = Prop(canvas, "Computer", "电脑", 700, 610, 260, 56);
         Button wait = Prop(canvas, "Wait for lights", "等到熄灯", 40, 430, 260, 56);
-        Button yuan = Person(canvas, "Yuan", "袁祁", 40, 640);
-        Button xu = Person(canvas, "Xu", "许圆", 40, 705);
-        Button tang = Person(canvas, "Tang", "唐澈", 40, 770);
 
         LateUi.SetActive(wait, false);
 
@@ -75,9 +72,6 @@ public static class S5SceneBuilder
         controller.ruleButton = note;
         controller.computerButton = computer;
         controller.waitButton = wait;
-        controller.yuanButton = yuan;
-        controller.xuButton = xu;
-        controller.tangButton = tang;
         controller.frameOne = frame1;
         controller.frameTwo = frame2;
         controller.frameThree = frame3;
@@ -96,10 +90,5 @@ public static class S5SceneBuilder
     {
         Button button = LateUi.Button(canvas, name, caption, x, y, w, h, 27);
         return button;
-    }
-
-    private static Button Person(Transform canvas, string name, string caption, float x, float y)
-    {
-        return LateUi.Button(canvas, name, caption, x, y, 210, 52, 26);
     }
 }

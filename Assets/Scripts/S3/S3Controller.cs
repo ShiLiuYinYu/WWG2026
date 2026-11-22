@@ -64,6 +64,7 @@ public sealed class S3Controller : MonoBehaviour, IDialogueContext
             foreach (Text label in GetComponentsInChildren<Text>(true)) label.font = font;
         infoPanel.SetActive(false); archivePanel.SetActive(false); recordPanel.SetActive(false);
         inventoryPanel.SetActive(false); pausePanel.SetActive(false);
+        inventoryPanel.GetComponent<S2InventoryGrid>().InstallSceneInput(this, () => !CanAct);
         state = pending ?? SaveSlotStore.TakeLoadedState(StoryIds.Chapter.ServerRecovery);
         development = pendingDevelopment;
         pending = null;
@@ -334,7 +335,8 @@ public sealed class S3Controller : MonoBehaviour, IDialogueContext
         if (photoView != null) photoView.Close();
         infoTitle.text = title;
         infoBody.text = body;
-        infoPanel.transform.Find("Badge artwork")?.gameObject.SetActive(showBadge);
+        LateUi.FitBody(infoBody);
+        BadgeDetailLayout.Apply(infoPanel, infoBody, showBadge);
         infoPanel.SetActive(true);
     }
     private void UpdateView()

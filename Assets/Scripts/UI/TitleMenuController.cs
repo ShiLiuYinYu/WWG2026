@@ -48,8 +48,7 @@ namespace WWG
             Button[] buttons = GetComponentsInChildren<Button>(true);
             for (int i = 0; i < buttons.Length; i++)
             {
-                var fx = buttons[i].GetComponent<TitleButtonFx>();
-                if (fx == null) fx = buttons[i].gameObject.AddComponent<TitleButtonFx>();
+                var fx = TitleButtonFx.Attach(buttons[i], animate: true);
                 if (buttons[i] == quitButton) fx.SetClickSound(TitleButtonFx.ClickSound.Cancel);
             }
         }

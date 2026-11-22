@@ -37,6 +37,7 @@ namespace WWG
             if (hintText != null)
             {
                 hintText.text = hint;
+                hintText.color = HotspotHoverStyle.Caption;
                 if (arrow != null) NavigationHintLayout.Place(hintText, arrow);
             }
         }

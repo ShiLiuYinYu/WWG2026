@@ -370,7 +370,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
   m_AnchoredPosition: {x: 460, y: -596}
-  m_SizeDelta: {x: 380, y: 76}
+  m_SizeDelta: {x: 380, y: 88}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &37555526
 MonoBehaviour:
@@ -583,14 +583,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.82, g: 0.9, b: 1, a: 0.18}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 0}
+  m_Sprite: {fileID: 21300000, guid: 1894898f13e8ebe41bcaf9b287c53f90, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -643,7 +643,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
   m_AnchoredPosition: {x: 8, y: -4}
-  m_SizeDelta: {x: 364, y: 68}
+  m_SizeDelta: {x: 364, y: 80}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &89232213
 MonoBehaviour:
@@ -667,11 +667,11 @@ MonoBehaviour:
       m_Calls: []
   m_FontData:
     m_Font: {fileID: 10102, guid: 0000000000000000e000000000000000, type: 0}
-    m_FontSize: 27
+    m_FontSize: 24
     m_FontStyle: 0
-    m_BestFit: 0
-    m_MinSize: 10
-    m_MaxSize: 40
+    m_BestFit: 1
+    m_MinSize: 16
+    m_MaxSize: 24
     m_Alignment: 4
     m_AlignByGeometry: 0
     m_RichText: 1
@@ -1593,7 +1593,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
   m_AnchoredPosition: {x: 60, y: -596}
-  m_SizeDelta: {x: 380, y: 76}
+  m_SizeDelta: {x: 380, y: 88}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &544737960
 MonoBehaviour:
@@ -3379,7 +3379,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
   m_AnchoredPosition: {x: 860, y: -596}
-  m_SizeDelta: {x: 380, y: 76}
+  m_SizeDelta: {x: 380, y: 88}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &958288285
 MonoBehaviour:
@@ -3912,19 +3912,19 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6590244049777051048, guid: ed3751d1613ce374a9e248739158e5a4, type: 3}
       propertyPath: m_AnchorMax.x
-      value: 0.86
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6590244049777051048, guid: ed3751d1613ce374a9e248739158e5a4, type: 3}
       propertyPath: m_AnchorMax.y
-      value: 0.86
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6590244049777051048, guid: ed3751d1613ce374a9e248739158e5a4, type: 3}
       propertyPath: m_AnchorMin.x
-      value: 0.14
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6590244049777051048, guid: ed3751d1613ce374a9e248739158e5a4, type: 3}
       propertyPath: m_AnchorMin.y
-      value: 0.14
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -5346,7 +5346,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
   m_AnchoredPosition: {x: 8, y: -4}
-  m_SizeDelta: {x: 364, y: 68}
+  m_SizeDelta: {x: 364, y: 80}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &1805720770
 MonoBehaviour:
@@ -5370,11 +5370,11 @@ MonoBehaviour:
       m_Calls: []
   m_FontData:
     m_Font: {fileID: 10102, guid: 0000000000000000e000000000000000, type: 0}
-    m_FontSize: 27
+    m_FontSize: 24
     m_FontStyle: 0
-    m_BestFit: 0
-    m_MinSize: 10
-    m_MaxSize: 40
+    m_BestFit: 1
+    m_MinSize: 16
+    m_MaxSize: 24
     m_Alignment: 4
     m_AlignByGeometry: 0
     m_RichText: 1
@@ -5425,7 +5425,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
   m_AnchoredPosition: {x: 8, y: -4}
-  m_SizeDelta: {x: 364, y: 68}
+  m_SizeDelta: {x: 364, y: 80}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &1863371961
 MonoBehaviour:
@@ -5449,11 +5449,11 @@ MonoBehaviour:
       m_Calls: []
   m_FontData:
     m_Font: {fileID: 10102, guid: 0000000000000000e000000000000000, type: 0}
-    m_FontSize: 27
+    m_FontSize: 24
     m_FontStyle: 0
-    m_BestFit: 0
-    m_MinSize: 10
-    m_MaxSize: 40
+    m_BestFit: 1
+    m_MinSize: 16
+    m_MaxSize: 24
     m_Alignment: 4
     m_AlignByGeometry: 0
     m_RichText: 1

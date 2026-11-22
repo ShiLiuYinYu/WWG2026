@@ -22,6 +22,7 @@ public sealed class S2InventorySlot : MonoBehaviour, IPointerEnterHandler, IPoin
     {
         if (owner == null || !owner.CanInteractWithSlots) return;
         transform.localScale = originalScale * 1.12f;
+        UISound.Cursor();
     }
     public void OnPointerExit(PointerEventData data) { transform.localScale = originalScale; }
     public void OnPointerClick(PointerEventData data)

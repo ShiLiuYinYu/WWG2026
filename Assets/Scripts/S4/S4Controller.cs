@@ -9,12 +9,11 @@ public sealed class S4Controller : MonoBehaviour, IDialogueContext
 {
     public Image roomImage;
     public Sprite dayRoomSprite;
-    public GameObject dayWindow, dayRoomUpper, blackout, endingPanel, choicePanel;
+    public GameObject dayWindow, dayRoomUpper, blackout, choicePanel;
     public Text locationText, timeText, objectiveText, recordText, inventoryText, infoTitle, infoBody;
-    public Text endingText;
     public GameObject infoPanel, recordPanel, inventoryPanel, pausePanel;
     public ClubPhotoView photoView;
-    public Button badgeButton, restButton, yuanButton, xuButton, tangButton, computerButton;
+    public Button badgeButton, restButton, computerButton;
     public VitalsBars vitals;
 
     private static GameState pending;
@@ -32,7 +31,7 @@ public sealed class S4Controller : MonoBehaviour, IDialogueContext
     private static bool DialogueRunning => DialogueService.Instance != null && DialogueService.Instance.IsRunning;
     internal bool IsInventoryBlocked => DialogueRunning || SaveSlotPanel.IsOpen || infoPanel.activeSelf ||
         recordPanel.activeSelf || pausePanel.activeSelf || choicePanel.activeSelf ||
-        blackout.activeSelf || endingPanel.activeSelf || (photoView != null && photoView.IsOpen);
+        blackout.activeSelf || (photoView != null && photoView.IsOpen);
     private bool ModalOpen => IsInventoryBlocked || inventoryPanel.activeSelf;
 
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
@@ -69,7 +68,8 @@ public sealed class S4Controller : MonoBehaviour, IDialogueContext
 
         infoPanel.SetActive(false); recordPanel.SetActive(false); inventoryPanel.SetActive(false);
         pausePanel.SetActive(false); choicePanel.SetActive(false);
-        endingPanel.SetActive(false); blackout.SetActive(false);
+        blackout.SetActive(false);
+        inventoryPanel.GetComponent<S2InventoryGrid>().InstallSceneInput(this, () => state == null || ModalOpen);
         SharedInteractionHud hud = GetComponentInChildren<SharedInteractionHud>(true);
         BindButton(hud.inventoryButton, OpenInventory);
         BindButton(hud.pauseButton, TogglePause);
@@ -83,15 +83,10 @@ public sealed class S4Controller : MonoBehaviour, IDialogueContext
         Bind("Pause/Title", ReturnTitle);
         BindButton(badgeButton, ArchiveBadge);
         BindButton(restButton, Rest);
-        BindButton(yuanButton, TalkYuan);
-        BindButton(xuButton, TalkXu);
-        BindButton(tangButton, TalkTang);
         BindButton(computerButton, UseComputer);
         Bind("S4 Choice/Together", () => SelectChoice(StoryIds.Choice.ViewTogether), "一起看 · 请队友核对画面");
         Bind("S4 Choice/Alone", () => SelectChoice(StoryIds.Choice.ViewAlone), "独自查看 · 用 U 盘载入（SAN -10）");
         Bind("S4 Choice/Close", () => choicePanel.SetActive(false));
-        Bind("S4 Ending/Title", ReturnTitle);
-        EnsureContinueButton();
 
         state = pending ?? SaveSlotStore.TakeLoadedState(StoryIds.Chapter.Finale);
         development = pendingDevelopment;
@@ -131,10 +126,10 @@ public sealed class S4Controller : MonoBehaviour, IDialogueContext
         UpdateView();
         if (!state.HasSeenDialogue("S4_Arrival") && !state.HasFlag(StoryIds.Flag.S4Rested))
             PlayNode("S4_Arrival", true);
-        else if (state.HasFlag(StoryIds.Flag.S4Finished)) ShowEnding();
+        else if (state.HasFlag(StoryIds.Flag.S4Finished)) EnterSecondHalf();
         else if (state.stepId == ViewPlaybackStep) ResumeEnding();
         else if (ReviewingView) StartViewReview();
-        else if (state.HasFlag(StoryIds.Flag.S4TangTalked)) OpenDecision();
+        else if (state.HasFlag(StoryIds.Flag.S4Rested)) PlayDayReview();
     }
 
     private void OnDestroy()
@@ -165,31 +160,53 @@ public sealed class S4Controller : MonoBehaviour, IDialogueContext
 
     private void OnDialogueCompleted(string node)
     {
-        if (node == "S4_Rest")
+        switch (node)
         {
-            blackout.SetActive(false);
-            UpdateView();
-            PlayNode("S4_DayIntro", true);
+            case "S4_Rest":
+                blackout.SetActive(false);
+                break;
+            case "S4_Yuan":
+                state.SetFlag(StoryIds.Flag.S4YuanTalked);
+                break;
+            case "S4_Xu":
+                state.SetFlag(StoryIds.Flag.S4XuTalked);
+                break;
+            case "S4_Tang":
+                state.SetFlag(StoryIds.Flag.S4TangTalked);
+                state.timeId = "saturday.1600";
+                state.stepId = "decision";
+                break;
+            case "S4_YuanWitness":
+                state.SetFlag(StoryIds.Flag.S4YuanWitness);
+                break;
+            case "S4_XuWitness":
+                state.SetFlag(StoryIds.Flag.S4XuWitness);
+                break;
+            case "S4_EndTogether":
+            case "S4_EndAlone":
+                state.SetFlag(StoryIds.Flag.S4Finished);
+                state.stepId = "demoComplete";
+                state.timeId = "saturday.1605";
+                break;
         }
-        else if (node == "S4_Tang")
-        {
-            state.timeId = "saturday.1600";
-            state.stepId = "decision";
-            Persist();
-            UpdateView();
-            PlayNode("S4_Decision", true);
-        }
-        else if (node == "S4_Decision") OpenDecision();
-        else if (node == "S4_EndTogether" || node == "S4_EndAlone")
-        {
-            state.SetFlag(StoryIds.Flag.S4Finished);
-            state.stepId = "demoComplete";
-            state.timeId = "saturday.1605";
-            Persist();
-            ShowEnding();
-        }
-        else Persist();
+        Persist();
         UpdateView();
+        if (state.HasFlag(StoryIds.Flag.S4Finished)) EnterSecondHalf();
+        else if (ReviewingView && ViewingTogether) PlayTogetherReview();
+        else if (state.HasFlag(StoryIds.Flag.S4Rested) && string.IsNullOrEmpty(state.viewChoice)) PlayDayReview();
+    }
+
+    private void PlayDayReview()
+    {
+        if (state.HasFlag(StoryIds.Flag.S4TangTalked))
+        {
+            if (state.HasSeenDialogue("S4_Decision")) OpenDecision();
+            else PlayNode("S4_Decision", true);
+        }
+        else if (!state.HasSeenDialogue("S4_DayIntro")) PlayNode("S4_DayIntro", true);
+        else if (!state.HasFlag(StoryIds.Flag.S4YuanTalked)) PlayNode("S4_Yuan");
+        else if (!state.HasFlag(StoryIds.Flag.S4XuTalked)) PlayNode("S4_Xu");
+        else PlayNode("S4_Tang");
     }
 
     public void ArchiveBadge()
@@ -226,43 +243,10 @@ public sealed class S4Controller : MonoBehaviour, IDialogueContext
         PlayNode("S4_Rest");
     }
 
-    public void TalkYuan()
-    {
-        if (ReviewingTogether()) Talk(StoryIds.Flag.S4YuanWitness, "S4_YuanWitness");
-        else Talk(StoryIds.Flag.S4YuanTalked, "S4_Yuan");
-    }
-    public void TalkXu()
-    {
-        if (ReviewingTogether()) Talk(StoryIds.Flag.S4XuWitness, "S4_XuWitness");
-        else Talk(StoryIds.Flag.S4XuTalked, "S4_Xu");
-    }
-    private bool ReviewingTogether() => state != null && ReviewingView && ViewingTogether;
-    public void TalkTang()
-    {
-        if (state == null || ModalOpen || !state.HasFlag(StoryIds.Flag.S4Rested) ||
-            state.HasFlag(StoryIds.Flag.S4TangTalked)) return;
-        if (!state.HasFlag(StoryIds.Flag.S4YuanTalked) || !state.HasFlag(StoryIds.Flag.S4XuTalked))
-        {
-            ShowInfo("白天复盘", "先和袁祁、许圆各聊一次，再去找唐澈。", false);
-            return;
-        }
-        state.SetFlag(StoryIds.Flag.S4TangTalked);
-        UpdateView();
-        PlayNode("S4_Tang");
-    }
-    private void Talk(string flag, string node)
-    {
-        if (state == null || ModalOpen || !state.HasFlag(StoryIds.Flag.S4Rested) ||
-            state.HasFlag(flag)) return;
-        state.SetFlag(flag);
-        UpdateView();
-        PlayNode(node);
-    }
-
     public void OpenDecision()
     {
         if (state == null || DialogueRunning || !state.HasFlag(StoryIds.Flag.S4TangTalked) ||
-            !string.IsNullOrEmpty(state.viewChoice) || endingPanel.activeSelf) return;
+            !string.IsNullOrEmpty(state.viewChoice)) return;
         choicePanel.SetActive(true);
     }
     private void UseComputer()
@@ -273,12 +257,7 @@ public sealed class S4Controller : MonoBehaviour, IDialogueContext
             OpenDecision();
             return;
         }
-        if (!ReviewingView) return;
-        if (ViewingTogether && !WitnessesReady)
-        {
-            ShowInfo("暂停的旧场景", "先找袁祁核对屏幕上的名单，再请许圆核对房间里的实物。", false);
-            return;
-        }
+        if (!ReviewingView || (ViewingTogether && !WitnessesReady)) return;
         if (ViewingAlone && !state.HasFlag(StoryIds.Flag.S4UsbMounted))
         {
             ShowInfo("离线预览", "从背包选中装有旧工程的 U 盘，点击「使用」，再回到电脑播放。", false);
@@ -303,7 +282,14 @@ public sealed class S4Controller : MonoBehaviour, IDialogueContext
     {
         state.stepId = ViewReviewStep;
         UpdateView();
-        PlayNode(ViewingTogether ? "S4_ReviewTogether" : "S4_ReviewAlone", true);
+        if (ViewingTogether) PlayTogetherReview();
+        else PlayNode("S4_ReviewAlone", true);
+    }
+    private void PlayTogetherReview()
+    {
+        if (!state.HasSeenDialogue("S4_ReviewTogether")) PlayNode("S4_ReviewTogether", true);
+        else if (!state.HasFlag(StoryIds.Flag.S4YuanWitness)) PlayNode("S4_YuanWitness");
+        else if (!state.HasFlag(StoryIds.Flag.S4XuWitness)) PlayNode("S4_XuWitness");
     }
     private void ResumeEnding()
     {
@@ -312,37 +298,18 @@ public sealed class S4Controller : MonoBehaviour, IDialogueContext
         blackout.SetActive(true);
         DialogueService.Ensure()?.Play(node, this, showPortraits: false);
     }
-    private void ShowEnding()
+    /// <summary>Ends the first 24H and hands straight over to S5; there is no intermediate screen.</summary>
+    private void EnterSecondHalf()
     {
-        string evidence = null;
-        if (ViewingTogether && WitnessesReady) evidence = "四人的目击记录";
-        if (ViewingAlone && state.HasFlag(StoryIds.Flag.S4UsbMounted)) evidence = "离线预览日志";
-        endingText.text = "距离 48H 结束还剩\n\n24:00:00\n前 24H 结束 · 周六 16:05";
-        if (evidence != null) endingText.text += "\n<size=40>留下证据 · " + evidence + "</size>";
+        if (state == null || !state.HasFlag(StoryIds.Flag.S4Finished)) return;
         blackout.SetActive(true);
-        endingPanel.SetActive(true);
-        if (continueButton != null) continueButton.gameObject.SetActive(true);
-    }
-
-    private Button continueButton;
-
-    /// <summary>Adds the hand-off into the second 24H at the end of either S4 ending.</summary>
-    private void EnsureContinueButton()
-    {
-        if (endingPanel == null) return;
-        Transform existing = endingPanel.transform.Find("Continue");
-        if (existing != null) continueButton = existing.GetComponent<Button>();
-        if (continueButton == null)
-            continueButton = LateUi.Button(endingPanel.transform, "Continue",
-                "继续 · 后 24H（周六 16:05）", 660, 750, 600, 78, 32);
-        BindButton(continueButton, ContinueToSecondHalf);
-        continueButton.gameObject.SetActive(false);
-    }
-
-    private void ContinueToSecondHalf()
-    {
-        if (state == null) return;
-        S5Controller.Begin(state, development);
+        try { S5Controller.Begin(state, development); }
+        catch (Exception e)
+        {
+            Debug.LogError("[S4] 无法进入后 24H：" + e.Message);
+            blackout.SetActive(false);
+            ShowInfo("无法进入后 24H", "后 24H 场景不可用：" + e.Message, false);
+        }
     }
 
     public void OpenRecord()
@@ -396,7 +363,7 @@ public sealed class S4Controller : MonoBehaviour, IDialogueContext
     }
     public void TogglePause()
     {
-        if (state == null || DialogueRunning || endingPanel.activeSelf) return;
+        if (state == null || DialogueRunning || blackout.activeSelf) return;
         if (photoView != null) photoView.Close();
         pausePanel.SetActive(!pausePanel.activeSelf);
     }
@@ -432,14 +399,8 @@ public sealed class S4Controller : MonoBehaviour, IDialogueContext
         objectiveText.text = string.Empty;
         badgeButton.gameObject.SetActive(!state.HasFlag(StoryIds.Flag.S4BadgeArchived));
         restButton.gameObject.SetActive(state.HasFlag(StoryIds.Flag.S4BadgeArchived) && !day);
-        bool togetherReview = ReviewingView && ViewingTogether;
-        yuanButton.gameObject.SetActive(day && !state.HasFlag(togetherReview ? StoryIds.Flag.S4YuanWitness : StoryIds.Flag.S4YuanTalked));
-        xuButton.gameObject.SetActive(day && !state.HasFlag(togetherReview ? StoryIds.Flag.S4XuWitness : StoryIds.Flag.S4XuTalked));
-        tangButton.gameObject.SetActive(day && !state.HasFlag(StoryIds.Flag.S4TangTalked));
         computerButton.gameObject.SetActive(day && state.HasFlag(StoryIds.Flag.S4TangTalked) &&
-            (string.IsNullOrEmpty(state.viewChoice) || ReviewingView));
-        SetHoverCaption(yuanButton, togetherReview ? "请袁祁核对名单" : "和袁祁聊聊");
-        SetHoverCaption(xuButton, togetherReview ? "请许圆核对房间细节" : "和许圆聊聊");
+            (string.IsNullOrEmpty(state.viewChoice) || (ReviewingView && (!ViewingTogether || WitnessesReady))));
         SetHoverCaption(computerButton, ReviewingView ? "播放旧场景" : "查看旧工程");
         vitals.SetSan(state.san, state.sanMax);
         vitals.SetHealth(state.health, 3);
@@ -453,7 +414,8 @@ public sealed class S4Controller : MonoBehaviour, IDialogueContext
         if (photoView != null) photoView.Close();
         infoTitle.text = (residue ? "【残影】" : "") + title;
         infoBody.text = body;
-        infoPanel.transform.Find("Badge artwork")?.gameObject.SetActive(showBadge);
+        LateUi.FitBody(infoBody);
+        BadgeDetailLayout.Apply(infoPanel, infoBody, showBadge);
         infoPanel.SetActive(true);
     }
     public void CloseInfo() => infoPanel.SetActive(false);

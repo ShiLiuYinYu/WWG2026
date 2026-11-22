@@ -14,6 +14,7 @@ public sealed class S2InventoryGrid : MonoBehaviour
     private Image inventoryBackground;
     private GameObject tooltip;
     private Text nameLabel;
+    private Text selectionLabel;
     private string selected;
     private GameObject bagButton;
     private VitalsBars vitals;
@@ -25,6 +26,13 @@ public sealed class S2InventoryGrid : MonoBehaviour
     private bool CanInteract => isActiveAndEnabled && !InventoryBlocked;
     internal bool CanInteractWithSlots => inventoryContents.activeInHierarchy && CanInteract;
     private bool CanInteractWithItemActions => tooltip.activeInHierarchy && CanInteract;
+
+    internal void InstallSceneInput(MonoBehaviour chapter, System.Func<bool> isBlocked)
+    {
+        var buttons = System.Array.ConvertAll(sceneInteractions,
+            target => target != null ? target.GetComponent<Button>() : null);
+        SceneHotspotInput.Install(chapter, isBlocked, buttons);
+    }
 
     private void Awake()
     {
@@ -45,13 +53,15 @@ public sealed class S2InventoryGrid : MonoBehaviour
         for (int i = 0; i < sceneInteractions.Length; i++)
         {
             if (sceneInteractions[i] != null)
-                sceneInteractionGroups[i] = sceneInteractions[i].AddComponent<CanvasGroup>();
+                sceneInteractionGroups[i] = SceneHotspotInput.GetOrAddGroup(sceneInteractions[i]);
         }
 
         inventoryContents = transform.Find("Bag contents").gameObject;
         inventoryBackground = GetComponent<Image>();
         tooltip = transform.Find("Tooltip").gameObject;
         nameLabel = tooltip.transform.Find("Name").GetComponent<Text>();
+        Transform selection = transform.Find("Bag contents/Selection");
+        if (selection != null) selectionLabel = selection.GetComponent<Text>();
         tooltip.transform.Find("Use").GetComponent<Button>().onClick.AddListener(Use);
         tooltip.transform.Find("Inspect").GetComponent<Button>().onClick.AddListener(Inspect);
         tooltip.transform.Find("Close").GetComponent<Button>().onClick.AddListener(CloseItemActions);
@@ -79,6 +89,7 @@ public sealed class S2InventoryGrid : MonoBehaviour
         {
             if (group == null) continue;
             group.alpha = visible ? 1f : 0f;
+            if (group.TryGetComponent<Button>(out _)) continue; // SceneHotspotInput owns these groups' input.
             group.interactable = visible;
             group.blocksRaycasts = visible;
         }
@@ -96,17 +107,24 @@ public sealed class S2InventoryGrid : MonoBehaviour
 
     private void RefreshSlots()
     {
+        bool hasAnyItem = false;
         foreach (var slot in slots)
         {
             bool owned = controller != null ? controller.HasItem(slot.item) :
                 s3Controller != null ? s3Controller.HasItem(slot.item) : s4Controller.HasItem(slot.item);
             slot.SetOccupied(owned);
+            hasAnyItem |= owned;
         }
+        if (selectionLabel == null) return;
+        selectionLabel.text = selected == null ?
+            (hasAnyItem ? "点击物品后选择使用或查看" : "暂无物品") :
+            "已选择 " + ItemName(selected) + " · 点击场景热点使用";
     }
 
     public void Select(string item)
     {
         if (!CanInteractWithSlots) return;
+        UISound.Ok();
         selected = item;
         nameLabel.text = ItemName(item);
         SetInventoryContentsVisible(false);

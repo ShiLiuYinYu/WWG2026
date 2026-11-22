@@ -143,6 +143,7 @@ public sealed class S0Controller : MonoBehaviour, IDialogueContext
 
     private void Start()
     {
+        hoverText.color = HotspotHoverStyle.Caption;
         defaultHoverPosition = hoverText.rectTransform.anchoredPosition;
         Application.runInBackground = true;
         S0Audio.Ensure(transform);
@@ -285,7 +286,7 @@ public sealed class S0Controller : MonoBehaviour, IDialogueContext
 
     internal void UpdateInteractionVisibility()
     {
-        bool visible = !IsGameplayModalOpen && !GameplayOverlay.IsInventoryOpen;
+        bool visible = !IsGameplayModalOpen && !GameplayOverlay.IsOverlayModalOpen && !GameplayOverlay.IsInventoryOpen;
         if (interactionLayers != null)
             foreach (GameObject layer in interactionLayers)
                 if (layer != null) layer.SetActive(visible);
@@ -360,7 +361,10 @@ public sealed class S0Controller : MonoBehaviour, IDialogueContext
             case "photo":
                 if (phase == 4)
                 {
+                    // S0 与 S1 是同一间活动室，切场本身没有可见反馈。
+                    // 标记 S1 在进场后直接接上纸盒对白，避免玩家以为第一次点击没生效。
                     PlayerPrefs.SetInt("WWG_S1_EnterFresh", 1);
+                    PlayerPrefs.SetInt("WWG_S1_AutoBox", 1);
                     PlayerPrefs.Save();
                     GameFlow.LoadLocation(GameFlow.S1Scene);
                 }
@@ -588,6 +592,6 @@ public sealed class S0Controller : MonoBehaviour, IDialogueContext
         else if (phase == 3) objectiveText.text = "与队友整理关卡草图";
         else if (phase == 2) objectiveText.text = AllMemories ? "回 5F 活动室" : "查看活动室、5F 走廊和 4F 连廊入口";
         else objectiveText.text = "前往单数栋 5F 游戏开发协会活动室";
-        progressText.text = phase == 4 ? (boxFallen ? "S0 完成 · 旧照片待调查" : "23:30 · 公共照明熄灭") : phase == 3 ? "时间推进中" : phase < 2 ? "开题前" : "白天记忆点 " + ((chairRead ? 1 : 0) + (signRead && timerRead ? 1 : 0) + (guideRead ? 1 : 0)) + "/3";
+        progressText.text = phase == 4 ? (boxFallen ? "旧照片待调查" : "23:30 · 公共照明熄灭") : phase == 3 ? "时间推进中" : phase < 2 ? "开题前" : "白天记忆点 " + ((chairRead ? 1 : 0) + (signRead && timerRead ? 1 : 0) + (guideRead ? 1 : 0)) + "/3";
     }
 }
