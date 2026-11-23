@@ -74,7 +74,7 @@ public static class NavigationArrowHintInstaller
                     rect.anchoredPosition = new Vector2(0f, 55f);
                     rect.sizeDelta = new Vector2(1000f, 48f);
                     caption = captionObject.GetComponent<Text>();
-                    caption.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+                    caption.font = WWG.WwgFonts.Body;
                     caption.fontSize = 26;
                     caption.alignment = TextAnchor.MiddleCenter;
                     caption.color = new Color(1f, 0.91f, 0.65f);

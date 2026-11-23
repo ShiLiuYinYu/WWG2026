@@ -34,7 +34,7 @@ public static class S2SceneBuilder
                 throw new InvalidOperationException("S2 地点已存在，停止以保护手动编辑：" + Names[i]);
         string previous = SceneManager.GetActiveScene().path;
         Directory.CreateDirectory(Folder);
-        font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+        font = WWG.WwgFonts.Body;
         for (int i = 0; i < Names.Length; i++) BuildLocation(i);
         var scenes = new List<EditorBuildSettingsScene>(EditorBuildSettings.scenes);
         foreach (string path in ScenePaths) scenes.Add(new EditorBuildSettingsScene(path, true));
@@ -164,7 +164,7 @@ public static class S2SceneBuilder
     internal static void BuildCabinetKeypad(S2Controller controller, Transform canvas)
     {
         if (canvas.Find("Cabinet keypad modal") != null) return;
-        if (font == null) font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+        if (font == null) font = WWG.WwgFonts.Body;
 
         var modal = Panel(canvas, "Cabinet keypad modal", 0, 0, 0, 0, new Color32(0, 0, 0, 150));
         var modalRect = (RectTransform)modal.transform;

@@ -78,7 +78,7 @@ public static class S4SceneBuilder
             c.locationText.gameObject.SetActive(false);
             c.timeText.gameObject.SetActive(false);
             c.objectiveText.gameObject.SetActive(false);
-            font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+            font = WWG.WwgFonts.Body;
 
             Text hover = Label(canvas, "S4 Hover hint", "", 510, 825, 900, 62, 30, Accent, TextAnchor.MiddleCenter);
             hover.gameObject.SetActive(false);

@@ -168,7 +168,7 @@ public sealed class S1Controller : MonoBehaviour, IDialogueContext
             boxFloorSize = boxRect.sizeDelta;
             boxFloorScale = boxRect.localScale;
         }
-        Font font = Font.CreateDynamicFontFromOSFont(new[] { "Microsoft YaHei", "Noto Sans CJK SC", "SimHei" }, 24);
+        Font font = WWG.WwgFonts.Body;
         if (font != null)
             foreach (Text item in GetComponentsInChildren<Text>(true)) item.font = font;
 

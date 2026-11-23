@@ -39,7 +39,7 @@ namespace WWG.EditorTools
                 return;
             }
 
-            font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+            font = WWG.WwgFonts.Body;
             trackSprite = AssetDatabase.GetBuiltinExtraResource<Sprite>("UI/Skin/Background.psd");
             knobSprite = AssetDatabase.GetBuiltinExtraResource<Sprite>("UI/Skin/Knob.psd");
 

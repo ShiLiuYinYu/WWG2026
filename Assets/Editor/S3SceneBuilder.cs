@@ -41,7 +41,7 @@ public static class S3SceneBuilder
             importer.alphaIsTransparency = true;
             importer.SaveAndReimport();
         }
-        font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+        font = WWG.WwgFonts.Body;
         Scene scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
         var camera = new GameObject("Main Camera", typeof(Camera), typeof(AudioListener));
         camera.tag = "MainCamera";

@@ -44,7 +44,7 @@ namespace WWG
             current = this;
             previousTimeScale = Time.timeScale;
             Time.timeScale = 0f;
-            Font font = Font.CreateDynamicFontFromOSFont(new[] { "Microsoft YaHei", "Noto Sans CJK SC", "SimHei" }, 25);
+            Font font = WWG.WwgFonts.Body;
             if (font != null)
                 foreach (Text label in GetComponentsInChildren<Text>(true)) label.font = font;
             for (int i = 0; i < SaveSlotStore.SlotCount; i++)

@@ -19,7 +19,7 @@ public static class SaveSlotPanelBuilder
     {
         if (File.Exists(Path)) throw new IOException("存档界面预制体已存在，请直接编辑：" + Path);
         Directory.CreateDirectory("Assets/Resources/UI");
-        font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+        font = WWG.WwgFonts.Body;
         GameObject root = new GameObject("SaveSlotPanel", typeof(RectTransform), typeof(Canvas),
             typeof(CanvasScaler), typeof(GraphicRaycaster), typeof(SaveSlotPanel));
         Canvas canvas = root.GetComponent<Canvas>();
